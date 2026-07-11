@@ -41,7 +41,7 @@ def test_visitor_page_is_served_by_fastapi(tmp_path: Path):
 
 
 def test_vue_source_contains_required_visitor_layout_and_api_calls():
-    app_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+    app_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
     chat_source = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
     session_source = Path("frontend/src/components/SessionSidebar.vue").read_text(encoding="utf-8")
     chat_composable = Path("frontend/src/composables/useChat.js").read_text(encoding="utf-8")
@@ -61,6 +61,62 @@ def test_vue_source_contains_required_visitor_layout_and_api_calls():
     assert "`/api/visitor/sessions/${currentSessionId.value}?" in session_composable
     assert ".history-side" in styles
     assert ".composer-card" in styles
+
+
+def test_visitor_router_exposes_guide_explore_and_map_views():
+    package = Path("frontend/package.json").read_text(encoding="utf-8")
+    main_source = Path("frontend/src/main.js").read_text(encoding="utf-8")
+    app_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+
+    assert '"vue-router"' in package
+    assert "createRouter" in main_source
+    assert 'path: "/visitor/guide"' in main_source
+    assert 'path: "/visitor/explore"' in main_source
+    assert 'path: "/visitor/map"' in main_source
+    assert "AI 智能导游" in app_source
+    assert "景点探索" in app_source
+    assert "互动地图" in app_source
+    assert "RouterView" in app_source
+
+
+def test_visitor_root_uses_shared_left_sidebar_navigation():
+    app_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+    page_styles = Path("frontend/src/visitor-pages.css").read_text(encoding="utf-8")
+
+    assert "visitor-sidebar" in app_source
+    assert "visitor-content-shell" in app_source
+    assert "visitor-global-header" not in app_source
+    assert app_source.count("visitor-sidebar-icon") == 3
+    assert "grid-template-columns: 232px minmax(0, 1fr)" in page_styles
+    assert "overflow-y: auto" in page_styles
+    assert "@media (max-width: 760px)" in page_styles
+
+
+def test_explore_and_map_views_contain_expected_interactions():
+    explore_source = Path("frontend/src/views/ExploreView.vue").read_text(encoding="utf-8")
+    map_source = Path("frontend/src/views/MapView.vue").read_text(encoding="utf-8")
+    drawer_source = Path("frontend/src/components/AttractionDetailDrawer.vue").read_text(encoding="utf-8")
+    map_composable = Path("frontend/src/composables/useInteractiveMap.js").read_text(encoding="utf-8")
+
+    assert 'fetch("/api/visitor/attractions")' in explore_source
+    assert "推荐景点" in explore_source
+    assert "在地图中查看" in drawer_source
+    assert "询问 AI 导游" in drawer_source
+    assert 'fetch("/api/visitor/attractions")' in map_source
+    assert 'fetch(`/api/tools/map/route?' in map_source
+    assert "起点和终点不能相同" in map_source
+    assert "AMap.Marker" in map_composable
+    assert "destroy" in map_composable
+
+
+def test_fastapi_serves_visitor_subroutes(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+
+    explore = request_path(app, "/visitor/explore")
+    map_page = request_path(app, "/visitor/map")
+
+    assert explore.status_code == 200
+    assert map_page.status_code == 200
 
 
 def test_legacy_admin_assets_are_still_served(tmp_path: Path):

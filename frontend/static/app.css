@@ -36,6 +36,156 @@ textarea {
   gap: 16px;
 }
 
+.admin-nav {
+  display: flex;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.admin-nav a {
+  border: 1px solid #cbd7dc;
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: #42515b;
+  background: #fff;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.admin-nav a.active {
+  border-color: #237468;
+  color: #155d53;
+  background: #e8f4f1;
+}
+
+.attraction-admin-shell {
+  width: min(1280px, 100%);
+}
+
+.admin-attraction-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.5fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.attraction-list-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.admin-filters,
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.admin-filters input,
+.admin-filters select,
+.form-grid input,
+.form-grid select {
+  min-height: 44px;
+  border: 1px solid #cbd7dc;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #fff;
+  font: inherit;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 7px;
+  color: #42515b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.form-grid .full-field {
+  grid-column: 1 / -1;
+}
+
+.form-grid textarea {
+  min-height: 110px;
+}
+
+.form-grid #description {
+  min-height: 190px;
+}
+
+.checkbox-field {
+  display: flex !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.checkbox-field input {
+  min-height: auto;
+  width: 18px;
+  height: 18px;
+}
+
+.attraction-actions,
+.image-manager {
+  margin-top: 18px;
+}
+
+.image-manager {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid #dce5e1;
+  padding-top: 18px;
+}
+
+.admin-attraction-item {
+  width: 100%;
+  min-height: 64px;
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  text-align: left;
+  background: #fbfcfc;
+  color: #17212b;
+  border: 1px solid #dce5e1;
+}
+
+.admin-attraction-item span {
+  color: #6a7782;
+  font-size: 12px;
+}
+
+.admin-attraction-item.active {
+  border-color: #237468;
+  background: #e8f4f1;
+}
+
+.admin-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.admin-image-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #dce5e1;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfcfc;
+}
+
+.admin-image-card img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.error-text {
+  color: #9b2c25 !important;
+}
+
 .topbar,
 .session-panel,
 .answer-panel,
@@ -466,5 +616,19 @@ button:disabled {
 
   button {
     min-height: 48px;
+  }
+
+  .admin-attraction-layout,
+  .admin-filters,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid .full-field {
+    grid-column: auto;
+  }
+
+  .attraction-list-panel {
+    position: static;
   }
 }
