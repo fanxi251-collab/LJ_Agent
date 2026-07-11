@@ -1,0 +1,20 @@
+[
+  {
+    "question": "灵境山门票多少钱？",
+    "expected_document": "灵境山综合资料.md",
+    "expected_keyword": "成人票价为 80 元",
+    "expected_category": "票务价格"
+  },
+  {
+    "question": "灵境山适合老人游玩吗？",
+    "expected_document": "灵境山综合资料.md",
+    "expected_keyword": "沿途设有休息点",
+    "expected_category": "服务设施"
+  },
+  {
+    "question": "停车后怎么游览比较顺？",
+    "expected_document": "灵境山综合资料.md",
+    "expected_keyword": "停车场",
+    "expected_category": "游览路线"
+  }
+]

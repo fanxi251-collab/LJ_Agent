@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>景区 AI 导游</title>
+    <link rel="stylesheet" href="/static/app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="chat-shell" aria-label="景区 AI 导游问答">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">LingJing AI</p>
+            <h1>景区 AI 导游</h1>
+          </div>
+          <div class="topbar-actions">
+            <label class="agent-toggle">
+              <input id="agentModeInput" type="checkbox" checked />
+              <span>智能体模式</span>
+            </label>
+            <button id="clearContextButton" class="context-button" type="button">清空上下文</button>
+            <span class="status-pill" id="serviceState">智能体在线</span>
+          </div>
+        </header>
+
+        <section class="session-panel" aria-label="历史会话">
+          <div class="section-heading">
+            <h2>历史会话</h2>
+            <div class="session-actions">
+              <button id="newSessionButton" class="context-button" type="button">新建会话</button>
+              <button id="deleteSessionButton" class="context-button danger-button" type="button">删除当前会话</button>
+            </div>
+          </div>
+          <div id="sessionList" class="session-list" aria-live="polite">
+            <button class="session-item active" type="button">当前新会话</button>
+          </div>
+        </section>
+
+        <section class="answer-panel" aria-live="polite">
+          <div class="assistant-avatar">AI</div>
+          <div class="answer-content">
+            <p class="answer-label">回答</p>
+            <div id="answerText" class="answer-text">请输入景区相关问题，我会先检索资料，再基于资料回答。</div>
+            <div class="confidence-row">
+              <span>置信度</span>
+              <strong id="confidenceText">--</strong>
+            </div>
+          </div>
+        </section>
+
+        <section id="routePanel" class="route-panel" hidden>
+          <div class="section-heading">
+            <h2>路线地图</h2>
+            <span id="routeSummary">等待路线数据</span>
+          </div>
+          <div id="routeMap" class="route-map" aria-label="高德路线地图"></div>
+          <p id="routeNotice" class="route-notice">地图加载中...</p>
+          <ol id="routeSteps" class="route-steps"></ol>
+        </section>
+
+        <form id="uploadForm" class="upload-panel">
+          <div>
+            <p class="section-kicker">知识库资料</p>
+            <h2>上传资料并自动解析</h2>
+            <p id="uploadStatus" class="upload-status">支持 UTF-8 编码的 .txt / .md 单文件。</p>
+          </div>
+          <div class="upload-actions">
+            <label class="file-picker" for="documentInput">选择资料</label>
+            <input id="documentInput" name="file" type="file" accept=".txt,.md" />
+            <button id="uploadButton" type="submit">上传入库</button>
+          </div>
+        </form>
+        <div id="uploadSuccessNotice" class="success-notice" hidden>
+          资料上传成功，已自动解析入库，可立即提问。
+        </div>
+
+        <section class="sources-panel">
+          <div class="section-heading">
+            <h2>引用来源</h2>
+            <span id="sourceCount">0 条</span>
+          </div>
+          <ul id="sourcesList" class="sources-list">
+            <li class="empty-source">暂无来源，提交问题后显示检索结果。</li>
+          </ul>
+        </section>
+
+        <form id="chatForm" class="composer">
+          <label class="sr-only" for="questionInput">输入问题</label>
+          <textarea
+            id="questionInput"
+            name="question"
+            rows="3"
+            placeholder="例如：灵境山有什么特色？"
+            required
+          ></textarea>
+          <button id="submitButton" type="submit">发送</button>
+        </form>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

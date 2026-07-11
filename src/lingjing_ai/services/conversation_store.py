@@ -1,0 +1,278 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+import json
+from pathlib import Path
+import sqlite3
+import uuid
+from typing import Any
+
+
+MAX_TITLE_CHARS = 40
+
+
+@dataclass(frozen=True)
+class ConversationSessionRecord:
+    session_id: str
+    visitor_id: str
+    title: str
+    recent_question: str
+    created_at: str
+    updated_at: str
+
+
+@dataclass(frozen=True)
+class StoredChatMessage:
+    message_id: int
+    session_id: str
+    visitor_id: str
+    role: str
+    content: str
+    trace_id: str = ""
+    sources: list[dict[str, Any]] = field(default_factory=list)
+    tool_trace: list[dict[str, Any]] = field(default_factory=list)
+    created_at: str = ""
+
+
+class ConversationStore:
+    def __init__(self, db_path: Path) -> None:
+        self.db_path = Path(db_path)
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._init_schema()
+
+    def create_session(self, visitor_id: str, first_question: str) -> ConversationSessionRecord:
+        visitor_id = _clean_id(visitor_id)
+        title = _title_from_question(first_question)
+        now = _utc_now()
+        session_id = f"sess_{uuid.uuid4().hex}"
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO conversation_sessions
+                (session_id, visitor_id, title, recent_question, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (session_id, visitor_id, title, first_question.strip(), now, now),
+            )
+        return ConversationSessionRecord(session_id, visitor_id, title, first_question.strip(), now, now)
+
+    def get_session(self, session_id: str, visitor_id: str) -> ConversationSessionRecord | None:
+        row = self._fetchone(
+            """
+            SELECT session_id, visitor_id, title, recent_question, created_at, updated_at
+            FROM conversation_sessions
+            WHERE session_id = ? AND visitor_id = ?
+            """,
+            (session_id, _clean_id(visitor_id)),
+        )
+        return _session_from_row(row) if row else None
+
+    def list_sessions(self, visitor_id: str) -> list[ConversationSessionRecord]:
+        rows = self._fetchall(
+            """
+            SELECT session_id, visitor_id, title, recent_question, created_at, updated_at
+            FROM conversation_sessions
+            WHERE visitor_id = ?
+            ORDER BY updated_at DESC
+            """,
+            (_clean_id(visitor_id),),
+        )
+        return [_session_from_row(row) for row in rows]
+
+    def append_message(
+        self,
+        session_id: str,
+        visitor_id: str,
+        role: str,
+        content: str,
+        trace_id: str = "",
+        sources: list[dict[str, Any]] | None = None,
+        tool_trace: list[dict[str, Any]] | None = None,
+    ) -> StoredChatMessage | None:
+        session = self.get_session(session_id, visitor_id)
+        if session is None:
+            return None
+        role = role if role in {"user", "assistant"} else "user"
+        content = str(content or "")
+        now = _utc_now()
+        with self._connect() as conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO chat_messages
+                (session_id, visitor_id, role, content, trace_id, sources_json, tool_trace_json, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    session_id,
+                    _clean_id(visitor_id),
+                    role,
+                    content,
+                    trace_id,
+                    json.dumps(sources or [], ensure_ascii=False),
+                    json.dumps(tool_trace or [], ensure_ascii=False),
+                    now,
+                ),
+            )
+            recent_question = content if role == "user" else session.recent_question
+            conn.execute(
+                """
+                UPDATE conversation_sessions
+                SET recent_question = ?, updated_at = ?
+                WHERE session_id = ? AND visitor_id = ?
+                """,
+                (recent_question, now, session_id, _clean_id(visitor_id)),
+            )
+            message_id = int(cursor.lastrowid)
+        return StoredChatMessage(
+            message_id=message_id,
+            session_id=session_id,
+            visitor_id=_clean_id(visitor_id),
+            role=role,
+            content=content,
+            trace_id=trace_id,
+            sources=sources or [],
+            tool_trace=tool_trace or [],
+            created_at=now,
+        )
+
+    def list_messages(self, session_id: str, visitor_id: str) -> list[StoredChatMessage]:
+        if self.get_session(session_id, visitor_id) is None:
+            return []
+        rows = self._fetchall(
+            """
+            SELECT message_id, session_id, visitor_id, role, content, trace_id,
+                   sources_json, tool_trace_json, created_at
+            FROM chat_messages
+            WHERE session_id = ? AND visitor_id = ?
+            ORDER BY message_id ASC
+            """,
+            (session_id, _clean_id(visitor_id)),
+        )
+        return [_message_from_row(row) for row in rows]
+
+    def recent_messages(self, session_id: str, visitor_id: str, limit: int = 12) -> list[StoredChatMessage]:
+        if self.get_session(session_id, visitor_id) is None:
+            return []
+        rows = self._fetchall(
+            """
+            SELECT message_id, session_id, visitor_id, role, content, trace_id,
+                   sources_json, tool_trace_json, created_at
+            FROM chat_messages
+            WHERE session_id = ? AND visitor_id = ?
+            ORDER BY message_id DESC
+            LIMIT ?
+            """,
+            (session_id, _clean_id(visitor_id), max(1, int(limit))),
+        )
+        return [_message_from_row(row) for row in reversed(rows)]
+
+    def delete_session(self, session_id: str, visitor_id: str) -> bool:
+        if self.get_session(session_id, visitor_id) is None:
+            return False
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM chat_messages WHERE session_id = ? AND visitor_id = ?",
+                (session_id, _clean_id(visitor_id)),
+            )
+            cursor = conn.execute(
+                "DELETE FROM conversation_sessions WHERE session_id = ? AND visitor_id = ?",
+                (session_id, _clean_id(visitor_id)),
+            )
+        return cursor.rowcount > 0
+
+    def _init_schema(self) -> None:
+        with self._connect() as conn:
+            # These indexes keep anonymous history lookup bounded by visitor/session,
+            # because future游客量增长时不能靠全表扫描维持上下文体验。
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS conversation_sessions (
+                    session_id TEXT PRIMARY KEY,
+                    visitor_id TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    recent_question TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS chat_messages (
+                    message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    visitor_id TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    trace_id TEXT NOT NULL DEFAULT '',
+                    sources_json TEXT NOT NULL DEFAULT '[]',
+                    tool_trace_json TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(session_id) REFERENCES conversation_sessions(session_id)
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_conversation_sessions_visitor_updated
+                    ON conversation_sessions(visitor_id, updated_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_chat_messages_session_visitor
+                    ON chat_messages(session_id, visitor_id, message_id);
+                """
+            )
+
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def _fetchone(self, sql: str, params: tuple[Any, ...]) -> sqlite3.Row | None:
+        with self._connect() as conn:
+            return conn.execute(sql, params).fetchone()
+
+    def _fetchall(self, sql: str, params: tuple[Any, ...]) -> list[sqlite3.Row]:
+        with self._connect() as conn:
+            return list(conn.execute(sql, params).fetchall())
+
+
+def _session_from_row(row: sqlite3.Row) -> ConversationSessionRecord:
+    return ConversationSessionRecord(
+        session_id=str(row["session_id"]),
+        visitor_id=str(row["visitor_id"]),
+        title=str(row["title"]),
+        recent_question=str(row["recent_question"]),
+        created_at=str(row["created_at"]),
+        updated_at=str(row["updated_at"]),
+    )
+
+
+def _message_from_row(row: sqlite3.Row) -> StoredChatMessage:
+    return StoredChatMessage(
+        message_id=int(row["message_id"]),
+        session_id=str(row["session_id"]),
+        visitor_id=str(row["visitor_id"]),
+        role=str(row["role"]),
+        content=str(row["content"]),
+        trace_id=str(row["trace_id"]),
+        sources=_safe_json_list(str(row["sources_json"])),
+        tool_trace=_safe_json_list(str(row["tool_trace_json"])),
+        created_at=str(row["created_at"]),
+    )
+
+
+def _safe_json_list(raw: str) -> list[dict[str, Any]]:
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    return value if isinstance(value, list) else []
+
+
+def _title_from_question(question: str) -> str:
+    title = " ".join(str(question or "").split())
+    if len(title) > MAX_TITLE_CHARS:
+        return title[:MAX_TITLE_CHARS].rstrip() + "..."
+    return title or "新的会话"
+
+
+def _clean_id(value: str) -> str:
+    return str(value or "").strip()
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>原始资料管理</title>
+    <link rel="stylesheet" href="/static/app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="chat-shell" aria-label="原始资料管理">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">LingJing AI Admin</p>
+            <h1>原始资料管理</h1>
+          </div>
+          <span class="status-pill" id="adminState">管理端在线</span>
+        </header>
+
+        <form id="adminUploadForm" class="upload-panel">
+          <div>
+            <p class="section-kicker">知识库资料</p>
+            <h2>上传并解析资料</h2>
+            <p id="adminUploadStatus" class="upload-status">支持 UTF-8 编码的 .txt / .md 单文件。</p>
+          </div>
+          <div class="upload-actions">
+            <label class="file-picker" for="adminDocumentInput">选择资料</label>
+            <input id="adminDocumentInput" name="file" type="file" accept=".txt,.md" />
+            <button id="adminUploadButton" type="submit">上传入库</button>
+          </div>
+        </form>
+
+        <section class="sources-panel">
+          <div class="section-heading">
+            <h2>资料列表</h2>
+            <span id="documentCount">0 个</span>
+          </div>
+          <div id="documentList" class="sources-list"></div>
+        </section>
+
+        <section class="answer-panel">
+          <div class="assistant-avatar">MD</div>
+          <div class="answer-content">
+            <p class="answer-label">原文预览</p>
+            <pre id="documentPreview" class="answer-text">选择资料后可预览原文。</pre>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/static/admin_documents.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.env
+config.yml
+logs/*.jsonl
+chroma_db/*.json
+qdrant_db/
+qdrant_probe/
+.qdrant_dim_probe/
+data/uploaded/
+data/processed/
+frontend/node_modules/
+frontend/dist/
