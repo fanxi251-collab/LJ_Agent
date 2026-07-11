@@ -1,98 +1,43 @@
 <script setup>
-import { computed, ref } from "vue";
-import ChatMain from "./components/ChatMain.vue";
-import SessionSidebar from "./components/SessionSidebar.vue";
-import SourcePanel from "./components/SourcePanel.vue";
-import UploadPanel from "./components/UploadPanel.vue";
-import RoutePanel from "./components/RoutePanel.vue";
-import { useChat } from "./composables/useChat";
-import { useSessions } from "./composables/useSessions";
-
-const agentMode = ref(true);
-const activeToolPanel = ref("sources");
-
-const sessionsApi = useSessions();
-const chatApi = useChat({
-  agentMode,
-  currentSessionId: sessionsApi.currentSessionId,
-  visitorId: sessionsApi.visitorId,
-  onSessionChanged: sessionsApi.loadSessions,
-});
-
-const toolTabs = computed(() => [
-  { id: "sources", label: `引用 ${chatApi.sources.value.length}` },
-  { id: "upload", label: "资料上传" },
-  { id: "route", label: chatApi.hasRouteSource.value ? "路线地图" : "路线" },
-]);
-
-async function loadSession(sessionId) {
-  const messages = await sessionsApi.loadSessionMessages(sessionId);
-  chatApi.restoreMessages(messages);
-}
-
-function startNewSession() {
-  sessionsApi.startNewSession();
-  chatApi.resetConversation("已开启新会话，请输入新的问题。");
-}
-
-async function deleteCurrentSession() {
-  const deleted = await sessionsApi.deleteCurrentSession();
-  if (deleted) {
-    chatApi.resetConversation("当前会话已删除，可以开始新的提问。");
-  }
-}
+import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-  <main class="visitor-layout">
-    <section class="chat-area">
-      <ChatMain
-        v-model:agent-mode="agentMode"
-        :answer="chatApi.answer.value"
-        :confidence="chatApi.confidence.value"
-        :is-loading="chatApi.isLoading.value"
-        :service-state="chatApi.serviceState.value"
-        @ask="chatApi.ask"
-        @clear-context="chatApi.clearContext"
-      />
-
-      <section class="tool-dock" aria-label="辅助信息">
-        <div class="tool-tabs">
-          <button
-            v-for="tab in toolTabs"
-            :key="tab.id"
-            type="button"
-            :class="{ active: activeToolPanel === tab.id }"
-            @click="activeToolPanel = tab.id"
-          >
-            {{ tab.label }}
-          </button>
-        </div>
-
-        <SourcePanel
-          v-show="activeToolPanel === 'sources'"
-          :sources="chatApi.sources.value"
-        />
-        <UploadPanel
-          v-show="activeToolPanel === 'upload'"
-          @uploaded="chatApi.markKnowledgeUpdated"
-        />
-        <RoutePanel
-          v-show="activeToolPanel === 'route'"
-          :sources="chatApi.sources.value"
-        />
-      </section>
-    </section>
-
-    <aside class="history-side" aria-label="历史会话">
-      <SessionSidebar
-        :sessions="sessionsApi.sessions.value"
-        :current-session-id="sessionsApi.currentSessionId.value"
-        :status="sessionsApi.status.value"
-        @new-session="startNewSession"
-        @load-session="loadSession"
-        @delete-current-session="deleteCurrentSession"
-      />
+  <div class="visitor-app-shell">
+    <aside class="visitor-sidebar">
+      <RouterLink class="visitor-brand" to="/visitor/guide">
+        <span class="visitor-brand-mark">灵</span>
+        <span class="visitor-brand-copy">
+          <strong>LingJing AI</strong>
+          <small>灵山胜境智慧游览</small>
+        </span>
+      </RouterLink>
+      <nav class="visitor-sidebar-nav" aria-label="游客端导航">
+        <RouterLink class="visitor-sidebar-link" to="/visitor/guide" aria-label="AI 智能导游">
+          <svg class="visitor-sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16v12H8l-4 3V5Z" />
+            <path d="M8 9h8M8 13h5" />
+          </svg>
+          <span>AI 智能导游</span>
+        </RouterLink>
+        <RouterLink class="visitor-sidebar-link" to="/visitor/explore" aria-label="景点探索">
+          <svg class="visitor-sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="17" cy="6" r="2" />
+            <path d="m3 19 6-10 4 6 2-3 6 7H3Z" />
+          </svg>
+          <span>景点探索</span>
+        </RouterLink>
+        <RouterLink class="visitor-sidebar-link" to="/visitor/map" aria-label="互动地图">
+          <svg class="visitor-sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
+            <path d="M9 3v15M15 6v15" />
+          </svg>
+          <span>互动地图</span>
+        </RouterLink>
+      </nav>
     </aside>
-  </main>
+    <section class="visitor-content-shell">
+      <RouterView />
+    </section>
+  </div>
 </template>
