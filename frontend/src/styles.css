@@ -477,6 +477,36 @@ input[type="file"] {
 }
 
 @media (max-width: 900px) {
+  .visitor-global-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-top: 14px;
+    padding-bottom: 12px;
+  }
+
+  .visitor-global-nav {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .interactive-map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-sidebar {
+    grid-template-rows: auto auto;
+  }
+
+  .map-attraction-list {
+    grid-auto-flow: column;
+    grid-auto-columns: 240px;
+    overflow-x: auto;
+  }
+
+  .attraction-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .visitor-layout {
     grid-template-columns: 1fr;
   }
@@ -505,6 +535,40 @@ input[type="file"] {
 }
 
 @media (max-width: 640px) {
+  .content-view {
+    width: min(100% - 24px, 1240px);
+    padding-top: 18px;
+  }
+
+  .visitor-global-nav a {
+    white-space: nowrap;
+  }
+
+  .explore-hero,
+  .map-intro,
+  .view-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .explore-stat {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .explore-toolbar,
+  .attraction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-selected-card {
+    grid-template-columns: 88px 1fr;
+  }
+
+  .map-selected-card img {
+    width: 88px;
+  }
+
   .chat-main {
     gap: 18px;
     padding: 18px 14px;

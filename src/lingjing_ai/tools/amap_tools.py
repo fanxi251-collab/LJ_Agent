@@ -150,7 +150,13 @@ class AmapRouteTool:
         self.client = client or _build_client(settings)
         self.cache = cache or _build_cache(settings)
 
-    def run(self, question: str, mode: str | None = None) -> ToolResult:
+    def run(
+        self,
+        question: str,
+        mode: str | None = None,
+        origin_location: str = "",
+        destination_location: str = "",
+    ) -> ToolResult:
         if self.client is None:
             return ToolResult(status="disabled", message="高德地图 API 未配置，请设置 MAP_API。")
 
@@ -163,15 +169,19 @@ class AmapRouteTool:
         origin, destination = route_points
 
         route_mode = _normalize_route_mode(mode or _extract_route_mode(question, self.settings.amap_route_default_mode))
-        cache_key = f"amap:route:{route_mode}:{origin}:{destination}"
+        cache_key = (
+            f"amap:route:{route_mode}:{origin}:{destination}:"
+            f"{origin_location}:{destination_location}"
+        )
         cached = _get_cached_tool_result(self.cache, cache_key)
         if cached is not None:
             return cached
         try:
-            origin_geo = self.client.geocode(origin)
-            destination_geo = self.client.geocode(destination)
-            origin_location = _first_geocode_location(origin_geo)
-            destination_location = _first_geocode_location(destination_geo)
+            if not origin_location or not destination_location:
+                origin_geo = self.client.geocode(origin)
+                destination_geo = self.client.geocode(destination)
+                origin_location = _first_geocode_location(origin_geo)
+                destination_location = _first_geocode_location(destination_geo)
             if not origin_location or not destination_location:
                 return ToolResult(status="empty", message="未查到起点或终点坐标。")
             if route_mode == "walking":

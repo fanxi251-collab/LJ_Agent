@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from lingjing_ai.api.attraction_routes import build_attraction_router
 from lingjing_ai.agent.executor import AgentExecutor
 from lingjing_ai.agent.langgraph_executor import LangGraphAgentExecutor
 from lingjing_ai.agent.models import AgentAnswer, ToolTrace
@@ -20,6 +21,7 @@ from lingjing_ai.services.conversation_store import (
     ConversationStore,
     StoredChatMessage,
 )
+from lingjing_ai.services.attraction_store import AttractionStore
 from lingjing_ai.services.question_expansion import QwenQuestionExpander
 from lingjing_ai.tools.amap_tools import AmapPlaceSearchTool, AmapRouteTool, AmapWeatherTool
 from lingjing_ai.tools.document_search_tool import DocumentSearchTool
@@ -183,7 +185,7 @@ class StreamTurnState:
     trace_id: str = ""
 
 
-def create_app(pipeline: RagPipeline) -> FastAPI:
+def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     app = FastAPI(title="LingJing AI RAG API")
     agent_executor = _build_agent_executor(pipeline)
     question_expander = _build_question_expander(pipeline)
@@ -192,7 +194,19 @@ def create_app(pipeline: RagPipeline) -> FastAPI:
     visitor_dist_dir = frontend_dir / "dist"
     visitor_assets_dir = visitor_dist_dir / "assets"
     static_dir = frontend_dir / "static"
+    attraction_image_dir = pipeline.settings.data_dir / "attraction_images"
+    attraction_store = AttractionStore(
+        pipeline.settings.data_dir / "attractions.db",
+        attraction_image_dir,
+        seed_on_empty=seed_attractions,
+    )
+    app.include_router(build_attraction_router(attraction_store))
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    app.mount(
+        "/media/attractions",
+        StaticFiles(directory=attraction_image_dir),
+        name="attraction_images",
+    )
     if visitor_assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=visitor_assets_dir), name="visitor_assets")
 
@@ -203,9 +217,22 @@ def create_app(pipeline: RagPipeline) -> FastAPI:
             return FileResponse(dist_index)
         return HTMLResponse(_visitor_build_hint_html())
 
+    @app.get("/visitor/{page}")
+    def visitor_subpage(page: str):
+        if page not in {"guide", "explore", "map"}:
+            raise HTTPException(status_code=404, detail="游客页面不存在。")
+        dist_index = visitor_dist_dir / "index.html"
+        if dist_index.is_file():
+            return FileResponse(dist_index)
+        return HTMLResponse(_visitor_build_hint_html())
+
     @app.get("/admin/documents", response_class=FileResponse)
     def admin_documents_page() -> FileResponse:
         return FileResponse(frontend_dir / "admin_documents.html")
+
+    @app.get("/admin/attractions", response_class=FileResponse)
+    def admin_attractions_page() -> FileResponse:
+        return FileResponse(frontend_dir / "admin_attractions.html")
 
     @app.post("/api/rag/chat", response_model=ChatResponse)
     def chat(request: ChatRequest) -> ChatResponse:
@@ -277,8 +304,19 @@ def create_app(pipeline: RagPipeline) -> FastAPI:
         )
 
     @app.get("/api/tools/map/route", response_model=ToolQueryResponse)
-    def query_map_route(origin: str, destination: str, mode: str = "") -> ToolQueryResponse:
-        result = AmapRouteTool(pipeline.settings).run(f"从{origin}到{destination}怎么走", mode=mode)
+    def query_map_route(
+        origin: str,
+        destination: str,
+        mode: str = "",
+        origin_location: str = "",
+        destination_location: str = "",
+    ) -> ToolQueryResponse:
+        result = AmapRouteTool(pipeline.settings).run(
+            f"从{origin}到{destination}怎么走",
+            mode=mode,
+            origin_location=origin_location,
+            destination_location=destination_location,
+        )
         return _to_tool_query_response(result)
 
     @app.get("/api/visitor/sessions", response_model=VisitorSessionListResponse)

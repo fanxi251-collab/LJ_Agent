@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>景点资料管理</title>
+    <link rel="stylesheet" href="/static/app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="chat-shell attraction-admin-shell" aria-label="景点资料管理">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">LingJing AI Admin</p>
+            <h1>景点资料管理</h1>
+          </div>
+          <span class="status-pill" id="adminState">管理端在线</span>
+        </header>
+
+        <nav class="admin-nav" aria-label="管理端导航">
+          <a href="/admin/documents">知识库资料</a>
+          <a class="active" href="/admin/attractions">景点资料</a>
+        </nav>
+
+        <section class="admin-attraction-layout">
+          <aside class="sources-panel attraction-list-panel">
+            <div class="section-heading">
+              <h2>景点列表</h2>
+              <button id="newAttractionButton" type="button">新建景点</button>
+            </div>
+            <div class="admin-filters">
+              <input id="attractionSearch" type="search" placeholder="搜索景点名称" />
+              <select id="statusFilter">
+                <option value="">全部状态</option>
+                <option value="draft">草稿</option>
+                <option value="published">已发布</option>
+                <option value="archived">已归档</option>
+              </select>
+            </div>
+            <div id="attractionList" class="sources-list"></div>
+          </aside>
+
+          <form id="attractionForm" class="sources-panel attraction-form">
+            <div class="section-heading">
+              <h2 id="formTitle">新建景点</h2>
+              <span id="formStatus">尚未保存</span>
+            </div>
+            <input id="attractionId" type="hidden" />
+            <div class="form-grid">
+              <label>名称<input id="name" required maxlength="120" /></label>
+              <label>分类<input id="category" maxlength="80" /></label>
+              <label class="full-field">摘要<textarea id="summary" required maxlength="500"></textarea></label>
+              <label class="full-field">详细正文<textarea id="description" required maxlength="10000"></textarea></label>
+              <label class="full-field">标签（逗号分隔）<input id="tags" /></label>
+              <label class="full-field">地址<input id="address" maxlength="300" /></label>
+              <label>开放时间<input id="openingHours" maxlength="300" /></label>
+              <label>建议时长（分钟）<input id="duration" type="number" min="0" max="1440" value="45" /></label>
+              <label>经度<input id="longitude" type="number" step="0.000001" min="-180" max="180" required /></label>
+              <label>纬度<input id="latitude" type="number" step="0.000001" min="-90" max="90" required /></label>
+              <label>排序值<input id="sortOrder" type="number" value="0" /></label>
+              <label>状态
+                <select id="status"><option value="draft">草稿</option><option value="published">已发布</option><option value="archived">已归档</option></select>
+              </label>
+              <label class="checkbox-field"><input id="featured" type="checkbox" />推荐景点</label>
+            </div>
+            <div class="upload-actions attraction-actions">
+              <button id="placeSearchButton" type="button">高德补全坐标</button>
+              <button type="submit">保存景点</button>
+              <button id="archiveButton" class="danger-button" type="button">归档景点</button>
+            </div>
+
+            <section class="image-manager">
+              <div class="section-heading"><h2>景点图片</h2><span>单张最大 5 MB</span></div>
+              <div class="upload-actions">
+                <label class="file-picker" for="imageInput">选择图片</label>
+                <input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                <label class="checkbox-field"><input id="imageIsCover" type="checkbox" />设为封面</label>
+                <button id="uploadImageButton" type="button">上传图片</button>
+              </div>
+              <div id="imageList" class="admin-image-grid"></div>
+            </section>
+          </form>
+        </section>
+      </section>
+    </main>
+    <script src="/static/admin_attractions.js"></script>
+  </body>
+</html>

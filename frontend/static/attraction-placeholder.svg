@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-label="灵山胜境图片占位">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7f2ec"/><stop offset="1" stop-color="#f4e4c7"/></linearGradient></defs>
+  <rect width="960" height="600" fill="url(#sky)"/>
+  <path d="M0 450 180 300l120 90 180-210 160 170 120-100 200 200v150H0Z" fill="#87aa96" opacity=".78"/>
+  <circle cx="760" cy="135" r="64" fill="#d5a44e" opacity=".75"/>
+  <text x="480" y="525" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="42" fill="#23483f">灵山胜境</text>
+</svg>

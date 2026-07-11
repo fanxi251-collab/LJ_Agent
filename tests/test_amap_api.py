@@ -178,3 +178,50 @@ def test_map_route_api_returns_amap_route_result(tmp_path: Path, monkeypatch):
     assert "约42.0公里" in body["content"]
     assert body["data"]["route_summary"]["mode"] == "driving"
     assert body["data"]["route_summary"]["polyline"] == ["120.305,31.590", "120.200,31.550", "120.100,31.500"]
+
+
+def test_map_route_api_uses_structured_locations_without_geocoding(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("MAP_API", "map-key")
+    requested_paths = []
+
+    def fake_get(url, params, timeout):
+        requested_paths.append(url)
+        assert params["origin"] == "120.102248,31.421749"
+        assert params["destination"] == "120.096477,31.430194"
+        return FakeResponse(
+            {
+                "status": "1",
+                "route": {
+                    "paths": [
+                        {
+                            "distance": "1200",
+                            "duration": "900",
+                            "steps": [{"instruction": "沿景区步道前行", "polyline": "120.102248,31.421749;120.096477,31.430194"}],
+                        }
+                    ]
+                },
+            }
+        )
+
+    monkeypatch.setattr(httpx, "get", fake_get)
+    app = create_app(build_pipeline(tmp_path))
+
+    async def request() -> httpx.Response:
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+            return await client.get(
+                "/api/tools/map/route",
+                params={
+                    "origin": "五明桥",
+                    "destination": "灵山大佛",
+                    "origin_location": "120.102248,31.421749",
+                    "destination_location": "120.096477,31.430194",
+                    "mode": "walking",
+                },
+            )
+
+    response = asyncio.run(request())
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert all("/v3/geocode/geo" not in path for path in requested_paths)
