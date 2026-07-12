@@ -15,3 +15,5 @@ data/*.db
 data/attraction_images/
 frontend/node_modules/
 frontend/dist/
+景点景区旅游数据行为分析数据.xlsx
+data/tourism_analytics_snapshot.json

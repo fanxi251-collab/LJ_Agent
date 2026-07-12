@@ -7,6 +7,9 @@ name = "lingjing-ai"
 version = "0.1.0"
 description = "LingJing AI scenic RAG and agent backend"
 requires-python = ">=3.10"
+dependencies = [
+    "openpyxl>=3.1,<4",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

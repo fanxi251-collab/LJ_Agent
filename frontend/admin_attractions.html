@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>景点资料管理</title>
     <link rel="stylesheet" href="/static/app.css" />
+    <link rel="stylesheet" href="/static/admin.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="chat-shell attraction-admin-shell" aria-label="景点资料管理">
+    <div class="admin-app-shell">
+      <aside class="admin-sidebar">
+        <div class="admin-brand">
+          <div class="admin-brand-mark">LJ</div>
+          <div><strong>LingJing AI</strong><span>管理中心</span></div>
+        </div>
+        <nav class="admin-sidebar-nav" aria-label="管理端导航">
+          <a class="admin-nav-item" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客分析</span></a>
+          <a class="admin-nav-item active" href="/admin/attractions"><svg viewBox="0 0 24 24"><path d="m3 20 6-10 4 6 3-4 5 8H3Z" /><path d="M15 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /></svg><span>景点资料</span></a>
+          <a class="admin-nav-item" href="/admin/documents"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z" /><path d="M14 3v4h4M9 12h6m-6 4h6" /></svg><span>知识库资料</span></a>
+        </nav>
+        <p class="admin-sidebar-note">比赛演示环境<br />结构化内容与游客洞察中心</p>
+      </aside>
+      <main class="admin-main">
+        <div class="admin-main-scroll">
+          <section class="chat-shell attraction-admin-shell" aria-label="景点资料管理">
         <header class="topbar">
           <div>
             <p class="eyebrow">LingJing AI Admin</p>
@@ -16,11 +31,6 @@
           </div>
           <span class="status-pill" id="adminState">管理端在线</span>
         </header>
-
-        <nav class="admin-nav" aria-label="管理端导航">
-          <a href="/admin/documents">知识库资料</a>
-          <a class="active" href="/admin/attractions">景点资料</a>
-        </nav>
 
         <section class="admin-attraction-layout">
           <aside class="sources-panel attraction-list-panel">
@@ -81,8 +91,10 @@
             </section>
           </form>
         </section>
-      </section>
-    </main>
+          </section>
+        </div>
+      </main>
+    </div>
     <script src="/static/admin_attractions.js"></script>
   </body>
 </html>

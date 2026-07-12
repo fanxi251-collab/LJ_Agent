@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from lingjing_ai.api.analytics_routes import build_analytics_router
 from lingjing_ai.api.attraction_routes import build_attraction_router
 from lingjing_ai.agent.executor import AgentExecutor
 from lingjing_ai.agent.langgraph_executor import LangGraphAgentExecutor
@@ -22,6 +23,7 @@ from lingjing_ai.services.conversation_store import (
     StoredChatMessage,
 )
 from lingjing_ai.services.attraction_store import AttractionStore
+from lingjing_ai.services.analytics_snapshot import AnalyticsSnapshotStore
 from lingjing_ai.services.question_expansion import QwenQuestionExpander
 from lingjing_ai.tools.amap_tools import AmapPlaceSearchTool, AmapRouteTool, AmapWeatherTool
 from lingjing_ai.tools.document_search_tool import DocumentSearchTool
@@ -201,6 +203,10 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         seed_on_empty=seed_attractions,
     )
     app.include_router(build_attraction_router(attraction_store))
+    analytics_store = AnalyticsSnapshotStore(
+        pipeline.settings.data_dir / "tourism_analytics_snapshot.json"
+    )
+    app.include_router(build_analytics_router(analytics_store))
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
     app.mount(
         "/media/attractions",
@@ -233,6 +239,10 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     @app.get("/admin/attractions", response_class=FileResponse)
     def admin_attractions_page() -> FileResponse:
         return FileResponse(frontend_dir / "admin_attractions.html")
+
+    @app.get("/admin/analytics", response_class=FileResponse)
+    def admin_analytics_page() -> FileResponse:
+        return FileResponse(frontend_dir / "admin_analytics.html")
 
     @app.post("/api/rag/chat", response_model=ChatResponse)
     def chat(request: ChatRequest) -> ChatResponse:

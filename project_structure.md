@@ -28,6 +28,8 @@ python -m pip install -e .
 
 - 游客端页面：`/visitor`
 - 管理端资料页面：`/admin/documents`
+- 管理端景点页面：`/admin/attractions`
+- 管理端游客分析：`/admin/analytics`
 - 静态 JS 和 CSS：`frontend/static/`
 
 ### `data/`
@@ -36,6 +38,7 @@ python -m pip install -e .
 
 - `uploaded/`：前端或脚本上传后的 `.txt` / `.md` 资料。
 - `document_manifest.json`：资料清单，记录文档 ID、路径、MD5、切片数等。
+- `tourism_analytics_snapshot.json`：由本地 Excel 生成且不提交 Git 的游客分析快照。
 
 ### `qdrant_db/`
 
