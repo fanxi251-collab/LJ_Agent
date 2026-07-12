@@ -104,4 +104,5 @@ def test_admin_analytics_reveals_dashboard_before_initializing_charts(tmp_path: 
     script = request_path(app, "/static/admin_analytics.js")
 
     success_sequence = "dashboard = data;\n    showDashboard();\n    renderDashboard(data);"
-    assert success_sequence in script.text
+    normalized_script = script.text.replace("\r\n", "\n")
+    assert success_sequence in normalized_script
