@@ -9,3 +9,14 @@ python scripts\import_document.py "data\uploaded\景区资料.md" --workspace ".
 ```
 
 脚本会读取一个明确的资料文件，复制到 `data/uploaded/`，切片并写入 `qdrant_db/`。
+
+## 生成游客分析快照
+
+```powershell
+python scripts\build_tourism_analytics_snapshot.py `
+  --input "景点景区旅游数据行为分析数据.xlsx" `
+  --output "data\tourism_analytics_snapshot.json"
+```
+
+脚本会校验17个必需字段并生成脱敏的年度固定统计快照。原始 Excel、游客昵称、游客 ID
+和景点长正文不会进入 Git；快照生成失败时会保留上一次有效输出，避免管理端读取半成品。

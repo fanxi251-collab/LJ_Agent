@@ -1,6 +1,6 @@
 # LingJing_AI 项目环境要求
 
-当前时间：2026-07-11  Asia/Shanghai
+当前时间：2026-07-12  Asia/Shanghai
 
 ## 1. 基础运行环境
 
@@ -19,7 +19,7 @@ python -m pip install -e .
 项目当前没有单独的 `requirements.txt`，接手开发者可先在 Conda 环境中安装以下依赖：
 
 ```powershell
-python -m pip install fastapi "uvicorn[standard]" python-multipart pydantic httpx qdrant-client PyYAML pytest
+python -m pip install fastapi "uvicorn[standard]" python-multipart pydantic httpx qdrant-client PyYAML pytest openpyxl
 ```
 
 如果启用完整增强能力，继续安装：
@@ -37,6 +37,7 @@ python -m pip install redis neo4j langgraph
 - `qdrant-client`：本地 Qdrant 向量数据库，数据目录为 `qdrant_db/`。
 - `PyYAML`：读取 `config.yml`；未安装时项目有简易 YAML 读取兜底，但推荐安装。
 - `pytest`：测试。
+- `openpyxl`：以只读模式校验旅游行为 Excel 并生成固定分析快照。
 - `redis`：启用 Redis 缓存时需要。
 - `neo4j`：启用知识图谱时需要。
 - `langgraph`：`AGENT_EXECUTOR_MODE=langgraph` 时需要。

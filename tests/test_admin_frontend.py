@@ -62,3 +62,46 @@ def test_admin_attractions_page_and_crud_assets_are_served(tmp_path: Path):
     assert 'fetch(`/api/admin/attractions/${attractionId}/images?' in script.text
     assert 'fetch("/api/tools/map/search?' in script.text
     assert "景点已归档" in script.text
+
+
+def test_all_admin_pages_share_sidebar_navigation(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+
+    for path in ("/admin/analytics", "/admin/attractions", "/admin/documents"):
+        page = request_path(app, path)
+
+        assert page.status_code == 200
+        assert "LingJing AI" in page.text
+        assert 'class="admin-sidebar"' in page.text
+        assert 'href="/admin/analytics"' in page.text
+        assert 'href="/admin/attractions"' in page.text
+        assert 'href="/admin/documents"' in page.text
+        assert f'class="admin-nav-item active" href="{path}"' in page.text
+        assert "/static/admin.css" in page.text
+
+
+def test_admin_analytics_page_and_local_chart_assets_are_served(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+
+    page = request_path(app, "/admin/analytics")
+    script = request_path(app, "/static/admin_analytics.js")
+    charts = request_path(app, "/static/vendor/echarts.min.js")
+
+    assert page.status_code == 200
+    assert "游客数据分析" in page.text
+    assert "/static/vendor/echarts.min.js" in page.text
+    assert "/static/admin_analytics.js" in page.text
+    assert script.status_code == 200
+    assert 'fetch("/api/admin/analytics/dashboard")' in script.text
+    assert "response.status === 503" in script.text
+    assert "retryButton" in script.text
+    assert "window.echarts" in script.text
+    assert charts.status_code == 200
+
+
+def test_admin_analytics_reveals_dashboard_before_initializing_charts(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+    script = request_path(app, "/static/admin_analytics.js")
+
+    success_sequence = "dashboard = data;\n    showDashboard();\n    renderDashboard(data);"
+    assert success_sequence in script.text

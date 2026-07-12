@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>游客数据分析</title>
+    <link rel="stylesheet" href="/static/app.css" />
+    <link rel="stylesheet" href="/static/admin.css" />
+  </head>
+  <body>
+    <div class="admin-app-shell">
+      <aside class="admin-sidebar">
+        <div class="admin-brand">
+          <div class="admin-brand-mark">LJ</div>
+          <div><strong>LingJing AI</strong><span>管理中心</span></div>
+        </div>
+        <nav class="admin-sidebar-nav" aria-label="管理端导航">
+          <a class="admin-nav-item active" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客分析</span></a>
+          <a class="admin-nav-item" href="/admin/attractions"><svg viewBox="0 0 24 24"><path d="m3 20 6-10 4 6 3-4 5 8H3Z" /><path d="M15 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /></svg><span>景点资料</span></a>
+          <a class="admin-nav-item" href="/admin/documents"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z" /><path d="M14 3v4h4M9 12h6m-6 4h6" /></svg><span>知识库资料</span></a>
+        </nav>
+        <p class="admin-sidebar-note">比赛演示环境<br />结构化内容与游客洞察中心</p>
+      </aside>
+
+      <main class="admin-main">
+        <div class="admin-main-scroll analytics-shell">
+          <header class="analytics-header">
+            <div class="analytics-title">
+              <p class="eyebrow">Tourism Intelligence</p>
+              <h1>游客数据分析</h1>
+              <p>以年度静态示例数据呈现游客画像、游览偏好、消费结构与满意度洞察。</p>
+            </div>
+            <div class="analytics-meta-badges">
+              <span class="analytics-badge">静态示例数据</span>
+              <span class="analytics-badge" id="periodBadge">统计周期加载中</span>
+              <span class="analytics-badge" id="qualityBadge">数据质量检查中</span>
+            </div>
+          </header>
+
+          <section class="analytics-state" id="loadingState">正在加载年度游客分析快照…</section>
+          <section class="analytics-state" id="errorState" hidden>
+            <strong id="errorTitle">游客分析暂不可用</strong>
+            <p id="errorMessage"></p>
+            <code id="buildCommand" hidden></code>
+            <button id="retryButton" type="button">重新加载</button>
+          </section>
+
+          <div class="analytics-content" id="dashboardContent" hidden>
+            <section class="kpi-grid" id="kpiGrid" aria-label="核心指标"></section>
+
+            <p class="chart-fallback" id="chartFallback" hidden>
+              本地图表资源加载失败，当前仍可查看指标、排行榜、洞察和数据质量。
+            </p>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading">
+                <div><h2>年度客流趋势</h2><p>按月份观察游览记录变化与高峰月份。</p></div>
+                <span class="analytics-badge" id="generatedAt">快照时间加载中</span>
+              </div>
+              <div class="chart tall" id="monthlyChart" role="img" aria-label="月度游览趋势图"></div>
+            </section>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading">
+                <div><h2>游客画像</h2><p>年龄、性别、同行规模和多次访问情况。</p></div>
+              </div>
+              <div class="chart-grid-3">
+                <article class="chart-panel"><h3>年龄段分布</h3><div class="chart" id="ageChart"></div></article>
+                <article class="chart-panel"><h3>性别分布</h3><div class="chart" id="genderChart"></div></article>
+                <article class="chart-panel"><h3>同行人数</h3><div class="chart" id="groupChart"></div></article>
+              </div>
+              <div class="repeat-rate"><span>多次访问游客占比</span><strong id="repeatRate">--</strong></div>
+            </section>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading">
+                <div><h2>景点偏好与运营排行</h2><p>从热度、消费、停留和口碑识别重点景点。</p></div>
+              </div>
+              <div class="chart-grid-2">
+                <article class="chart-panel"><h3>景点类型访问量</h3><div class="chart tall" id="typeChart"></div></article>
+                <article class="chart-panel">
+                  <div class="ranking-tabs" id="rankingTabs"></div>
+                  <div class="ranking-table-wrap"><table class="ranking-table"><thead><tr><th>#</th><th>景点</th><th>类型</th><th>访问量</th><th id="metricHeading">核心指标</th></tr></thead><tbody id="rankingBody"></tbody></table></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading">
+                <div><h2>游客消费分析</h2><p>展示游客消费构成，不代表景区营收。</p></div>
+              </div>
+              <div class="chart-grid-2">
+                <article class="chart-panel"><h3>五类消费构成</h3><div class="chart tall" id="consumptionChart"></div></article>
+                <article class="chart-panel"><h3>各类型平均消费</h3><div class="chart tall" id="typeCostChart"></div></article>
+              </div>
+            </section>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading">
+                <div><h2>满意度与价值四象限</h2><p>气泡大小代表访问量，虚线为整体平均水平。</p></div>
+              </div>
+              <div class="chart-grid-2">
+                <article class="chart-panel"><h3>满意度分布</h3><div class="chart tall" id="satisfactionChart"></div></article>
+                <article class="chart-panel"><h3>消费—满意度四象限</h3><div class="chart tall" id="quadrantChart"></div></article>
+              </div>
+            </section>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading"><div><h2>运营洞察</h2><p>根据固定统计规则生成，不调用大模型。</p></div></div>
+              <div class="insight-grid" id="insightGrid"></div>
+            </section>
+
+            <section class="analytics-section">
+              <div class="analytics-section-heading"><div><h2>数据质量</h2><p>用于说明快照可信边界和异常数量。</p></div></div>
+              <div class="quality-grid" id="qualityGrid"></div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/static/vendor/echarts.min.js"></script>
+    <script src="/static/admin_analytics.js"></script>
+  </body>
+</html>
