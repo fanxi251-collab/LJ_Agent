@@ -228,6 +228,14 @@ python scripts/rebuild_vector_store.py --workspace .
 python scripts/rebuild_knowledge_graph.py --workspace .
 ```
 
+刷新景点种子封面（Git 更新了 `src/lingjing_ai/assets/attractions/seed-*.webp` 后）：
+
+```powershell
+python scripts/refresh_attraction_seed_covers.py --workspace .
+```
+
+说明：空库首次启动会自动播种；本地已有 `data/attractions.db` 时**不会**覆盖，避免冲掉管理端上传的图。拉代码后若要同步仓库里的新封面，跑上面这条脚本即可，一般不必删库。详见 `src/lingjing_ai/assets/attractions/README.md`。
+
 ## 8. 验证命令
 
 Python 编译检查：
@@ -264,3 +272,4 @@ npm run build
 - 是否需要一并提供 `data/uploaded/`、`data/document_manifest.json`、`qdrant_db/`、`data/conversations.db`。
 - Redis、Neo4j 是否必须启用；如果不是必须，建议先关闭后启动项目。
 - 前端首次运行前必须执行 `npm install` 和 `npm run build`。
+- 景点封面种子图在 `src/lingjing_ai/assets/attractions/`；运行时图在 `data/attraction_images/`（勿提交）。同事拉新种子图后执行 `python scripts/refresh_attraction_seed_covers.py --workspace .`。
