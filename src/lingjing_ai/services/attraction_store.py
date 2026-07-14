@@ -62,6 +62,8 @@ class AttractionStore:
         self._init_schema()
         if seed_on_empty and self._count_attractions() == 0:
             self._seed_demo_attractions()
+        elif seed_on_empty:
+            self._sync_active_seed_covers()
 
     def create_attraction(self, payload: dict[str, Any]) -> AttractionRecord:
         attraction_id = f"attr_{uuid.uuid4().hex}"
@@ -357,6 +359,24 @@ class AttractionStore:
                 is_cover=True,
                 sort_order=0,
             )
+
+    def _sync_active_seed_covers(self) -> None:
+        """Refresh repository-managed covers without touching administrator uploads."""
+        for index in range(1, len(_demo_payloads()) + 1):
+            filename = f"seed-{index}.webp"
+            active_seed = self._fetchone(
+                """
+                SELECT 1 FROM attraction_images
+                WHERE relative_path = ? AND is_cover = 1
+                LIMIT 1
+                """,
+                (filename,),
+            )
+            if active_seed is None:
+                continue
+            source_image = _seed_asset_dir() / filename
+            if source_image.is_file():
+                shutil.copyfile(source_image, self.image_dir / filename)
 
     def _count_attractions(self) -> int:
         row = self._fetchone("SELECT COUNT(*) AS count FROM attractions", ())

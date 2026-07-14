@@ -234,7 +234,7 @@ python scripts/rebuild_knowledge_graph.py --workspace .
 python scripts/refresh_attraction_seed_covers.py --workspace .
 ```
 
-说明：空库首次启动会自动播种；本地已有 `data/attractions.db` 时**不会**覆盖，避免冲掉管理端上传的图。拉代码后若要同步仓库里的新封面，跑上面这条脚本即可，一般不必删库。详见 `src/lingjing_ai/assets/attractions/README.md`。
+说明：空库首次启动会自动播种；已有库若仍使用默认 `seed-*.webp` 封面，重启后端时会自动同步 Git 中的新图。管理端上传的自定义封面不会被覆盖。上面的脚本仅用于强制恢复八个默认景点的仓库封面。详见 `src/lingjing_ai/assets/attractions/README.md`。
 
 ## 8. 验证命令
 
@@ -272,4 +272,4 @@ npm run build
 - 是否需要一并提供 `data/uploaded/`、`data/document_manifest.json`、`qdrant_db/`、`data/conversations.db`。
 - Redis、Neo4j 是否必须启用；如果不是必须，建议先关闭后启动项目。
 - 前端首次运行前必须执行 `npm install` 和 `npm run build`。
-- 景点封面种子图在 `src/lingjing_ai/assets/attractions/`；运行时图在 `data/attraction_images/`（勿提交）。同事拉新种子图后执行 `python scripts/refresh_attraction_seed_covers.py --workspace .`。
+- 景点封面种子图在 `src/lingjing_ai/assets/attractions/`；运行时图在 `data/attraction_images/`（勿提交）。同事拉取新 seed 后重启后端即可自动同步默认封面；自定义封面不受影响。

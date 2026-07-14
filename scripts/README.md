@@ -27,5 +27,5 @@ python scripts\build_tourism_analytics_snapshot.py `
 python scripts\refresh_attraction_seed_covers.py --workspace "."
 ```
 
-把 `src/lingjing_ai/assets/attractions/seed-*.webp` 同步到本机已有 `data/attractions.db`。
-本地库非空时不会自动重新播种；用本脚本即可，无需删除数据库。
+后端重启时会自动同步仍在使用的默认 seed 封面，不需要运行本脚本。
+本脚本用于把八个默认景点**强制恢复**为仓库 seed 封面；不会删除景点数据和其他相册图片。

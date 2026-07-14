@@ -70,14 +70,35 @@ def test_empty_store_seeds_eight_attractions_only_once(tmp_path: Path):
     image_dir = tmp_path / "images"
 
     first = AttractionStore(db_path, image_dir, seed_on_empty=True)
+    seed_path = image_dir / "seed-1.webp"
+    expected_seed = seed_path.read_bytes()
+    seed_path.write_bytes(b"stale-seed")
     second = AttractionStore(db_path, image_dir, seed_on_empty=True)
 
     assert len(first.list_attractions(public_only=True)) == 8
     assert len(second.list_attractions(public_only=True)) == 8
     assert len(list(image_dir.glob("seed-*.webp"))) == 8
+    assert seed_path.read_bytes() == expected_seed
     assert {item.name for item in second.list_attractions(public_only=True)} >= {
         "灵山大佛",
         "九龙灌浴",
         "灵山梵宫",
         "五印坛城",
     }
+
+
+def test_store_does_not_overwrite_seed_after_admin_sets_custom_cover(tmp_path: Path):
+    db_path = tmp_path / "attractions.db"
+    image_dir = tmp_path / "images"
+    store = AttractionStore(db_path, image_dir, seed_on_empty=True)
+    attraction = next(item for item in store.list_attractions() if item.sort_order == 10)
+    seed_path = image_dir / "seed-1.webp"
+    custom_path = image_dir / "custom.webp"
+    custom_path.write_bytes(b"custom")
+    store.add_image(attraction.attraction_id, custom_path.name, is_cover=True)
+    seed_path.write_bytes(b"administrator-kept-copy")
+
+    AttractionStore(db_path, image_dir, seed_on_empty=True)
+
+    assert seed_path.read_bytes() == b"administrator-kept-copy"
+    assert store.get_attraction(attraction.attraction_id).cover_image_url.endswith("custom.webp")
