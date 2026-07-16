@@ -173,5 +173,6 @@ RAG 检索增强生成核心能力。
 - 资料清单存放在 `data/document_manifest.json`。
 - 高德 Web 服务 Key 使用 `MAP_API`。
 - 高德前端 JS Key 使用 `MAP_JS_API`。
+- 高德前端 JS 安全密钥使用 `MAP_JS_SECURITY_CODE`，用于满足 JS API 2.0 的安全校验。
 - 阿里云大模型 API Key 使用 `LJAPI_KEY`。
 - 不再使用 Chroma。

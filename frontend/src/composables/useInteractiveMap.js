@@ -12,12 +12,12 @@ export function useInteractiveMap(elementId) {
     attractions = items.filter((item) => Number.isFinite(item.longitude) && Number.isFinite(item.latitude));
     onSelect = selectHandler;
     const config = await fetchMapConfig();
-    if (!config.enabled || !config.js_api_key) {
-      notice.value = "未配置 MAP_JS_API，仍可使用景点列表和文字路线。";
+    if (!config.enabled || !config.js_api_key || !config.security_js_code) {
+      notice.value = config.message || "高德前端地图配置不完整，仍可使用景点列表和文字路线。";
       return false;
     }
     try {
-      await loadAmapScript(config.js_api_key);
+      await loadAmapScript(config.js_api_key, config.security_js_code);
       createMap();
       drawMarkers();
       notice.value = "点击地图标记或左侧列表查看景点。";
@@ -85,9 +85,11 @@ async function fetchMapConfig() {
   return response.json();
 }
 
-function loadAmapScript(apiKey) {
+function loadAmapScript(apiKey, securityCode) {
   if (window.AMap) return Promise.resolve();
   if (amapLoadPromise) return amapLoadPromise;
+  // 高德要求安全配置先于 JS API 脚本生效，否则新申请的 Web 端 Key 会校验失败。
+  window._AMapSecurityConfig = { securityJsCode: securityCode };
   amapLoadPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(apiKey)}`;

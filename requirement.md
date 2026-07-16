@@ -84,6 +84,7 @@ QUESTION_EXPANSION_MODEL: qwen3.7-plus
 
 MAP_API: 你的高德 Web 服务 Key
 MAP_JS_API: 你的高德 JS API Key
+MAP_JS_SECURITY_CODE: 与高德 JS API Key 配套的安全密钥
 
 AGENT_EXECUTOR_MODE: legacy 或 langgraph
 
@@ -134,7 +135,11 @@ LJAPI_KEY: 你的阿里云 API Key
 ```yaml
 MAP_API: 高德 Web 服务 Key
 MAP_JS_API: 高德 JS API Key
+MAP_JS_SECURITY_CODE: 与高德 JS API Key 配套的安全密钥
 ```
+
+`MAP_API` 仅由后端调用高德 Web 服务；`MAP_JS_API` 和 `MAP_JS_SECURITY_CODE`
+用于浏览器加载地图 JS API。安全密钥不应写入源码或提交到 Git。
 
 ### Redis
 

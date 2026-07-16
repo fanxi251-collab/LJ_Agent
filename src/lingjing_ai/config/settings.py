@@ -57,6 +57,7 @@ class AppSettings:
     web_search_api_key_env: str = "SEARCH_API_KEY"
     map_api_key: str | None = None
     map_js_api_key: str | None = None
+    map_js_security_code: str | None = None
     amap_base_url: str = "https://restapi.amap.com"
     amap_route_default_mode: str = "driving"
     agent_use_map_tools: bool = True
@@ -126,6 +127,7 @@ class AppSettings:
             or "SEARCH_API_KEY",
             map_api_key=_env_value("MAP_API", workspace_env),
             map_js_api_key=_env_value("MAP_JS_API", workspace_env),
+            map_js_security_code=_env_value("MAP_JS_SECURITY_CODE", workspace_env),
             amap_base_url=_env_value("AMAP_BASE_URL", workspace_env, "https://restapi.amap.com").rstrip("/"),
             amap_route_default_mode=_env_value("AMAP_ROUTE_DEFAULT_MODE", workspace_env, "driving").strip().lower()
             or "driving",

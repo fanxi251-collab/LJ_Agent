@@ -106,7 +106,24 @@ def test_explore_and_map_views_contain_expected_interactions():
     assert 'fetch(`/api/tools/map/route?' in map_source
     assert "起点和终点不能相同" in map_source
     assert "AMap.Marker" in map_composable
+    assert "window._AMapSecurityConfig" in map_composable
+    assert "security_js_code" in map_composable
     assert "destroy" in map_composable
+
+
+def test_all_map_loaders_apply_amap_security_code_before_loading_script():
+    loader_paths = (
+        "frontend/src/composables/useInteractiveMap.js",
+        "frontend/src/composables/useRouteMap.js",
+        "frontend/static/app.js",
+    )
+
+    for loader_path in loader_paths:
+        source = Path(loader_path).read_text(encoding="utf-8")
+        security_index = source.index("window._AMapSecurityConfig")
+        script_index = source.index("document.createElement(\"script\")", security_index)
+        assert security_index < script_index
+        assert "security_js_code" in source
 
 
 def test_fastapi_serves_visitor_subroutes(tmp_path: Path):

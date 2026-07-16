@@ -14,11 +14,11 @@ export function useRouteMap(elementId) {
     notice.value = "正在加载高德地图...";
     try {
       const config = await fetchMapConfig();
-      if (!config.enabled || !config.js_api_key) {
-        notice.value = "未配置 MAP_JS_API，暂只显示文字路线。";
+      if (!config.enabled || !config.js_api_key || !config.security_js_code) {
+        notice.value = config.message || "高德前端地图配置不完整，暂只显示文字路线。";
         return;
       }
-      await loadAmapScript(config.js_api_key);
+      await loadAmapScript(config.js_api_key, config.security_js_code);
       drawRoute(summary);
       notice.value = "路线由高德地图绘制，实际通行请以现场交通为准。";
     } catch (error) {
@@ -67,13 +67,15 @@ async function fetchMapConfig() {
   return response.json();
 }
 
-function loadAmapScript(jsApiKey) {
+function loadAmapScript(jsApiKey, securityCode) {
   if (window.AMap) {
     return Promise.resolve();
   }
   if (amapLoadPromise) {
     return amapLoadPromise;
   }
+  // 高德要求安全配置先于 JS API 脚本生效，否则新申请的 Web 端 Key 会校验失败。
+  window._AMapSecurityConfig = { securityJsCode: securityCode };
   amapLoadPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(jsApiKey)}`;

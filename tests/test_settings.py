@@ -54,13 +54,25 @@ def test_settings_reads_qwen_api_configuration_from_environment(tmp_path: Path, 
 
 def test_settings_reads_map_api_from_workspace_env_file(tmp_path: Path, monkeypatch):
     monkeypatch.delenv("MAP_API", raising=False)
+    monkeypatch.delenv("MAP_JS_SECURITY_CODE", raising=False)
     (tmp_path / ".env").write_text("MAP_API=map-key-from-file\n", encoding="utf-8")
 
     settings = AppSettings.for_workspace(tmp_path)
 
     assert settings.map_api_key == "map-key-from-file"
     assert settings.map_js_api_key is None
+    assert settings.map_js_security_code is None
     assert settings.amap_route_default_mode == "driving"
+
+
+def test_settings_reads_map_js_security_code_from_environment(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("MAP_JS_API", "js-map-key")
+    monkeypatch.setenv("MAP_JS_SECURITY_CODE", "js-security-code")
+
+    settings = AppSettings.for_workspace(tmp_path)
+
+    assert settings.map_js_api_key == "js-map-key"
+    assert settings.map_js_security_code == "js-security-code"
 
 
 def test_settings_reads_neo4j_configuration_from_workspace_env_file(tmp_path: Path, monkeypatch):

@@ -133,6 +133,7 @@ class ToolQueryResponse(BaseModel):
 class MapConfigResponse(BaseModel):
     enabled: bool
     js_api_key: str
+    security_js_code: str
     default_route_mode: str
     message: str
 
@@ -306,11 +307,20 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     @app.get("/api/tools/map/config", response_model=MapConfigResponse)
     def query_map_config() -> MapConfigResponse:
         js_api_key = pipeline.settings.map_js_api_key or ""
+        security_js_code = pipeline.settings.map_js_security_code or ""
+        enabled = bool(js_api_key and security_js_code)
+        if not js_api_key:
+            message = "未配置 MAP_JS_API，前端地图不可用。"
+        elif not security_js_code:
+            message = "未配置 MAP_JS_SECURITY_CODE，前端地图不可用。"
+        else:
+            message = "高德前端地图已配置"
         return MapConfigResponse(
-            enabled=bool(js_api_key),
+            enabled=enabled,
             js_api_key=js_api_key,
+            security_js_code=security_js_code,
             default_route_mode=pipeline.settings.amap_route_default_mode,
-            message="高德前端地图已配置" if js_api_key else "未配置 MAP_JS_API，前端地图不可用。",
+            message=message,
         )
 
     @app.get("/api/tools/map/route", response_model=ToolQueryResponse)
