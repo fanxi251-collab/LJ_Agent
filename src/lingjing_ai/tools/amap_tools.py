@@ -8,6 +8,7 @@ from lingjing_ai.models.rag import SourceChunk
 from lingjing_ai.services.redis_cache import RedisJsonCache
 from lingjing_ai.tools.amap_client import AmapApiError, AmapClient
 from lingjing_ai.tools.route_summary import build_route_summary
+from lingjing_ai.tools.route_scope import RouteScopeDecision
 
 
 SCENIC_CITY_MAP = {
@@ -149,11 +150,13 @@ class AmapRouteTool:
         client: AmapClient | None = None,
         cache: RedisJsonCache | None = None,
         location_resolver: Callable[[str], str | None] | None = None,
+        scope_validator: Callable[[str, str], RouteScopeDecision] | None = None,
     ) -> None:
         self.settings = settings
         self.client = client or _build_client(settings)
         self.cache = cache or _build_cache(settings)
         self.location_resolver = location_resolver
+        self.scope_validator = scope_validator
 
     def run(
         self,
@@ -191,13 +194,6 @@ class AmapRouteTool:
             explicit_mode
             or ("walking" if both_internal else self.settings.amap_route_default_mode)
         )
-        cache_key = (
-            f"amap:route:v2:{route_mode}:{origin}:{destination}:"
-            f"{origin_location}:{destination_location}"
-        )
-        cached = _get_cached_tool_result(self.cache, cache_key)
-        if cached is not None:
-            return cached
         try:
             if not origin_location:
                 origin_geo = self.client.geocode(origin)
@@ -207,6 +203,27 @@ class AmapRouteTool:
                 destination_location = _first_geocode_location(destination_geo)
             if not origin_location or not destination_location:
                 return ToolResult(status="empty", message="未查到起点或终点坐标。")
+            if self.scope_validator is not None:
+                scope = self.scope_validator(origin_location, destination_location)
+                if not scope.allowed:
+                    return ToolResult(
+                        status="error",
+                        message=scope.reason,
+                        data={
+                            "origin": origin,
+                            "destination": destination,
+                            "mode": route_mode,
+                            "origin_distance_km": scope.origin_distance_km,
+                            "destination_distance_km": scope.destination_distance_km,
+                        },
+                    )
+            cache_key = (
+                f"amap:route:v3:{route_mode}:{origin}:{destination}:"
+                f"{origin_location}:{destination_location}"
+            )
+            cached = _get_cached_tool_result(self.cache, cache_key)
+            if cached is not None:
+                return cached
             if route_mode == "walking":
                 data = self.client.walking_route(origin_location, destination_location)
             else:
@@ -367,19 +384,33 @@ def _extract_place_keywords(text: str) -> str:
 
 def _extract_route_points(text: str) -> tuple[str, str] | None:
     cleaned = re.sub(r"\s+", "", text)
-    match = re.search(r"从(.+?)到(.+?)(?:怎么走|如何走|路线|导航|怎么去|如何去|$)", cleaned)
+    match = re.search(r"从(.+?)到(.*)$", cleaned)
     if not match:
         return None
     origin = _clean_route_endpoint(match.group(1))
-    destination = _clean_route_endpoint(match.group(2))
+    destination = _clean_route_endpoint(match.group(2), strip_route_suffix=True)
     if not origin or not destination:
         return None
     return origin, destination
 
 
-def _clean_route_endpoint(text: str) -> str:
-    cleaned = re.sub(r"(步行|走路|开车|驾车|自驾|打车)$", "", text)
-    return cleaned.strip(" ，,。.?？")
+def _clean_route_endpoint(text: str, strip_route_suffix: bool = False) -> str:
+    cleaned = text.strip(" ，,。.?？")
+    if not strip_route_suffix:
+        return cleaned
+
+    suffix_patterns = (
+        r"(?:怎么走|如何走|怎么去|如何去)$",
+        r"(?:的)?(?:步行|走路|步走|开车|驾车|自驾|打车)?(?:路线规划|线路规划|路径规划|路线|线路|路径|导航)$",
+        r"(?:的)?(?:步行|走路|步走|开车|驾车|自驾|打车)$",
+    )
+    while cleaned:
+        previous = cleaned
+        for pattern in suffix_patterns:
+            cleaned = re.sub(pattern, "", cleaned).strip(" ，,。.?？")
+        if cleaned == previous:
+            break
+    return cleaned
 
 
 def _extract_route_mode(text: str, default_mode: str) -> str:

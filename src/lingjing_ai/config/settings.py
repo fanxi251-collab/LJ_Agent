@@ -73,6 +73,7 @@ class AppSettings:
     map_js_security_code: str | None = None
     amap_base_url: str = "https://restapi.amap.com"
     amap_route_default_mode: str = "driving"
+    amap_scenic_navigation_radius_km: float = 10.0
     agent_use_map_tools: bool = True
     kg_enabled: bool = False
     neo4j_uri: str = ""
@@ -171,6 +172,10 @@ class AppSettings:
             amap_base_url=_env_value("AMAP_BASE_URL", workspace_env, "https://restapi.amap.com").rstrip("/"),
             amap_route_default_mode=_env_value("AMAP_ROUTE_DEFAULT_MODE", workspace_env, "driving").strip().lower()
             or "driving",
+            amap_scenic_navigation_radius_km=max(
+                0.1,
+                float(_env_value("AMAP_SCENIC_NAVIGATION_RADIUS_KM", workspace_env, "10")),
+            ),
             kg_enabled=_env_bool("KG_ENABLED", workspace_env, False),
             neo4j_uri=_env_value("NEO4J_URI", workspace_env, "").strip(),
             neo4j_user=_env_value("NEO4J_USER", workspace_env, "").strip(),

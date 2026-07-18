@@ -68,6 +68,7 @@ onMounted(async () => {
         :input-quality="chatApi.inputQuality.value"
         :auto-gain-state="chatApi.autoGainState.value"
         :transcript="chatApi.avatarCaption.value"
+        :emotion-text="chatApi.assistantTranscript.value"
         :microphone-state="chatApi.microphoneState.value"
         :transcript-confirmation="chatApi.transcriptConfirmation.value"
         :correction-notice="chatApi.correctionNotice.value"

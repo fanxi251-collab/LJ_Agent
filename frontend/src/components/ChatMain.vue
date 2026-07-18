@@ -17,6 +17,7 @@ const props = defineProps({
   inputQuality: { type: String, default: "good" },
   autoGainState: { type: String, default: "unknown" },
   transcript: { type: String, default: "" },
+  emotionText: { type: String, default: "" },
   microphoneState: { type: String, default: "idle" },
   transcriptConfirmation: { type: Object, default: null },
   correctionNotice: { type: String, default: "" },
@@ -69,7 +70,13 @@ function submitQuestion() {
       @retry="emit('ask', $event)"
       @show-sources="emit('show-sources', $event)"
     />
-    <DigitalHumanStage v-else :state="avatarState" :audio-level="audioLevel" :transcript="transcript" />
+    <DigitalHumanStage
+      v-else
+      :state="avatarState"
+      :audio-level="audioLevel"
+      :transcript="transcript"
+      :emotion-text="emotionText"
+    />
 
     <TranscriptConfirmation
       v-if="transcriptConfirmation"

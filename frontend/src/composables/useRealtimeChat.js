@@ -4,6 +4,8 @@ import {
   buildRealtimeUrl,
   buildTranscriptConfirmEvent,
   createTurnId,
+  isRealtimeBusy,
+  resolveAvatarAudioState,
   resolveAvatarCaption,
 } from "../lib/realtimeProtocol";
 import { createTailProtection, usePcmAudio } from "../features/digital-human";
@@ -35,8 +37,16 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
         capturedAudioChunks += 1;
       }
     },
+    onPlaybackStateChange: (active) => {
+      // Browser playback owns the speaking state because upstream completion can arrive before sound ends.
+      avatarState.value = resolveAvatarAudioState({
+        eventType: active ? "playback.started" : "playback.ended",
+        playbackActive: active,
+        turnActive: Boolean(activeTurnId.value),
+      });
+    },
   });
-  const isLoading = computed(() => Boolean(activeTurnId.value));
+  const isLoading = computed(() => isRealtimeBusy(activeTurnId.value, audio.playbackActive.value));
   const avatarCaption = computed(() =>
     resolveAvatarCaption(assistantTranscript.value, liveTranscript.value),
   );
@@ -59,7 +69,6 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
         if (data instanceof ArrayBuffer) {
           try {
             await audio.enqueuePlayback(data);
-            avatarState.value = "speaking";
           } catch {
             // Keep text usable when browser autoplay or the selected output device rejects PCM playback.
             avatarState.value = "error";
@@ -214,9 +223,11 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
   function cancelResponse() {
     tailProtection.cancel();
     transcriptConfirmation.value = null;
-    if (!activeTurnId.value) return;
+    if (!isRealtimeBusy(activeTurnId.value, audio.playbackActive.value)) return;
     stopRecordingRequested = true;
-    sendJson({ type: "response.cancel", turn_id: activeTurnId.value });
+    if (activeTurnId.value) {
+      sendJson({ type: "response.cancel", turn_id: activeTurnId.value });
+    }
     audio.stopCapture();
     audio.clearPlayback();
     activeTurnId.value = "";
@@ -303,12 +314,20 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     }
     if (event.type === "assistant.audio.started") {
       if (event.turn_id !== activeTurnId.value) return;
-      avatarState.value = "speaking";
+      avatarState.value = resolveAvatarAudioState({
+        eventType: event.type,
+        playbackActive: audio.playbackActive.value,
+        turnActive: true,
+      });
       return;
     }
     if (event.type === "assistant.audio.done") {
       if (event.turn_id !== activeTurnId.value) return;
-      avatarState.value = "idle";
+      avatarState.value = resolveAvatarAudioState({
+        eventType: event.type,
+        playbackActive: audio.playbackActive.value,
+        turnActive: true,
+      });
       return;
     }
     if (event.type === "turn.completed") {
@@ -317,13 +336,18 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
       message.pending = false;
       message.sources = sources.value;
       activeTurnId.value = "";
-      avatarState.value = "idle";
+      avatarState.value = resolveAvatarAudioState({
+        eventType: event.type,
+        playbackActive: audio.playbackActive.value,
+        turnActive: false,
+      });
       serviceState.value = "回答完成";
       onSessionChanged?.();
       return;
     }
     if (event.type === "turn.cancelled") {
       if (event.turn_id !== activeTurnId.value) return;
+      audio.clearPlayback();
       activeTurnId.value = "";
       avatarState.value = "idle";
       return;
@@ -358,6 +382,8 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
   }
 
   function failActiveMessage(message, retryable) {
+    // Stop buffered speech on failures so an error state cannot keep talking with stale lip movement.
+    audio.clearPlayback();
     if (activeTurnId.value) {
       const target = ensureAssistantMessage(activeTurnId.value);
       target.error = message;

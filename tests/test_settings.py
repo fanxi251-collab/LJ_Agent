@@ -56,6 +56,7 @@ def test_settings_reads_map_api_from_workspace_env_file(tmp_path: Path, monkeypa
     monkeypatch.delenv("MAP_API", raising=False)
     monkeypatch.delenv("MAP_JS_API", raising=False)
     monkeypatch.delenv("MAP_JS_SECURITY_CODE", raising=False)
+    monkeypatch.delenv("AMAP_SCENIC_NAVIGATION_RADIUS_KM", raising=False)
     (tmp_path / ".env").write_text("MAP_API=map-key-from-file\n", encoding="utf-8")
 
     settings = AppSettings.for_workspace(tmp_path)
@@ -64,6 +65,15 @@ def test_settings_reads_map_api_from_workspace_env_file(tmp_path: Path, monkeypa
     assert settings.map_js_api_key is None
     assert settings.map_js_security_code is None
     assert settings.amap_route_default_mode == "driving"
+    assert settings.amap_scenic_navigation_radius_km == 10.0
+
+
+def test_settings_reads_scenic_navigation_radius_from_environment(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("AMAP_SCENIC_NAVIGATION_RADIUS_KM", "8.5")
+
+    settings = AppSettings.for_workspace(tmp_path)
+
+    assert settings.amap_scenic_navigation_radius_km == 8.5
 
 
 def test_settings_exposes_qwen_audio_realtime_defaults(tmp_path: Path, monkeypatch):

@@ -31,6 +31,7 @@ from lingjing_ai.services.attraction_store import AttractionStore
 from lingjing_ai.services.analytics_snapshot import AnalyticsSnapshotStore
 from lingjing_ai.services.question_expansion import QwenQuestionExpander
 from lingjing_ai.tools.amap_tools import AmapPlaceSearchTool, AmapRouteTool, AmapWeatherTool
+from lingjing_ai.tools.route_scope import ScenicNavigationScope
 from lingjing_ai.tools.document_search_tool import DocumentSearchTool
 from lingjing_ai.tools.kg_search_tool import KnowledgeGraphSearchTool
 from lingjing_ai.tools.query_rewrite_tool import QueryRewriteTool
@@ -198,6 +199,10 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     frontend_dir = _project_root() / "frontend"
     visitor_dist_dir = frontend_dir / "dist"
     visitor_assets_dir = visitor_dist_dir / "assets"
+    visitor_digital_human_dir = visitor_dist_dir / "digital-human"
+    if not (visitor_digital_human_dir / "live2d").is_dir():
+        # Fall back to Vite public sources so local FastAPI tests and unbuilt development runs use the same assets.
+        visitor_digital_human_dir = frontend_dir / "public" / "digital-human"
     static_dir = frontend_dir / "static"
     attraction_image_dir = pipeline.settings.data_dir / "attraction_images"
     attraction_store = AttractionStore(
@@ -205,7 +210,8 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         attraction_image_dir,
         seed_on_empty=seed_attractions,
     )
-    agent_executor = _build_agent_executor(pipeline, attraction_store)
+    route_scope = _build_scenic_navigation_scope(pipeline, attraction_store)
+    agent_executor = _build_agent_executor(pipeline, attraction_store, route_scope)
     question_expander = _build_question_expander(pipeline)
     conversation_store = ConversationStore(pipeline.settings.data_dir / "conversations.db")
     glossary_path = Path(pipeline.settings.asr_glossary_path)
@@ -245,13 +251,17 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     )
     if visitor_assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=visitor_assets_dir), name="visitor_assets")
+    app.mount(
+        "/digital-human",
+        StaticFiles(directory=visitor_digital_human_dir),
+        name="digital_human_assets",
+    )
 
-    @app.get("/digital-human/pcm-capture-worklet.js", response_class=FileResponse)
     @app.get("/pcm-capture-worklet.js", response_class=FileResponse)
     def visitor_pcm_capture_worklet() -> FileResponse:
-        # Keep the old route beside the feature-scoped route because cached visitor builds may request either URL.
+        # Keep the old route because cached visitor builds may still request the pre-module Worklet URL.
         return FileResponse(
-            frontend_dir / "public" / "digital-human" / "pcm-capture-worklet.js",
+            visitor_digital_human_dir / "pcm-capture-worklet.js",
             media_type="application/javascript",
         )
 
@@ -372,6 +382,7 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         result = AmapRouteTool(
             pipeline.settings,
             location_resolver=lambda name: _published_attraction_location(attraction_store, name),
+            scope_validator=route_scope.validate,
         ).run(
             f"从{origin}到{destination}怎么走",
             mode=mode,
@@ -512,19 +523,26 @@ def _visitor_build_hint_html() -> str:
 def _build_agent_executor(
     pipeline: RagPipeline,
     attraction_store: AttractionStore | None = None,
+    route_scope: ScenicNavigationScope | None = None,
 ) -> AgentExecutor:
     location_resolver = (
         (lambda name: _published_attraction_location(attraction_store, name))
         if attraction_store is not None
         else None
     )
+    if route_scope is None and attraction_store is not None:
+        route_scope = _build_scenic_navigation_scope(pipeline, attraction_store)
     tools = [
         QueryRewriteTool(),
         RagSearchTool(pipeline),
         KnowledgeGraphSearchTool(pipeline),
         DocumentSearchTool(pipeline),
         AmapWeatherTool(pipeline.settings),
-        AmapRouteTool(pipeline.settings, location_resolver=location_resolver),
+        AmapRouteTool(
+            pipeline.settings,
+            location_resolver=location_resolver,
+            scope_validator=route_scope.validate if route_scope is not None else None,
+        ),
         AmapPlaceSearchTool(pipeline.settings),
         WebSearchTool(pipeline.settings),
     ]
@@ -548,6 +566,28 @@ def _published_attraction_location(
         return None
     # The shared coordinate formatter keeps Agent and HTTP route requests on the same local truth.
     return f"{attraction.longitude},{attraction.latitude}"
+
+
+def _build_scenic_navigation_scope(
+    pipeline: RagPipeline,
+    attraction_store: AttractionStore,
+) -> ScenicNavigationScope:
+    return ScenicNavigationScope(
+        lambda: _published_attraction_locations(attraction_store),
+        radius_km=pipeline.settings.amap_scenic_navigation_radius_km,
+    )
+
+
+def _published_attraction_locations(attraction_store: AttractionStore) -> list[str]:
+    locations = []
+    for attraction in attraction_store.list_attractions(public_only=True):
+        if not math.isfinite(attraction.longitude) or not math.isfinite(attraction.latitude):
+            continue
+        if attraction.longitude == 0 or attraction.latitude == 0:
+            continue
+        # Refresh anchors per request so publication and coordinate edits immediately affect the safety boundary.
+        locations.append(f"{attraction.longitude},{attraction.latitude}")
+    return locations
 
 
 def _build_question_expander(pipeline: RagPipeline) -> QwenQuestionExpander | None:

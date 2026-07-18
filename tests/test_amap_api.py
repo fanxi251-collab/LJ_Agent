@@ -144,8 +144,9 @@ def test_map_search_api_returns_amap_place_results(tmp_path: Path, monkeypatch):
     assert "灵山胜境" in body["content"]
 
 
-def test_map_route_api_returns_amap_route_result(tmp_path: Path, monkeypatch):
+def test_map_route_api_rejects_endpoint_outside_scenic_navigation_area(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("MAP_API", "map-key")
+    direction_calls = []
 
     def fake_get(url, params, timeout):
         if url.endswith("/v3/geocode/geo"):
@@ -160,6 +161,7 @@ def test_map_route_api_returns_amap_route_result(tmp_path: Path, monkeypatch):
                     "geocodes": [{"formatted_address": params["address"], "location": locations[params["address"]]}],
                 }
             )
+        direction_calls.append(url)
         return FakeResponse(
             {
                 "status": "1",
@@ -194,11 +196,12 @@ def test_map_route_api_returns_amap_route_result(tmp_path: Path, monkeypatch):
     body = response.json()
 
     assert response.status_code == 200
-    assert body["status"] == "ok"
-    assert "从无锡站到灵山胜境" in body["content"]
-    assert "约42.0公里" in body["content"]
-    assert body["data"]["route_summary"]["mode"] == "driving"
-    assert body["data"]["route_summary"]["polyline"] == ["120.305,31.590", "120.200,31.550", "120.100,31.500"]
+    assert body["status"] == "error"
+    assert "起点" in body["message"]
+    assert "10公里" in body["message"]
+    assert body["content"] == ""
+    assert "route_summary" not in body["data"]
+    assert direction_calls == []
 
 
 def test_map_route_api_uses_structured_locations_without_geocoding(tmp_path: Path, monkeypatch):
@@ -312,3 +315,12 @@ def test_agent_route_tool_receives_published_attraction_location_resolver(tmp_pa
     assert route_tool.location_resolver("五明桥") == "120.102248,31.421749"
     assert route_tool.location_resolver("五智门") == "120.101292,31.423055"
     assert route_tool.location_resolver("不存在景点") is None
+    assert route_tool.scope_validator is not None
+    assert route_tool.scope_validator(
+        "120.102248,31.421749",
+        "120.101292,31.423055",
+    ).allowed is True
+    assert route_tool.scope_validator(
+        "120.102248,31.421749",
+        "120.305000,31.590000",
+    ).allowed is False

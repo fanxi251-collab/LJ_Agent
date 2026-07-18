@@ -53,6 +53,37 @@ test("digital human caption prefers the assistant answer over the user transcrip
   assert.equal(realtimeProtocol.resolveAvatarCaption("", "用户问题"), "用户问题");
 });
 
+test("avatar remains speaking until browser playback ends after server completion", () => {
+  assert.equal(typeof realtimeProtocol.resolveAvatarAudioState, "function");
+  assert.equal(realtimeProtocol.resolveAvatarAudioState({
+    eventType: "assistant.audio.done",
+    playbackActive: true,
+    turnActive: true,
+  }), "speaking");
+  assert.equal(realtimeProtocol.resolveAvatarAudioState({
+    eventType: "turn.completed",
+    playbackActive: true,
+    turnActive: false,
+  }), "speaking");
+  assert.equal(realtimeProtocol.resolveAvatarAudioState({
+    eventType: "playback.ended",
+    playbackActive: false,
+    turnActive: false,
+  }), "idle");
+  assert.equal(realtimeProtocol.resolveAvatarAudioState({
+    eventType: "playback.ended",
+    playbackActive: false,
+    turnActive: true,
+  }), "thinking");
+});
+
+test("queued browser playback keeps the stop action available after turn completion", () => {
+  assert.equal(typeof realtimeProtocol.isRealtimeBusy, "function");
+  assert.equal(realtimeProtocol.isRealtimeBusy("turn_1", false), true);
+  assert.equal(realtimeProtocol.isRealtimeBusy("", true), true);
+  assert.equal(realtimeProtocol.isRealtimeBusy("", false), false);
+});
+
 test("PCM conversion clamps samples and RMS reflects signal level", () => {
   const pcm = float32ToInt16(new Float32Array([-2, -0.5, 0, 0.5, 2]));
 

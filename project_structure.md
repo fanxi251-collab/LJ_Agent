@@ -1,6 +1,6 @@
 # 项目子目录说明
 
-当前时间：2026-07-09  Asia/Shanghai
+当前时间：2026-07-18  Asia/Shanghai
 
 本文档记录 LingJing_AI 当前目录职责。项目已整理为标准 Python `src` 包结构：根目录放工程资产，后端代码统一放入 `src/lingjing_ai/`。
 
@@ -31,7 +31,8 @@ python -m pip install -e .
 - 管理端景点页面：`/admin/attractions`
 - 管理端游客分析：`/admin/analytics`
 - 静态 JS 和 CSS：`frontend/static/`
-- 数字人前端模块：`frontend/src/features/digital-human/`，集中管理舞台、SVG渲染器、语音控件、PCM采集播放和音频质量逻辑。
+- 数字人前端模块：`frontend/src/features/digital-human/`，集中管理舞台、Mao Pro Live2D渲染器、口型/表情规则、语音控件、PCM采集播放和音频质量逻辑。
+- Live2D资源：`frontend/public/digital-human/live2d/`，包含本地Mao Pro运行时、Cubism Core、来源和授权说明；运行时不请求第三方模型资源。
 - 数字人 AudioWorklet：`frontend/public/digital-human/pcm-capture-worklet.js`；共享实时会话与协议仍保留在前端公共层。
 
 ### `data/`
