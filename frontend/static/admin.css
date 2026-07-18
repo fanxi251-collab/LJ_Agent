@@ -129,6 +129,21 @@ body {
   background: linear-gradient(145deg, #f8fbff 0%, #eaf3ff 100%);
 }
 
+.documents-page-header {
+  padding: 6px 0 10px;
+}
+
+.documents-page-header h1 {
+  color: var(--admin-ink);
+}
+
+.documents-page-header p {
+  max-width: 720px;
+  margin-top: 8px;
+  color: var(--admin-muted);
+  line-height: 1.65;
+}
+
 .attractions-admin-main {
   background: linear-gradient(145deg, #f8fbff 0%, #eaf3ff 100%);
 }
@@ -237,7 +252,6 @@ body {
   white-space: nowrap;
 }
 
-.documents-admin-shell .topbar,
 .documents-admin-shell .upload-panel,
 .documents-admin-shell .sources-panel,
 .documents-admin-shell .answer-panel {
@@ -262,6 +276,10 @@ body {
 
 .documents-admin-shell .assistant-avatar {
   background: #3b82f6;
+}
+
+.documents-admin-shell #documentPreviewPanel[hidden] {
+  display: none;
 }
 
 .documents-upload-actions {
@@ -486,8 +504,9 @@ body {
   margin-top: 14px;
   border-radius: 10px;
   padding: 16px 18px;
-  color: #fff;
-  background: linear-gradient(120deg, #1d4ed8, #3b82f6);
+  border: 1px solid #bfdbfe;
+  color: #315b7d;
+  background: linear-gradient(120deg, #eef7ff, #dceeff);
 }
 
 .repeat-rate strong {

@@ -38,12 +38,15 @@ def test_admin_documents_page_and_assets_are_served(tmp_path: Path):
 
     assert page.status_code == 200
     assert "知识库资料管理" in page.text
+    assert 'id="documentPreviewPanel" hidden' in page.text
     assert "/static/admin_documents.js" in page.text
     assert script.status_code == 200
     assert 'fetch("/api/admin/documents"' in script.text
     assert 'fetch(`/api/admin/documents/${documentId}/content`' in script.text
     assert 'fetch(`/api/admin/documents/${documentId}/reindex`' in script.text
     assert 'fetch(`/api/admin/documents/${documentId}`' in script.text
+    assert "documentPreviewPanel.hidden = false" in script.text
+    assert "documentPreviewPanel.hidden = true" in script.text
     assert "confirm(" in script.text
 
 
@@ -89,6 +92,10 @@ def test_admin_analytics_page_and_local_chart_assets_are_served(tmp_path: Path):
 
     assert page.status_code == 200
     assert "游客数据分析" in page.text
+    assert "为产品组合与服务优化提供依据" in page.text
+    assert "四象限图中的气泡大小表示访问量" in page.text
+    assert "帮助运营人员快速识别重点机会" in page.text
+    assert "帮助判断分析结果的完整性与可靠程度" in page.text
     assert "/static/vendor/echarts.min.js" in page.text
     assert "/static/admin_analytics.js" in page.text
     assert script.status_code == 200

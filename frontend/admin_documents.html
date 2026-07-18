@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>知识库资料管理</title>
     <link rel="stylesheet" href="/static/app.css" />
-    <link rel="stylesheet" href="/static/admin.css?v=20260718-2" />
+    <link rel="stylesheet" href="/static/admin.css?v=20260718-4" />
   </head>
   <body>
     <div class="admin-app-shell">
       <aside class="admin-sidebar">
         <div class="admin-brand">
           <div class="admin-brand-mark">LJ</div>
-          <div><strong>LingJing AI</strong><span>管理中心</span></div>
+          <div><strong>LingJing AI</strong><span>管理后台</span></div>
         </div>
         <nav class="admin-sidebar-nav" aria-label="管理端导航">
           <a class="admin-nav-item" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客数据分析</span></a>
@@ -23,8 +23,9 @@
       <main class="admin-main documents-admin-main">
         <div class="admin-main-scroll">
           <section class="chat-shell documents-admin-shell" aria-label="知识库资料管理">
-        <header class="topbar">
+        <header class="documents-page-header">
           <h1>知识库资料管理</h1>
+          <p>上传、解析和维护景区知识资料，并查看入库后的原文内容。</p>
         </header>
         <form id="adminUploadForm" class="upload-panel">
           <div>
@@ -46,17 +47,17 @@
           <div id="documentList" class="sources-list"></div>
         </section>
 
-        <section class="answer-panel">
+        <section class="answer-panel" id="documentPreviewPanel" hidden>
           <div class="assistant-avatar">MD</div>
           <div class="answer-content">
             <p class="answer-label">原文预览</p>
-            <pre id="documentPreview" class="answer-text">选择资料后可预览原文。</pre>
+            <pre id="documentPreview" class="answer-text"></pre>
           </div>
         </section>
           </section>
         </div>
       </main>
     </div>
-    <script src="/static/admin_documents.js?v=20260718-2"></script>
+    <script src="/static/admin_documents.js?v=20260718-4"></script>
   </body>
 </html>

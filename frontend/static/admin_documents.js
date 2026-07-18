@@ -4,6 +4,7 @@ const adminUploadButton = document.querySelector("#adminUploadButton");
 const adminUploadStatus = document.querySelector("#adminUploadStatus");
 const documentCount = document.querySelector("#documentCount");
 const documentList = document.querySelector("#documentList");
+const documentPreviewPanel = document.querySelector("#documentPreviewPanel");
 const documentPreview = document.querySelector("#documentPreview");
 
 adminUploadForm.addEventListener("submit", async (event) => {
@@ -94,9 +95,13 @@ async function previewDocument(documentId) {
   const response = await fetch(`/api/admin/documents/${documentId}/content`);
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.detail || `HTTP ${response.status}`);
+    documentPreview.textContent = "";
+    documentPreviewPanel.hidden = true;
+    adminUploadStatus.textContent = data.detail || `原文预览失败：HTTP ${response.status}`;
+    return;
   }
   documentPreview.textContent = data.content;
+  documentPreviewPanel.hidden = false;
 }
 
 async function reindexDocument(documentId) {
@@ -121,7 +126,8 @@ async function deleteDocument(documentId) {
     const data = await response.json();
     throw new Error(data.detail || `HTTP ${response.status}`);
   }
-  documentPreview.textContent = "选择资料后可预览原文。";
+  documentPreview.textContent = "";
+  documentPreviewPanel.hidden = true;
   await loadDocuments();
 }
 
