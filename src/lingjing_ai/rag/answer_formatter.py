@@ -6,6 +6,28 @@ import re
 STRUCTURED_HEADINGS = ("### 简要回答", "### 详细说明", "### 温馨提示")
 
 
+def clean_inline_markdown(text: str) -> str:
+    """Remove inline Markdown wrappers so plain-text clients never expose model formatting tokens."""
+    cleaned = str(text or "")
+    # Links are reduced to their readable labels because realtime answers are persisted as plain text.
+    cleaned = re.sub(r"!\[([^\]]*)\]\((?:[^()\n]|\([^()\n]*\))*\)", r"\1", cleaned)
+    cleaned = re.sub(r"\[([^\]]+)\]\((?:[^()\n]|\([^()\n]*\))*\)", r"\1", cleaned)
+    cleaned = re.sub(r"`{1,3}([^`\n]+)`{1,3}", r"\1", cleaned)
+    cleaned = re.sub(r"(\*\*|__)(?=\S)([^\n]*?\S)\1", _unwrap_strong_marker, cleaned)
+    cleaned = re.sub(r"~~([^\n]+?)~~", r"\1", cleaned)
+    cleaned = re.sub(r"(?<![\w*])\*(?=\S)([^*\n]*?\S)\*(?![\w*])", r"\1", cleaned)
+    cleaned = re.sub(r"(?<![\w_])_(?=\S)([^_\n]*?\S)_(?![\w_])", r"\1", cleaned)
+    return cleaned
+
+
+def _unwrap_strong_marker(match: re.Match[str]) -> str:
+    marker, content = match.group(1), match.group(2)
+    # Double-underscore identifiers are code tokens, so only non-identifier content is treated as emphasis.
+    if marker == "__" and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", content):
+        return match.group(0)
+    return content
+
+
 def clean_evidence_text(text: str, max_length: int = 260) -> str:
     lines = []
     for raw_line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):

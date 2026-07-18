@@ -5,6 +5,7 @@ from typing import Any, Literal
 
 from lingjing_ai.agent.models import AgentEvidence
 from lingjing_ai.models.rag import SourceChunk
+from lingjing_ai.rag.answer_formatter import clean_inline_markdown
 
 
 AnswerProfile = Literal["text_detailed", "avatar_summary", "route_text", "route_avatar"]
@@ -86,7 +87,8 @@ def finalize_answer(
     answer: str,
 ) -> FinalizedAnswer:
     """Apply deterministic completeness checks because model prose alone cannot guarantee route fields."""
-    normalized = str(answer or "").strip()
+    # Realtime model output bypasses the regular RAG formatter, so normalize it here before display and persistence.
+    normalized = clean_inline_markdown(answer).strip()
     if contract.clarification:
         return FinalizedAnswer(contract.clarification)
     if contract.route_error:
@@ -173,7 +175,7 @@ def _source_facts(sources: list[SourceChunk]) -> str:
 
 
 def _first_fact(content: str) -> str:
-    normalized = " ".join(str(content or "").split()).strip()
+    normalized = " ".join(clean_inline_markdown(content).split()).strip()
     if not normalized:
         return ""
     endings = [position for marker in "。！？；" if (position := normalized.find(marker)) >= 0]

@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 from lingjing_ai.agent.models import AgentEvidence
 from lingjing_ai.config.settings import AppSettings
+from lingjing_ai.realtime.answer_contract import build_answer_contract, finalize_answer
 from lingjing_ai.realtime.session import VisitorRealtimeSession
 from lingjing_ai.realtime.transcript import TranscriptCorrection
 from lingjing_ai.services.question_expansion import VoiceQuestionUnderstanding
@@ -166,6 +167,44 @@ def test_text_mode_requests_text_only_and_persists_complete_answer(tmp_path: Pat
     assert service.persisted == [("灵山胜境有什么特色？", "灵山值得游览。")]
     assert qwen.deleted == ["evidence_1"]
     assert browser.json_events[-1]["type"] == "turn.completed"
+
+
+def test_text_mode_replaces_streamed_markdown_with_clean_final_and_history_text(tmp_path: Path):
+    async def scenario():
+        browser = FakeBrowser()
+        qwen = FakeQwen()
+        service = FakeConversationService()
+        service.prepared.answer_contract = build_answer_contract(service.prepared.evidence, "avatar")
+
+        def finalize_with_contract(prepared, answer, mode):
+            return finalize_answer(prepared.evidence, prepared.answer_contract, answer)
+
+        service.finalize_answer = finalize_with_contract
+        session = VisitorRealtimeSession(
+            browser,
+            "visitor_a",
+            "",
+            AppSettings.for_workspace(tmp_path),
+            service,
+            qwen,
+        )
+        await session.open()
+        await session.handle_client_event(
+            {"type": "text.submit", "turn_id": "turn_markdown", "text": "给我游览建议"}
+        )
+        await session.handle_upstream_event(
+            {"type": "response.text.delta", "delta": "**游览建议**：提前确认开放时间。"}
+        )
+        await session.handle_upstream_event(
+            {"type": "response.done", "response": {"status": "completed"}}
+        )
+        return browser, service
+
+    browser, service = asyncio.run(scenario())
+
+    done = next(event for event in browser.json_events if event["type"] == "assistant.text.done")
+    assert done["text"] == "游览建议：提前确认开放时间。"
+    assert service.persisted == [("给我游览建议", "游览建议：提前确认开放时间。")]
 
 
 def test_text_mode_streams_and_persists_deterministic_route_completion(tmp_path: Path):

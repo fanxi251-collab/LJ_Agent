@@ -48,6 +48,20 @@ def _route_summary() -> dict:
     }
 
 
+def test_finalizer_removes_inline_markdown_before_returning_model_answer():
+    evidence = _evidence(_source("景区介绍.md", "灵山胜境适合文化深度游。"))
+    contract = build_answer_contract(evidence, "avatar")
+
+    finalized = finalize_answer(
+        evidence,
+        contract,
+        "**游览建议**：建议提前通过官方渠道确认当日开放时间。",
+    )
+
+    assert finalized.text == "游览建议：建议提前通过官方渠道确认当日开放时间。"
+    assert "**" not in finalized.text
+
+
 def test_regular_and_avatar_contracts_have_distinct_length_requirements():
     evidence = _evidence(_source("景区介绍.md", "灵山胜境以灵山大佛和佛教文化景观闻名。"))
 

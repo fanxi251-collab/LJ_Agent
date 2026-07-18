@@ -1,6 +1,34 @@
 ﻿from lingjing_ai.rag.answer_formatter import clean_evidence_text, format_extract_answer, normalize_model_answer
 
 
+from lingjing_ai.rag.answer_formatter import clean_inline_markdown
+
+
+def test_clean_inline_markdown_removes_wrappers_but_preserves_block_structure():
+    raw = (
+        "### **游览建议**\n"
+        "- 建议提前查看`开放时间`，参考[景区公告](https://example.com/notice_(v1))。\n"
+        "- *合理安排体力*，不要承诺~~永不取消~~。"
+    )
+
+    cleaned = clean_inline_markdown(raw)
+
+    assert cleaned == (
+        "### 游览建议\n"
+        "- 建议提前查看开放时间，参考景区公告。\n"
+        "- 合理安排体力，不要承诺永不取消。"
+    )
+
+
+def test_clean_inline_markdown_preserves_plain_operators_and_identifiers():
+    raw = (
+        "面积估算使用 2 * 3 * 4 或 5*6*7，字段名为 source_type、"
+        "MAP_JS_API、A_B_C 和 __init__。"
+    )
+
+    assert clean_inline_markdown(raw) == raw
+
+
 def test_clean_evidence_text_removes_markdown_table_and_heading_noise():
     raw = """
     ## 3. 餐饮与住宿推荐
