@@ -64,7 +64,7 @@ textarea {
 
 .admin-attraction-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.5fr);
+  grid-template-columns: minmax(340px, 0.85fr) minmax(0, 1.45fr);
   gap: 16px;
   align-items: start;
 }
@@ -82,6 +82,10 @@ textarea {
   margin-top: 16px;
 }
 
+.admin-filters {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.55fr);
+}
+
 .admin-filters input,
 .admin-filters select,
 .form-grid input,
@@ -92,6 +96,12 @@ textarea {
   padding: 0 12px;
   background: #fff;
   font: inherit;
+}
+
+.admin-filters input,
+.admin-filters select {
+  min-width: 0;
+  width: 100%;
 }
 
 .form-grid label {

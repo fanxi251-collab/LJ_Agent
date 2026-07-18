@@ -37,7 +37,7 @@ def test_admin_documents_page_and_assets_are_served(tmp_path: Path):
     script = request_path(app, "/static/admin_documents.js")
 
     assert page.status_code == 200
-    assert "原始资料管理" in page.text
+    assert "知识库资料管理" in page.text
     assert "/static/admin_documents.js" in page.text
     assert script.status_code == 200
     assert 'fetch("/api/admin/documents"' in script.text
