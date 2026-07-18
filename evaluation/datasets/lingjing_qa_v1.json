@@ -30,12 +30,12 @@
     },
     "knowledge_documents": [
       {
-        "document_name": "灵山胜境游览指南.md",
-        "md5": "2addb45dad5402e006216ef45909b0a6"
+        "document_name": "灵山胜境_游览指南.txt",
+        "md5": "c2b9c0d2dc51abdee533d371112d9aa3"
       },
       {
-        "document_name": "灵山胜境景点结构化数据集.md",
-        "md5": "20e3b6f9237671d4c9ea00c3d0579e54"
+        "document_name": "灵山胜境_景点结构化数据集.txt",
+        "md5": "31f034d61c8ccc98dc5a2066d8ae7eb4"
       }
     ],
     "review_status": "human_review_required_before_quality_gate",
@@ -205,7 +205,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "景区概况"
@@ -220,8 +220,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "景区概况",
             "excerpt": "灵山胜境位于无锡太湖之滨，景点地址为无锡市滨湖区马山灵山路1号。"
           }
@@ -236,8 +236,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_001",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "灵山胜境位于无锡太湖之滨，景点地址为无锡市滨湖区马山灵山路1号。",
             "score": 1.0,
             "metadata": {
@@ -267,13 +267,16 @@
       "expected": {
         "answerable": true,
         "reference_answer": "灵山胜境是国家AAAAA级旅游景区。",
-        "required_claims": [
-          "国家AAAAA级旅游景区"
+        "required_claims": [],
+        "any_of_claim_groups": [
+          [
+            "国家AAAAA级旅游景区",
+            "国家5A级旅游景区"
+          ]
         ],
-        "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "景区概况"
@@ -288,8 +291,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "景区概况",
             "excerpt": "景区等级：国家AAAAA级旅游景区。"
           }
@@ -304,8 +307,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_002",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "景区等级：国家AAAAA级旅游景区。",
             "score": 1.0,
             "metadata": {
@@ -341,7 +344,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点 > 灵山大佛"
@@ -356,8 +359,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点 > 灵山大佛",
             "excerpt": "灵山大佛通高88米，是景区核心地标。"
           }
@@ -372,8 +375,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_003",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "灵山大佛通高88米，是景区核心地标。",
             "score": 1.0,
             "metadata": {
@@ -411,7 +414,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "灵山大照壁"
@@ -426,8 +429,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "灵山大照壁",
             "excerpt": "灵山大照壁长39.8m、高7m，赵朴初先生亲笔题写“灵山胜境”。"
           }
@@ -442,8 +445,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_004",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "灵山大照壁长39.8m、高7m，赵朴初先生亲笔题写“灵山胜境”。",
             "score": 1.0,
             "metadata": {
@@ -483,7 +486,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "五明桥"
@@ -498,8 +501,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "五明桥",
             "excerpt": "五明桥代表声明、因明、内明、医方明、工巧明五种智慧。"
           }
@@ -514,8 +517,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_005",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "五明桥代表声明、因明、内明、医方明、工巧明五种智慧。",
             "score": 1.0,
             "metadata": {
@@ -552,7 +555,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "佛足坛"
@@ -567,8 +570,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "佛足坛",
             "excerpt": "佛足坛复刻佛祖释迦牟尼真身脚印，象征福德与智慧圆满。"
           }
@@ -583,8 +586,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_006",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "佛足坛复刻佛祖释迦牟尼真身脚印，象征福德与智慧圆满。",
             "score": 1.0,
             "metadata": {
@@ -621,7 +624,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "五智门"
@@ -636,8 +639,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "五智门",
             "excerpt": "五门分别象征五方五佛，六柱代表六度波罗蜜。"
           }
@@ -652,8 +655,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_007",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "五门分别象征五方五佛，六柱代表六度波罗蜜。",
             "score": 1.0,
             "metadata": {
@@ -690,7 +693,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "菩提大道"
@@ -705,8 +708,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "菩提大道",
             "excerpt": "菩提大道长约250m，宽约10m。"
           }
@@ -721,8 +724,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_008",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "菩提大道长约250m，宽约10m。",
             "score": 1.0,
             "metadata": {
@@ -762,7 +765,7 @@
           "13:30、15:00"
         ],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "九龙灌浴"
@@ -779,8 +782,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "九龙灌浴",
             "excerpt": "本地资料列有九龙灌浴演出时间，并提示节假日场次以景区通知为准。"
           }
@@ -806,8 +809,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_009",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "本地资料列有九龙灌浴演出时间，并提示节假日场次以景区通知为准。",
             "score": 1.0,
             "metadata": {
@@ -844,7 +847,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "阿育王柱"
@@ -859,8 +862,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "阿育王柱",
             "excerpt": "柱头四头狮子朝向东南西北，象征佛法向世界各地传播。"
           }
@@ -875,8 +878,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_010",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "柱头四头狮子朝向东南西北，象征佛法向世界各地传播。",
             "score": 1.0,
             "metadata": {
@@ -914,7 +917,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "百子戏弥勒"
@@ -929,8 +932,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "百子戏弥勒",
             "excerpt": "百子戏弥勒塑有百名嬉戏孩童，寓意欢喜、包容和家庭和睦。"
           }
@@ -945,8 +948,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_011",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "百子戏弥勒塑有百名嬉戏孩童，寓意欢喜、包容和家庭和睦。",
             "score": 1.0,
             "metadata": {
@@ -982,7 +985,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "祥符禅寺"
@@ -997,8 +1000,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "祥符禅寺",
             "excerpt": "祥符禅寺始建于唐贞观年间。"
           }
@@ -1013,8 +1016,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_012",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "祥符禅寺始建于唐贞观年间。",
             "score": 1.0,
             "metadata": {
@@ -1051,7 +1054,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点 > 灵山梵宫"
@@ -1066,8 +1069,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点 > 灵山梵宫",
             "excerpt": "灵山梵宫以佛教建筑艺术和丰富艺术陈设著称。"
           }
@@ -1082,8 +1085,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_013",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "灵山梵宫以佛教建筑艺术和丰富艺术陈设著称。",
             "score": 1.0,
             "metadata": {
@@ -1119,7 +1122,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点 > 五印坛城"
@@ -1134,8 +1137,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点 > 五印坛城",
             "excerpt": "五印坛城是展示藏传佛教文化的核心景点。"
           }
@@ -1150,8 +1153,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_014",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "五印坛城是展示藏传佛教文化的核心景点。",
             "score": 1.0,
             "metadata": {
@@ -1187,7 +1190,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "曼飞龙塔"
@@ -1202,8 +1205,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "曼飞龙塔",
             "excerpt": "曼飞龙塔与梵宫、五印坛城共同展示佛教三大语系建筑特色。"
           }
@@ -1218,8 +1221,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_015",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "曼飞龙塔与梵宫、五印坛城共同展示佛教三大语系建筑特色。",
             "score": 1.0,
             "metadata": {
@@ -1257,7 +1260,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "无尽意斋"
@@ -1274,8 +1277,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "无尽意斋",
             "excerpt": "本地资料记录无尽意斋开放信息，但开放时段属于动态信息。"
           }
@@ -1296,8 +1299,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_016",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "本地资料记录无尽意斋开放信息，但开放时段属于动态信息。",
             "score": 1.0,
             "metadata": {
@@ -1335,7 +1338,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "开放时间与票务"
@@ -1352,8 +1355,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "开放时间与票务",
             "excerpt": "景区售票时间会按季节和特殊日期调整。"
           }
@@ -1373,8 +1376,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_017",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "景区售票时间会按季节和特殊日期调整。",
             "score": 1.0,
             "metadata": {
@@ -1416,7 +1419,7 @@
           "固定为210元"
         ],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "开放时间与票务"
@@ -1433,8 +1436,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "开放时间与票务",
             "excerpt": "本地资料包含门票信息，但价格可能随活动和日期调整。"
           }
@@ -1457,8 +1460,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_018",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "本地资料包含门票信息，但价格可能随活动和日期调整。",
             "score": 1.0,
             "metadata": {
@@ -1497,7 +1500,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点"
@@ -1512,8 +1515,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点",
             "excerpt": "核心景观包括灵山大佛、九龙灌浴、灵山梵宫和五印坛城。"
           }
@@ -1528,8 +1531,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_019",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "核心景观包括灵山大佛、九龙灌浴、灵山梵宫和五印坛城。",
             "score": 1.0,
             "metadata": {
@@ -1567,7 +1570,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "开放时间"
@@ -1584,8 +1587,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "开放时间",
             "excerpt": "梵宫和五印坛城开放时间会按季节调整。"
           }
@@ -1605,8 +1608,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_020",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "梵宫和五印坛城开放时间会按季节调整。",
             "score": 1.0,
             "metadata": {
@@ -1644,7 +1647,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "九龙灌浴"
@@ -1659,8 +1662,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "九龙灌浴",
             "excerpt": "九龙灌浴依据释迦牟尼诞生传说打造，展示花开见佛、九龙沐浴。"
           }
@@ -1675,8 +1678,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_021",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "九龙灌浴依据释迦牟尼诞生传说打造，展示花开见佛、九龙沐浴。",
             "score": 1.0,
             "metadata": {
@@ -1714,7 +1717,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "游览服务"
@@ -1729,8 +1732,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "游览服务",
             "excerpt": "资料提到休息区域、观光车和游客服务中心。"
           }
@@ -1745,8 +1748,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_022",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料提到休息区域、观光车和游客服务中心。",
             "score": 1.0,
             "metadata": {
@@ -1784,7 +1787,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "推荐游览路线"
@@ -1799,8 +1802,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "推荐游览路线",
             "excerpt": "经典路线从景区入口的大照壁出发，沿中轴线进入核心区。"
           }
@@ -1815,8 +1818,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_023",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "经典路线从景区入口的大照壁出发，沿中轴线进入核心区。",
             "score": 1.0,
             "metadata": {
@@ -1854,7 +1857,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "核心文化"
@@ -1869,8 +1872,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "核心文化",
             "excerpt": "梵宫、五印坛城和曼飞龙塔共同展示汉传、藏传、南传佛教文化。"
           }
@@ -1885,8 +1888,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_024",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "梵宫、五印坛城和曼飞龙塔共同展示汉传、藏传、南传佛教文化。",
             "score": 1.0,
             "metadata": {
@@ -1923,7 +1926,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点"
@@ -1938,8 +1941,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点",
             "excerpt": "灵山大佛、祥符禅寺、灵山佛手等构成核心游览区域。"
           }
@@ -1954,8 +1957,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_025",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "灵山大佛、祥符禅寺、灵山佛手等构成核心游览区域。",
             "score": 1.0,
             "metadata": {
@@ -1998,7 +2001,7 @@
           "每天都到21:30"
         ],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "拈花湾开放时间"
@@ -2015,8 +2018,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "拈花湾开放时间",
             "excerpt": "本地资料记录拈花湾开放至21:30，但具体时间应按日期核验。"
           }
@@ -2042,8 +2045,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_026",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "本地资料记录拈花湾开放至21:30，但具体时间应按日期核验。",
             "score": 1.0,
             "metadata": {
@@ -2079,7 +2082,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "拈花湾概况"
@@ -2094,8 +2097,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "拈花湾概况",
             "excerpt": "官方及本地资料记录拈花湾地址为马山环山西路68号。"
           }
@@ -2110,8 +2113,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_027",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "官方及本地资料记录拈花湾地址为马山环山西路68号。",
             "score": 1.0,
             "metadata": {
@@ -2148,7 +2151,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "拈花广场"
@@ -2163,8 +2166,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "拈花广场",
             "excerpt": "拈花广场中央设有拈花微笑主题雕塑，是入口集散区域。"
           }
@@ -2179,8 +2182,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_028",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "拈花广场中央设有拈花微笑主题雕塑，是入口集散区域。",
             "score": 1.0,
             "metadata": {
@@ -2218,7 +2221,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "香月花街"
@@ -2233,8 +2236,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "香月花街",
             "excerpt": "香月花街涵盖禅意文创、非遗手作、特色餐饮和禅茶体验。"
           }
@@ -2249,8 +2252,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_029",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "香月花街涵盖禅意文创、非遗手作、特色餐饮和禅茶体验。",
             "score": 1.0,
             "metadata": {
@@ -2289,7 +2292,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "五灯湖"
@@ -2304,8 +2307,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "五灯湖",
             "excerpt": "五灯湖白天可赏湖景，夜间是灯光和演艺的重要区域。"
           }
@@ -2320,8 +2323,8 @@
         "sources": [
           {
             "chunk_id": "offline_factual_030",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "五灯湖白天可赏湖景，夜间是灯光和演艺的重要区域。",
             "score": 1.0,
             "metadata": {
@@ -2359,7 +2362,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "灵山大照壁"
@@ -2374,8 +2377,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "灵山大照壁",
             "excerpt": "大照壁位于入口，以题字和诗刻开启景区佛教文化序章。"
           }
@@ -2390,8 +2393,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_001",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "大照壁位于入口，以题字和诗刻开启景区佛教文化序章。",
             "score": 1.0,
             "metadata": {
@@ -2429,7 +2432,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "五明桥、五智门"
@@ -2444,8 +2447,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "五明桥、五智门",
             "excerpt": "五明桥象征五明，五智门象征五方五佛及六度波罗蜜。"
           }
@@ -2460,8 +2463,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_002",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "五明桥象征五明，五智门象征五方五佛及六度波罗蜜。",
             "score": 1.0,
             "metadata": {
@@ -2499,7 +2502,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "佛足坛"
@@ -2514,8 +2517,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "佛足坛",
             "excerpt": "佛足坛复刻佛足圣迹，位于景区中轴线朝圣节点。"
           }
@@ -2530,8 +2533,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_003",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "佛足坛复刻佛足圣迹，位于景区中轴线朝圣节点。",
             "score": 1.0,
             "metadata": {
@@ -2569,7 +2572,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "九龙灌浴"
@@ -2584,8 +2587,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "九龙灌浴",
             "excerpt": "九龙灌浴用动态群雕和音乐展示佛陀诞生故事。"
           }
@@ -2600,8 +2603,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_004",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "九龙灌浴用动态群雕和音乐展示佛陀诞生故事。",
             "score": 1.0,
             "metadata": {
@@ -2638,7 +2641,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点"
@@ -2653,8 +2656,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点",
             "excerpt": "梵宫与五印坛城分别体现不同佛教文化与建筑艺术。"
           }
@@ -2669,8 +2672,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_005",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "梵宫与五印坛城分别体现不同佛教文化与建筑艺术。",
             "score": 1.0,
             "metadata": {
@@ -2708,7 +2711,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "祥符禅寺"
@@ -2723,8 +2726,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "祥符禅寺",
             "excerpt": "祥符禅寺始建于唐贞观年间，是江南重要古刹。"
           }
@@ -2739,8 +2742,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_006",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "祥符禅寺始建于唐贞观年间，是江南重要古刹。",
             "score": 1.0,
             "metadata": {
@@ -2778,7 +2781,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "阿育王柱"
@@ -2793,8 +2796,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "阿育王柱",
             "excerpt": "阿育王柱象征佛法向四方传播，体现和平与包容。"
           }
@@ -2809,8 +2812,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_007",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "阿育王柱象征佛法向四方传播，体现和平与包容。",
             "score": 1.0,
             "metadata": {
@@ -2848,7 +2851,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "百子戏弥勒"
@@ -2863,8 +2866,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "百子戏弥勒",
             "excerpt": "百子戏弥勒造型活泼并融合家庭祈福寓意。"
           }
@@ -2879,8 +2882,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_008",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "百子戏弥勒造型活泼并融合家庭祈福寓意。",
             "score": 1.0,
             "metadata": {
@@ -2918,7 +2921,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "菩提大道"
@@ -2933,8 +2936,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "菩提大道",
             "excerpt": "菩提大道连接五智门和九龙灌浴，是核心中轴步道。"
           }
@@ -2949,8 +2952,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_009",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "菩提大道连接五智门和九龙灌浴，是核心中轴步道。",
             "score": 1.0,
             "metadata": {
@@ -2988,7 +2991,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心文化"
@@ -3003,8 +3006,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心文化",
             "excerpt": "资料系统介绍佛教历史、建筑艺术和三大语系文化。"
           }
@@ -3019,8 +3022,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_010",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料系统介绍佛教历史、建筑艺术和三大语系文化。",
             "score": 1.0,
             "metadata": {
@@ -3058,7 +3061,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "核心景点"
@@ -3073,8 +3076,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "核心景点",
             "excerpt": "祥符禅寺位于灵山大佛基座区域，是核心参访节点。"
           }
@@ -3089,8 +3092,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_011",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "祥符禅寺位于灵山大佛基座区域，是核心参访节点。",
             "score": 1.0,
             "metadata": {
@@ -3128,7 +3131,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "灵山梵宫"
@@ -3143,8 +3146,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "灵山梵宫",
             "excerpt": "梵宫融合建筑、壁画、雕塑等佛教艺术。"
           }
@@ -3159,8 +3162,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_012",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "梵宫融合建筑、壁画、雕塑等佛教艺术。",
             "score": 1.0,
             "metadata": {
@@ -3198,7 +3201,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "数据集说明"
@@ -3213,8 +3216,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "数据集说明",
             "excerpt": "资料将灵山胜境定位为佛教文化朝圣，将拈花湾定位为禅意休闲体验。"
           }
@@ -3229,8 +3232,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_013",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "资料将灵山胜境定位为佛教文化朝圣，将拈花湾定位为禅意休闲体验。",
             "score": 1.0,
             "metadata": {
@@ -3269,7 +3272,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "香月花街"
@@ -3284,8 +3287,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "香月花街",
             "excerpt": "香月花街将禅意景观与文创、非遗、餐饮和禅茶体验结合。"
           }
@@ -3300,8 +3303,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_014",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "香月花街将禅意景观与文创、非遗、餐饮和禅茶体验结合。",
             "score": 1.0,
             "metadata": {
@@ -3339,7 +3342,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "五灯湖"
@@ -3354,8 +3357,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "五灯湖",
             "excerpt": "五灯湖是夜间灯光和禅意演艺的重要场地。"
           }
@@ -3370,8 +3373,8 @@
         "sources": [
           {
             "chunk_id": "offline_explanation_015",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "五灯湖是夜间灯光和禅意演艺的重要场地。",
             "score": 1.0,
             "metadata": {
@@ -3411,7 +3414,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "推荐游览路线"
@@ -3426,8 +3429,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "推荐游览路线",
             "excerpt": "资料提供从入口沿中轴线串联核心景点的经典路线。"
           }
@@ -3442,8 +3445,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_001",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料提供从入口沿中轴线串联核心景点的经典路线。",
             "score": 1.0,
             "metadata": {
@@ -3481,7 +3484,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "半日精华路线"
@@ -3496,8 +3499,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "半日精华路线",
             "excerpt": "半日路线建议聚焦九龙灌浴、大佛和梵宫等核心景观。"
           }
@@ -3512,8 +3515,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_002",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "半日路线建议聚焦九龙灌浴、大佛和梵宫等核心景观。",
             "score": 1.0,
             "metadata": {
@@ -3552,7 +3555,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "适老轻松路线"
@@ -3567,8 +3570,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "适老轻松路线",
             "excerpt": "资料建议适老游结合观光车、休息区和核心景点安排。"
           }
@@ -3583,8 +3586,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_003",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料建议适老游结合观光车、休息区和核心景点安排。",
             "score": 1.0,
             "metadata": {
@@ -3622,7 +3625,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "亲子游路线"
@@ -3637,8 +3640,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "亲子游路线",
             "excerpt": "亲子路线可结合动态表演、亲和景观和休息安排。"
           }
@@ -3653,8 +3656,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_004",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "亲子路线可结合动态表演、亲和景观和休息安排。",
             "score": 1.0,
             "metadata": {
@@ -3693,7 +3696,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "游玩亮点"
@@ -3708,8 +3711,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "游玩亮点",
             "excerpt": "多个景点资料列出湖景、建筑、中轴线和演艺拍摄亮点。"
           }
@@ -3724,8 +3727,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_005",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "多个景点资料列出湖景、建筑、中轴线和演艺拍摄亮点。",
             "score": 1.0,
             "metadata": {
@@ -3764,7 +3767,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "历史文化路线"
@@ -3779,8 +3782,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "历史文化路线",
             "excerpt": "资料包含古刹、圣迹、佛教传播及三大语系文化内容。"
           }
@@ -3795,8 +3798,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_006",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料包含古刹、圣迹、佛教传播及三大语系文化内容。",
             "score": 1.0,
             "metadata": {
@@ -3834,7 +3837,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "九龙灌浴"
@@ -3849,8 +3852,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "九龙灌浴",
             "excerpt": "九龙灌浴是中轴线动态景观，资料建议提前到场并以现场时间为准。"
           }
@@ -3865,8 +3868,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_007",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "九龙灌浴是中轴线动态景观，资料建议提前到场并以现场时间为准。",
             "score": 1.0,
             "metadata": {
@@ -3904,7 +3907,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "游览建议"
@@ -3919,8 +3922,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "游览建议",
             "excerpt": "资料包含室内文化景点以及雨天步道安全提醒。"
           }
@@ -3935,8 +3938,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_008",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料包含室内文化景点以及雨天步道安全提醒。",
             "score": 1.0,
             "metadata": {
@@ -3975,7 +3978,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "半日路线"
@@ -3990,8 +3993,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "半日路线",
             "excerpt": "短时游览应围绕大佛、九龙灌浴、梵宫并按演出时间调整。"
           }
@@ -4006,8 +4009,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_009",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "短时游览应围绕大佛、九龙灌浴、梵宫并按演出时间调整。",
             "score": 1.0,
             "metadata": {
@@ -4045,7 +4048,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "适老建议"
@@ -4060,8 +4063,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "适老建议",
             "excerpt": "资料建议行动不便游客结合观光车并咨询服务设施。"
           }
@@ -4076,8 +4079,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_010",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料建议行动不便游客结合观光车并咨询服务设施。",
             "score": 1.0,
             "metadata": {
@@ -4115,7 +4118,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "三大语系"
@@ -4130,8 +4133,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "三大语系",
             "excerpt": "三处景点分别呈现汉传、藏传和南传佛教文化。"
           }
@@ -4146,8 +4149,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_011",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "三处景点分别呈现汉传、藏传和南传佛教文化。",
             "score": 1.0,
             "metadata": {
@@ -4185,7 +4188,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "经典路线"
@@ -4200,8 +4203,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "经典路线",
             "excerpt": "入口中轴线可依次连接大照壁、五明桥、五智门和九龙灌浴。"
           }
@@ -4216,8 +4219,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_012",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "入口中轴线可依次连接大照壁、五明桥、五智门和九龙灌浴。",
             "score": 1.0,
             "metadata": {
@@ -4256,7 +4259,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "游览建议"
@@ -4271,8 +4274,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "游览建议",
             "excerpt": "资料同时提供文化节点、步道、休息区和观光车信息。"
           }
@@ -4287,8 +4290,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_013",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "资料同时提供文化节点、步道、休息区和观光车信息。",
             "score": 1.0,
             "metadata": {
@@ -4327,7 +4330,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "适老与亲子路线"
@@ -4342,8 +4345,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "适老与亲子路线",
             "excerpt": "资料分别提供适老、亲子景点和交通休息建议。"
           }
@@ -4358,8 +4361,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_014",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料分别提供适老、亲子景点和交通休息建议。",
             "score": 1.0,
             "metadata": {
@@ -4398,7 +4401,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "游玩亮点"
@@ -4413,8 +4416,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "游玩亮点",
             "excerpt": "结构化资料详细记录桥栏、牌坊、浮雕、穹顶和柱头等艺术细节。"
           }
@@ -4429,8 +4432,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_015",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "结构化资料详细记录桥栏、牌坊、浮雕、穹顶和柱头等艺术细节。",
             "score": 1.0,
             "metadata": {
@@ -4470,7 +4473,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "中轴线"
@@ -4485,8 +4488,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "中轴线",
             "excerpt": "结构化资料给出了入口至大佛的中轴节点关系。"
           }
@@ -4501,8 +4504,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_016",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "结构化资料给出了入口至大佛的中轴节点关系。",
             "score": 1.0,
             "metadata": {
@@ -4540,7 +4543,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "核心文化"
@@ -4555,8 +4558,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "核心文化",
             "excerpt": "资料包含多处佛教建筑、古刹和文化雕塑。"
           }
@@ -4571,8 +4574,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_017",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "资料包含多处佛教建筑、古刹和文化雕塑。",
             "score": 1.0,
             "metadata": {
@@ -4610,7 +4613,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "拈花湾路线"
@@ -4625,8 +4628,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "拈花湾路线",
             "excerpt": "入口广场、核心街区和五灯湖可组成半日主线。"
           }
@@ -4641,8 +4644,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_018",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "入口广场、核心街区和五灯湖可组成半日主线。",
             "score": 1.0,
             "metadata": {
@@ -4680,7 +4683,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "亲子体验"
@@ -4695,8 +4698,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "亲子体验",
             "excerpt": "资料包含广场活动、非遗手作、花海和亲子互动内容。"
           }
@@ -4711,8 +4714,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_019",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "资料包含广场活动、非遗手作、花海和亲子互动内容。",
             "score": 1.0,
             "metadata": {
@@ -4751,7 +4754,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "夜游建议"
@@ -4766,8 +4769,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "夜游建议",
             "excerpt": "香月花街、花海和五灯湖分别适合下午、傍晚及夜间体验。"
           }
@@ -4782,8 +4785,8 @@
         "sources": [
           {
             "chunk_id": "offline_planning_020",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "香月花街、花海和五灯湖分别适合下午、傍晚及夜间体验。",
             "score": 1.0,
             "metadata": {
@@ -6052,7 +6055,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "灵山大佛"
@@ -6067,8 +6070,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "灵山大佛",
             "excerpt": "资料记载灵山大佛通高88米。"
           }
@@ -6083,8 +6086,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_001",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料记载灵山大佛通高88米。",
             "score": 1.0,
             "metadata": {
@@ -6130,7 +6133,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点"
@@ -6145,8 +6148,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点",
             "excerpt": "大佛区域与祥符禅寺、灵山佛手等景点相邻。"
           }
@@ -6161,8 +6164,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_002",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "大佛区域与祥符禅寺、灵山佛手等景点相邻。",
             "score": 1.0,
             "metadata": {
@@ -6209,7 +6212,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "适老人群"
@@ -6224,8 +6227,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "适老人群",
             "excerpt": "适老建议包含观光车、休息点和低强度路线。"
           }
@@ -6240,8 +6243,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_003",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "适老建议包含观光车、休息点和低强度路线。",
             "score": 1.0,
             "metadata": {
@@ -6287,7 +6290,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "票务"
@@ -6304,8 +6307,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "票务",
             "excerpt": "本地资料包含票务信息并提示以官方政策为准。"
           }
@@ -6325,8 +6328,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_004",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "本地资料包含票务信息并提示以官方政策为准。",
             "score": 1.0,
             "metadata": {
@@ -6372,7 +6375,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "核心景点"
@@ -6387,8 +6390,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "核心景点",
             "excerpt": "梵宫与五印坛城分别体现汉传和藏传佛教文化。"
           }
@@ -6403,8 +6406,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_005",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "梵宫与五印坛城分别体现汉传和藏传佛教文化。",
             "score": 1.0,
             "metadata": {
@@ -6599,7 +6602,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "半日路线"
@@ -6614,8 +6617,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "半日路线",
             "excerpt": "半日精华路线聚焦九龙灌浴、大佛和梵宫。"
           }
@@ -6630,8 +6633,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_009",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "半日精华路线聚焦九龙灌浴、大佛和梵宫。",
             "score": 1.0,
             "metadata": {
@@ -6674,7 +6677,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "亲子路线"
@@ -6689,8 +6692,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "亲子路线",
             "excerpt": "资料推荐亲子关注动态表演和互动景点。"
           }
@@ -6705,8 +6708,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_010",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料推荐亲子关注动态表演和互动景点。",
             "score": 1.0,
             "metadata": {
@@ -6747,7 +6750,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "灵山梵宫"
@@ -6762,8 +6765,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "灵山梵宫",
             "excerpt": "灵山梵宫属于室内文化建筑空间。"
           }
@@ -6778,8 +6781,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_011",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "灵山梵宫属于室内文化建筑空间。",
             "score": 1.0,
             "metadata": {
@@ -6822,7 +6825,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "经典路线"
@@ -6837,8 +6840,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "经典路线",
             "excerpt": "核心路线从九龙灌浴继续串联寺院、大佛和文化建筑。"
           }
@@ -6853,8 +6856,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_012",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "核心路线从九龙灌浴继续串联寺院、大佛和文化建筑。",
             "score": 1.0,
             "metadata": {
@@ -6895,7 +6898,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "九龙灌浴"
@@ -6910,8 +6913,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "九龙灌浴",
             "excerpt": "九龙灌浴周边设有休息区和打卡点。"
           }
@@ -6926,8 +6929,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_013",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "九龙灌浴周边设有休息区和打卡点。",
             "score": 1.0,
             "metadata": {
@@ -6970,7 +6973,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "夜游建议"
@@ -6985,8 +6988,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "夜游建议",
             "excerpt": "拈花湾白天适合街区和花海，夜间适合灯光与演艺。"
           }
@@ -7001,8 +7004,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_014",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "拈花湾白天适合街区和花海，夜间适合灯光与演艺。",
             "score": 1.0,
             "metadata": {
@@ -7045,7 +7048,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "香月花街"
@@ -7060,8 +7063,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "香月花街",
             "excerpt": "香月花街提供餐饮、禅茶、文创和非遗体验。"
           }
@@ -7076,8 +7079,8 @@
         "sources": [
           {
             "chunk_id": "offline_multi_turn_015",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "香月花街提供餐饮、禅茶、文创和非遗体验。",
             "score": 1.0,
             "metadata": {
@@ -7804,7 +7807,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "灵山大佛"
@@ -7819,8 +7822,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "灵山大佛",
             "excerpt": "资料记载灵山大佛通高88米。"
           }
@@ -7835,8 +7838,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_001",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料记载灵山大佛通高88米。",
             "score": 1.0,
             "metadata": {
@@ -7874,7 +7877,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "灵山大佛"
@@ -7889,8 +7892,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "灵山大佛",
             "excerpt": "资料记载灵山大佛通高88米。"
           }
@@ -7905,8 +7908,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_002",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "资料记载灵山大佛通高88米。",
             "score": 1.0,
             "metadata": {
@@ -7945,7 +7948,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "适老路线"
@@ -7960,8 +7963,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "适老路线",
             "excerpt": "适老路线建议使用观光车、休息点并降低步行强度。"
           }
@@ -7976,8 +7979,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_003",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "适老路线建议使用观光车、休息点并降低步行强度。",
             "score": 1.0,
             "metadata": {
@@ -8017,7 +8020,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "半日路线"
@@ -8032,8 +8035,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "半日路线",
             "excerpt": "半日路线以中轴核心景点为主，减少支线。"
           }
@@ -8048,8 +8051,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_004",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "半日路线以中轴核心景点为主，减少支线。",
             "score": 1.0,
             "metadata": {
@@ -8088,7 +8091,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "五智门"
@@ -8103,8 +8106,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "五智门",
             "excerpt": "五智门的五门象征五方五佛，六柱代表六度波罗蜜。"
           }
@@ -8119,8 +8122,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_005",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "五智门的五门象征五方五佛，六柱代表六度波罗蜜。",
             "score": 1.0,
             "metadata": {
@@ -8160,7 +8163,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "九龙灌浴"
@@ -8175,8 +8178,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "九龙灌浴",
             "excerpt": "九龙灌浴是展示佛陀诞生故事的动态核心景观。"
           }
@@ -8191,8 +8194,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_006",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "九龙灌浴是展示佛陀诞生故事的动态核心景观。",
             "score": 1.0,
             "metadata": {
@@ -8230,7 +8233,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境游览指南.md"
+          "灵山胜境_游览指南.txt"
         ],
         "expected_sections": [
           "灵山梵宫"
@@ -8245,8 +8248,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境游览指南.md",
-            "document_md5": "2addb45dad5402e006216ef45909b0a6",
+            "document_name": "灵山胜境_游览指南.txt",
+            "document_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
             "section": "灵山梵宫",
             "excerpt": "灵山梵宫以佛教建筑和艺术空间著称。"
           }
@@ -8261,8 +8264,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_007",
-            "document_id": "4cb7a65ffbe6",
-            "document_name": "灵山胜境游览指南.md",
+            "document_id": "d80905c43e5b",
+            "document_name": "灵山胜境_游览指南.txt",
             "content_preview": "灵山梵宫以佛教建筑和艺术空间著称。",
             "score": 1.0,
             "metadata": {
@@ -8300,7 +8303,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "灵山大照壁"
@@ -8315,8 +8318,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "灵山大照壁",
             "excerpt": "灵山大照壁位于景区入口，正面为赵朴初题字。"
           }
@@ -8331,8 +8334,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_008",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "灵山大照壁位于景区入口，正面为赵朴初题字。",
             "score": 1.0,
             "metadata": {
@@ -8375,7 +8378,7 @@
           "每天21:30"
         ],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "开放时间"
@@ -8392,8 +8395,8 @@
         ],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "开放时间",
             "excerpt": "本地资料含拈花湾开放时间，实际按官方日期规则核验。"
           }
@@ -8419,8 +8422,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_009",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "本地资料含拈花湾开放时间，实际按官方日期规则核验。",
             "score": 1.0,
             "metadata": {
@@ -8459,7 +8462,7 @@
         "any_of_claim_groups": [],
         "forbidden_claims": [],
         "expected_documents": [
-          "灵山胜境景点结构化数据集.md"
+          "灵山胜境_景点结构化数据集.txt"
         ],
         "expected_sections": [
           "香月花街"
@@ -8474,8 +8477,8 @@
         "official_source_refs": [],
         "local_evidence": [
           {
-            "document_name": "灵山胜境景点结构化数据集.md",
-            "document_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
+            "document_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
             "section": "香月花街",
             "excerpt": "香月花街集中提供餐饮、文创、禅茶和非遗体验。"
           }
@@ -8490,8 +8493,8 @@
         "sources": [
           {
             "chunk_id": "offline_robustness_010",
-            "document_id": "5f4c3b769f62",
-            "document_name": "灵山胜境景点结构化数据集.md",
+            "document_id": "f7af33b6e441",
+            "document_name": "灵山胜境_景点结构化数据集.txt",
             "content_preview": "香月花街集中提供餐饮、文创、禅茶和非遗体验。",
             "score": 1.0,
             "metadata": {
