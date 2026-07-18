@@ -137,6 +137,31 @@ def test_direct_route_question_skips_model_expansion_when_points_are_clear():
     assert context.selected_questions == ["从无锡站到灵山胜境怎么走？"]
 
 
+def test_direct_internal_route_keeps_explicit_endpoints_despite_history_target():
+    fake_client = FakeExpansionClient()
+
+    context = build_conversation_context(
+        "从五明桥到五智门怎么走",
+        [
+            ConversationMessage(role="user", content="灵山胜境适合老人的游玩路线"),
+            ConversationMessage(role="assistant", content="建议先游览灵山大佛。"),
+        ],
+        question_expander=QwenQuestionExpander(fake_client, model_name="qwen3.7-plus"),
+    )
+
+    assert context.standalone_question == "从五明桥到五智门怎么走"
+    assert context.needs_clarification is False
+    assert context.clarifying_question == ""
+    assert fake_client.calls == 0
+
+
+def test_internal_route_with_only_destination_still_requests_origin():
+    context = build_conversation_context("到五智门怎么走", [])
+
+    assert context.needs_clarification is True
+    assert "出发地" in context.clarifying_question
+
+
 def test_follow_up_ticket_question_keeps_model_expansion():
     fake_client = FakeExpansionClient()
 

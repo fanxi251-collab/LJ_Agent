@@ -1,4 +1,5 @@
 import { computed, ref } from "vue";
+import { findSuccessfulRouteSource } from "../lib/routeSummary.js";
 
 export function useChat({ agentMode, currentSessionId, visitorId, onSessionChanged }) {
   const answer = ref("");
@@ -10,7 +11,7 @@ export function useChat({ agentMode, currentSessionId, visitorId, onSessionChang
   const latestStreamIsAnswered = ref(false);
 
   const hasRouteSource = computed(() => {
-    return sources.value.some((source) => source.metadata?.source_type === "amap_route");
+    return Boolean(findSuccessfulRouteSource(sources.value));
   });
 
   async function ask(question) {

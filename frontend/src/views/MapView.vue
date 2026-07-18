@@ -91,7 +91,8 @@ onMounted(loadAttractions);
           <img :src="selected.cover_image_url || '/static/attraction-placeholder.svg'" :alt="selected.name" />
           <div><small>{{ selected.category }}</small><h2>{{ selected.name }}</h2><p>{{ selected.summary }}</p><button type="button" @click="drawerAttraction = selected">查看详情</button></div>
         </article>
-        <ol v-if="routeSummary?.steps?.length" class="map-route-steps"><li v-for="step in routeSummary.steps.slice(0, 8)" :key="step.instruction">{{ step.instruction }}</li></ol>
+        <ol v-if="routeSummary?.steps?.length" class="map-route-steps"><li v-for="step in routeSummary.steps" :key="step.index || step.instruction">{{ step.instruction }}</li></ol>
+        <p v-if="routeSummary?.schema_version === 2" class="route-step-count">高德原始步骤共{{ routeSummary.total_step_count || routeSummary.steps?.length || 0 }}条，当前展示{{ routeSummary.steps?.length || 0 }}条关键步骤。</p>
       </section>
     </section>
     <AttractionDetailDrawer :attraction="drawerAttraction" @close="drawerAttraction = null" />

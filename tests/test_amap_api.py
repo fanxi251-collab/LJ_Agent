@@ -3,12 +3,13 @@ import asyncio
 
 import httpx
 
-from lingjing_ai.api.app import create_app
+from lingjing_ai.api.app import _build_agent_executor, create_app
 from lingjing_ai.config.settings import AppSettings
 from lingjing_ai.rag.embeddings import HashingEmbeddingProvider
 from lingjing_ai.rag.generator import ExtractiveAnswerGenerator
 from lingjing_ai.rag.pipeline import RagPipeline
 from lingjing_ai.storage.vector_store import JsonVectorStore
+from lingjing_ai.services.attraction_store import AttractionStore
 
 
 class FakeResponse:
@@ -245,3 +246,69 @@ def test_map_route_api_uses_structured_locations_without_geocoding(tmp_path: Pat
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert all("/v3/geocode/geo" not in path for path in requested_paths)
+
+
+def test_map_route_api_resolves_published_internal_names_and_defaults_to_walking(
+    tmp_path: Path,
+    monkeypatch,
+):
+    monkeypatch.setenv("MAP_API", "map-key")
+    requested_paths = []
+
+    def fake_get(url, params, timeout):
+        requested_paths.append(url)
+        assert "/v3/geocode/geo" not in url
+        assert url.endswith("/v3/direction/walking")
+        assert params["origin"] == "120.102248,31.421749"
+        assert params["destination"] == "120.101292,31.423055"
+        return FakeResponse(
+            {
+                "status": "1",
+                "route": {
+                    "paths": [{
+                        "distance": "210",
+                        "duration": "180",
+                        "steps": [{
+                            "instruction": "沿景区步道向北步行",
+                            "polyline": f"{params['origin']};{params['destination']}",
+                        }],
+                    }]
+                },
+            }
+        )
+
+    monkeypatch.setattr(httpx, "get", fake_get)
+    app = create_app(build_pipeline(tmp_path))
+
+    async def request() -> httpx.Response:
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+            return await client.get(
+                "/api/tools/map/route",
+                params={"origin": "五明桥", "destination": "五智门"},
+            )
+
+    response = asyncio.run(request())
+    summary = response.json()["data"]["route_summary"]
+
+    assert response.status_code == 200
+    assert requested_paths == ["https://restapi.amap.com/v3/direction/walking"]
+    assert summary["mode"] == "walking"
+    assert summary["origin_location"] == "120.102248,31.421749"
+    assert summary["destination_location"] == "120.101292,31.423055"
+
+
+def test_agent_route_tool_receives_published_attraction_location_resolver(tmp_path: Path):
+    pipeline = build_pipeline(tmp_path)
+    store = AttractionStore(
+        tmp_path / "attractions.db",
+        tmp_path / "attraction_images",
+        seed_on_empty=True,
+    )
+
+    executor = _build_agent_executor(pipeline, store)
+    route_tool = executor.tools["amap_route"]
+
+    assert route_tool.location_resolver("五明桥") == "120.102248,31.421749"
+    assert route_tool.location_resolver("五智门") == "120.101292,31.423055"
+    assert route_tool.location_resolver("不存在景点") is None

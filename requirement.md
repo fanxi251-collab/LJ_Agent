@@ -81,6 +81,11 @@ npm run dev
 LJAPI_KEY: 你的阿里云百炼/DashScope API Key
 LJ_LLM_MODEL: qwen3.7-max
 QUESTION_EXPANSION_MODEL: qwen3.7-plus
+LJ_REALTIME_MODEL: qwen-audio-3.0-realtime-flash
+LJ_REALTIME_WORKSPACE_ID: 可选的北京地域 Workspace ID
+LJ_REALTIME_VOICE: longanqian
+LJ_REALTIME_HISTORY_TURNS: 6
+LJ_REALTIME_CONNECT_TIMEOUT_SECONDS: 15
 
 MAP_API: 你的高德 Web 服务 Key
 MAP_JS_API: 你的高德 JS API Key
@@ -114,12 +119,16 @@ NEO4J_DATABASE: neo4j
 - 主问答模型：`qwen3.7-max`
 - 问题扩写模型：`qwen3.7-plus`
 - Embedding：`text-embedding-v4`
+- 游客端双模式最终回答：`qwen-audio-3.0-realtime-flash`
 
 需要配置：
 
 ```yaml
 LJAPI_KEY: 你的阿里云 API Key
+LJ_REALTIME_MODEL: qwen-audio-3.0-realtime-flash
 ```
+
+实时会话的完整配置与事件说明见 `docs/qwen_audio_realtime.md`。
 
 ### 高德地图
 

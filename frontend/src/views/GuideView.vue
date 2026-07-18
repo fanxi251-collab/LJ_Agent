@@ -1,21 +1,19 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ChatMain from "../components/ChatMain.vue";
 import SessionSidebar from "../components/SessionSidebar.vue";
 import SourcePanel from "../components/SourcePanel.vue";
 import UploadPanel from "../components/UploadPanel.vue";
 import RoutePanel from "../components/RoutePanel.vue";
-import { useChat } from "../composables/useChat";
+import { useRealtimeChat } from "../composables/useRealtimeChat";
 import { useSessions } from "../composables/useSessions";
 
 const route = useRoute();
 const router = useRouter();
-const agentMode = ref(true);
 const activeToolPanel = ref("sources");
 const sessionsApi = useSessions();
-const chatApi = useChat({
-  agentMode,
+const chatApi = useRealtimeChat({
   currentSessionId: sessionsApi.currentSessionId,
   visitorId: sessionsApi.visitorId,
   onSessionChanged: sessionsApi.loadSessions,
@@ -26,6 +24,11 @@ const toolTabs = computed(() => [
   { id: "upload", label: "资料上传" },
   { id: "route", label: chatApi.hasRouteSource.value ? "路线地图" : "路线" },
 ]);
+
+watch(chatApi.hasRouteSource, (hasRoute) => {
+  // Open the route only after successful structured data arrives, so failures never reveal an empty map.
+  if (hasRoute) activeToolPanel.value = "route";
+});
 
 async function loadSession(sessionId) {
   const messages = await sessionsApi.loadSessionMessages(sessionId);
@@ -55,13 +58,26 @@ onMounted(async () => {
   <main class="visitor-layout guide-view">
     <section class="chat-area">
       <ChatMain
-        v-model:agent-mode="agentMode"
-        :answer="chatApi.answer.value"
-        :confidence="chatApi.confidence.value"
+        v-model:mode="chatApi.mode.value"
+        :messages="chatApi.messages.value"
         :is-loading="chatApi.isLoading.value"
         :service-state="chatApi.serviceState.value"
+        :avatar-state="chatApi.avatarState.value"
+        :audio-level="chatApi.audioLevel.value"
+        :input-level="chatApi.inputLevel.value"
+        :input-quality="chatApi.inputQuality.value"
+        :auto-gain-state="chatApi.autoGainState.value"
+        :transcript="chatApi.avatarCaption.value"
+        :microphone-state="chatApi.microphoneState.value"
+        :transcript-confirmation="chatApi.transcriptConfirmation.value"
+        :correction-notice="chatApi.correctionNotice.value"
         @ask="chatApi.ask"
-        @clear-context="chatApi.clearContext"
+        @mode-change="chatApi.setMode"
+        @start-recording="chatApi.startRecording"
+        @stop-recording="chatApi.stopRecording"
+        @cancel="chatApi.cancelResponse"
+        @confirm-transcript="chatApi.confirmTranscript"
+        @show-sources="(value) => { activeToolPanel = 'sources'; chatApi.sources.value = value; }"
       />
       <section class="tool-dock" aria-label="辅助信息">
         <div class="tool-tabs">

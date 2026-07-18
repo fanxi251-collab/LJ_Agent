@@ -31,6 +31,8 @@ python -m pip install -e .
 - 管理端景点页面：`/admin/attractions`
 - 管理端游客分析：`/admin/analytics`
 - 静态 JS 和 CSS：`frontend/static/`
+- 数字人前端模块：`frontend/src/features/digital-human/`，集中管理舞台、SVG渲染器、语音控件、PCM采集播放和音频质量逻辑。
+- 数字人 AudioWorklet：`frontend/public/digital-human/pcm-capture-worklet.js`；共享实时会话与协议仍保留在前端公共层。
 
 ### `data/`
 
@@ -120,6 +122,15 @@ RAG 检索增强生成核心能力。
 - 高德天气、地点、路线工具。
 - 知识图谱搜索工具。
 - 外部 Web 搜索占位工具。
+- `route_summary.py`：把高德第一推荐路线压缩为 V2 摘要，保留8—12条关键步骤和最多500个轨迹点。
+
+### `src/lingjing_ai/realtime/`
+
+双模式 Qwen-Audio 实时会话层。
+
+- `conversation.py`：准备 Agent/RAG 证据、会话上下文和持久化数据。
+- `answer_contract.py`：按常规/数字人及路线/非路线生成回答契约，并做确定性完整性校验。
+- `session.py`：桥接浏览器和 Qwen WebSocket，管理取消、降级、音频与最终文本。
 
 ### `src/lingjing_ai/kg/`
 
@@ -175,4 +186,6 @@ RAG 检索增强生成核心能力。
 - 高德前端 JS Key 使用 `MAP_JS_API`。
 - 高德前端 JS 安全密钥使用 `MAP_JS_SECURITY_CODE`，用于满足 JS API 2.0 的安全校验。
 - 阿里云大模型 API Key 使用 `LJAPI_KEY`。
+- 双模式智能导游使用 `src/lingjing_ai/realtime/` 连接 Qwen-Audio Realtime；SQLite 仍是历史事实源。
+- 常规模式只请求文本，数字人模式请求音频和文本，模式切换不清空会话。
 - 不再使用 Chroma。

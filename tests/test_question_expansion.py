@@ -43,6 +43,27 @@ def test_expand_question_uses_qwen_client_json_candidates():
     assert "qwen3.7-plus" in client.messages[0]["content"]
 
 
+def test_voice_understanding_returns_candidate_limited_normalization_and_expansions():
+    client = FakeExpansionClient(
+        '{"normalized_question":"鼋头渚几点开放",'
+        '"correction_confidence":0.94,'
+        '"expanded_questions":["鼋头渚开放时间","鼋头渚营业时间"]}'
+    )
+    expander = QwenQuestionExpander(client, model_name="qwen3.7-plus")
+
+    result = expander.understand_voice(
+        "源头主几点开放",
+        ["鼋头渚几点开放", "源头渚几点开放"],
+        history=[],
+        max_candidates=8,
+    )
+
+    assert result.normalized_question == "鼋头渚几点开放"
+    assert result.correction_confidence == 0.94
+    assert result.expanded_questions == ["鼋头渚开放时间", "鼋头渚营业时间"]
+    assert "只能选择候选" in client.messages[0]["content"]
+
+
 def test_expand_question_without_model_does_not_use_local_rule_expansion():
     candidates = expand_question(
         "怎么玩",

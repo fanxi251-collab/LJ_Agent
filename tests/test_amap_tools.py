@@ -1,6 +1,7 @@
 ﻿from pathlib import Path
 
 import httpx
+import json
 
 from lingjing_ai.agent.planner import AgentPlanner
 from lingjing_ai.config.settings import AppSettings
@@ -373,11 +374,113 @@ def test_amap_route_tool_defaults_to_driving_and_returns_map_metadata(tmp_path: 
     assert result.status == "ok"
     assert "驾车距离约42.0公里" in result.sources[0].content
     assert metadata["source_type"] == "amap_route"
-    assert metadata["mode"] == "driving"
-    assert metadata["distance_text"] == "约42.0公里"
-    assert metadata["duration_text"] == "约60分钟"
-    assert metadata["polyline"] == ["120.305,31.590", "120.200,31.550", "120.100,31.500"]
-    assert metadata["steps"][0]["instruction"] == "从无锡站出发"
+    summary = metadata["route_summary"]
+    assert summary["schema_version"] == 2
+    assert summary["mode"] == "driving"
+    assert summary["distance_text"] == "约42.0公里"
+    assert summary["duration_text"] == "约60分钟"
+    assert summary["polyline"] == ["120.305,31.590", "120.200,31.550", "120.100,31.500"]
+    assert summary["steps"][0]["instruction"] == "从无锡站出发"
+
+
+def test_amap_route_tool_uses_published_internal_locations_and_defaults_to_walking(tmp_path: Path):
+    requested = []
+    locations = {
+        "五明桥": "120.102248,31.421749",
+        "五智门": "120.101292,31.423055",
+    }
+
+    def forbidden_geocode(address: str, city: str = "") -> dict:
+        raise AssertionError(f"内部景点不应调用地理编码：{address}")
+
+    def fake_walking_route(origin: str, destination: str) -> dict:
+        requested.append(("walking", origin, destination))
+        return {
+            "route": {
+                "paths": [{
+                    "distance": "210",
+                    "duration": "180",
+                    "steps": [{
+                        "instruction": "从五明桥沿景区步道向北步行至五智门",
+                        "polyline": f"{origin};{destination}",
+                    }],
+                }]
+            }
+        }
+
+    settings = AppSettings.for_workspace(tmp_path)
+    client = AmapClient(api_key="map-key")
+    client.geocode = forbidden_geocode
+    client.walking_route = fake_walking_route
+    tool = AmapRouteTool(settings=settings, client=client, location_resolver=locations.get)
+
+    result = tool.run("从五明桥到五智门怎么走")
+
+    assert requested == [("walking", locations["五明桥"], locations["五智门"])]
+    assert result.data["route_summary"]["mode"] == "walking"
+    assert result.data["route_summary"]["origin"] == "五明桥"
+    assert result.data["route_summary"]["destination"] == "五智门"
+
+
+def test_explicit_driving_overrides_internal_walking_default(tmp_path: Path):
+    requested = []
+    locations = {"五明桥": "120.102248,31.421749", "五智门": "120.101292,31.423055"}
+
+    def fake_driving_route(origin: str, destination: str) -> dict:
+        requested.append((origin, destination))
+        return {
+            "route": {
+                "paths": [{
+                    "distance": "300",
+                    "duration": "120",
+                    "steps": [{"instruction": "驾车到达", "polyline": f"{origin};{destination}"}],
+                }]
+            }
+        }
+
+    settings = AppSettings.for_workspace(tmp_path)
+    client = AmapClient(api_key="map-key")
+    client.driving_route = fake_driving_route
+    tool = AmapRouteTool(settings=settings, client=client, location_resolver=locations.get)
+
+    result = tool.run("从五明桥到五智门驾车怎么走")
+
+    assert requested == [(locations["五明桥"], locations["五智门"])]
+    assert result.data["route_summary"]["mode"] == "driving"
+
+
+def test_internal_location_is_not_overwritten_when_other_endpoint_needs_geocoding(tmp_path: Path):
+    geocoded = []
+    requested = []
+
+    def fake_geocode(address: str, city: str = "") -> dict:
+        geocoded.append(address)
+        return {"geocodes": [{"location": "120.305,31.590"}]}
+
+    def fake_driving_route(origin: str, destination: str) -> dict:
+        requested.append((origin, destination))
+        return {
+            "route": {
+                "paths": [{
+                    "distance": "42000",
+                    "duration": "3600",
+                    "steps": [{"instruction": "驾车到达", "polyline": f"{origin};{destination}"}],
+                }]
+            }
+        }
+
+    settings = AppSettings.for_workspace(tmp_path)
+    client = AmapClient(api_key="map-key")
+    client.geocode = fake_geocode
+    client.driving_route = fake_driving_route
+    resolver = lambda name: "120.101292,31.423055" if name == "五智门" else None
+    tool = AmapRouteTool(settings=settings, client=client, location_resolver=resolver)
+
+    result = tool.run("从无锡站到五智门怎么走")
+
+    assert geocoded == ["无锡站"]
+    assert requested == [("120.305,31.590", "120.101292,31.423055")]
+    assert result.data["route_summary"]["mode"] == "driving"
 
 
 def test_amap_route_tool_reuses_redis_cache_and_separates_modes(tmp_path: Path):
@@ -433,6 +536,53 @@ def test_amap_route_tool_reuses_redis_cache_and_separates_modes(tmp_path: Path):
     assert driving_first.sources[0].content == driving_second.sources[0].content
     assert driving_second.sources[0].metadata["route_summary"]["mode"] == "driving"
     assert walking.sources[0].metadata["route_summary"]["mode"] == "walking"
+    assert all(key.startswith("amap:route:v2:") for key in tool.cache.values)
+
+
+def test_amap_route_tool_returns_compact_v2_payload_without_raw_route(tmp_path: Path):
+    def fake_geocode(address: str, city: str = "") -> dict:
+        locations = {"无锡站": "120.305,31.590", "灵山胜境": "120.100,31.500"}
+        return {"geocodes": [{"location": locations[address]}]}
+
+    def fake_driving_route(origin: str, destination: str) -> dict:
+        return {
+            "route": {
+                "paths": [
+                    {
+                        "distance": "42000",
+                        "duration": "3600",
+                        "steps": [
+                            {
+                                "instruction": f"第{index + 1}步进入道路",
+                                "distance": "100",
+                                "duration": "10",
+                                "polyline": f"120.{index:03d},31.500;120.{index + 1:03d},31.501",
+                            }
+                            for index in range(20)
+                        ],
+                    }
+                ]
+            }
+        }
+
+    settings = AppSettings.for_workspace(tmp_path)
+    client = AmapClient(api_key="map-key")
+    client.geocode = fake_geocode
+    client.driving_route = fake_driving_route
+
+    result = AmapRouteTool(settings=settings, client=client).run("从无锡站到灵山胜境怎么走？")
+    summary = result.data["route_summary"]
+    metadata = result.sources[0].metadata
+
+    assert summary["schema_version"] == 2
+    assert 8 <= len(summary["steps"]) <= 12
+    assert result.data["route"] == {
+        "distance": "42000",
+        "duration": "3600",
+        "steps": summary["steps"],
+    }
+    assert set(metadata) == {"source_type", "route_summary"}
+    assert len(json.dumps(metadata, ensure_ascii=False).encode("utf-8")) < 100_000
 
 
 def test_agent_planner_adds_amap_tools_for_weather_and_map_questions(tmp_path: Path, monkeypatch):

@@ -1,10 +1,13 @@
 ﻿import re
 
+from collections.abc import Callable
+
 from lingjing_ai.agent.models import ToolResult
 from lingjing_ai.config.settings import AppSettings
 from lingjing_ai.models.rag import SourceChunk
 from lingjing_ai.services.redis_cache import RedisJsonCache
 from lingjing_ai.tools.amap_client import AmapApiError, AmapClient
+from lingjing_ai.tools.route_summary import build_route_summary
 
 
 SCENIC_CITY_MAP = {
@@ -145,10 +148,12 @@ class AmapRouteTool:
         settings: AppSettings,
         client: AmapClient | None = None,
         cache: RedisJsonCache | None = None,
+        location_resolver: Callable[[str], str | None] | None = None,
     ) -> None:
         self.settings = settings
         self.client = client or _build_client(settings)
         self.cache = cache or _build_cache(settings)
+        self.location_resolver = location_resolver
 
     def run(
         self,
@@ -168,19 +173,37 @@ class AmapRouteTool:
             )
         origin, destination = route_points
 
-        route_mode = _normalize_route_mode(mode or _extract_route_mode(question, self.settings.amap_route_default_mode))
+        resolved_origin = (
+            self.location_resolver(origin)
+            if self.location_resolver and not origin_location
+            else None
+        )
+        resolved_destination = (
+            self.location_resolver(destination)
+            if self.location_resolver and not destination_location
+            else None
+        )
+        both_internal = bool(resolved_origin and resolved_destination)
+        origin_location = origin_location or resolved_origin or ""
+        destination_location = destination_location or resolved_destination or ""
+        explicit_mode = mode or _extract_route_mode(question, "")
+        route_mode = _normalize_route_mode(
+            explicit_mode
+            or ("walking" if both_internal else self.settings.amap_route_default_mode)
+        )
         cache_key = (
-            f"amap:route:{route_mode}:{origin}:{destination}:"
+            f"amap:route:v2:{route_mode}:{origin}:{destination}:"
             f"{origin_location}:{destination_location}"
         )
         cached = _get_cached_tool_result(self.cache, cache_key)
         if cached is not None:
             return cached
         try:
-            if not origin_location or not destination_location:
+            if not origin_location:
                 origin_geo = self.client.geocode(origin)
-                destination_geo = self.client.geocode(destination)
                 origin_location = _first_geocode_location(origin_geo)
+            if not destination_location:
+                destination_geo = self.client.geocode(destination)
                 destination_location = _first_geocode_location(destination_geo)
             if not origin_location or not destination_location:
                 return ToolResult(status="empty", message="未查到起点或终点坐标。")
@@ -200,24 +223,20 @@ class AmapRouteTool:
             return ToolResult(status="empty", message="未查到路线信息。", data=data)
 
         path = paths[0]
-        distance_text = _format_distance(path.get("distance"))
-        duration_text = _format_duration(path.get("duration"))
-        route_steps = _route_steps(path.get("steps", []))
-        instructions = [step["instruction"] for step in route_steps][:5]
+        route_summary = build_route_summary(
+            path,
+            origin=origin,
+            destination=destination,
+            origin_location=origin_location,
+            destination_location=destination_location,
+            mode=route_mode,
+        )
+        distance_text = route_summary["distance_text"]
+        duration_text = route_summary["duration_text"]
+        route_steps = route_summary["steps"]
+        instructions = [step["instruction"] for step in route_steps]
         step_text = "；".join(instructions) if instructions else "高德未返回详细步骤"
         mode_text = "步行" if route_mode == "walking" else "驾车"
-        route_summary = {
-            "origin": origin,
-            "destination": destination,
-            "origin_location": origin_location,
-            "destination_location": destination_location,
-            "mode": route_mode,
-            "mode_text": mode_text,
-            "distance_text": distance_text,
-            "duration_text": duration_text,
-            "steps": route_steps,
-            "polyline": _route_polyline(route_steps, origin_location, destination_location),
-        }
         content = (
             f"高德地图路线查询结果：从{origin}到{destination}，{mode_text}距离{distance_text}，"
             f"预计{duration_text}。主要步骤：{step_text}。"
@@ -231,7 +250,11 @@ class AmapRouteTool:
                 "origin_location": origin_location,
                 "destination_location": destination_location,
                 "mode": route_mode,
-                "route": path,
+                "route": {
+                    "distance": str(path.get("distance", "")),
+                    "duration": str(path.get("duration", "")),
+                    "steps": route_steps,
+                },
                 "route_summary": route_summary,
             },
             sources=[
@@ -241,19 +264,7 @@ class AmapRouteTool:
                     document_name="高德路线规划",
                     content=content,
                     score=1.0,
-                    metadata={
-                        "source_type": "amap_route",
-                        "origin": origin,
-                        "destination": destination,
-                        "origin_location": origin_location,
-                        "destination_location": destination_location,
-                        "mode": route_mode,
-                        "distance_text": distance_text,
-                        "duration_text": duration_text,
-                        "steps": route_steps,
-                        "polyline": route_summary["polyline"],
-                        "route_summary": route_summary,
-                    },
+                    metadata={"source_type": "amap_route", "route_summary": route_summary},
                 )
             ],
         )

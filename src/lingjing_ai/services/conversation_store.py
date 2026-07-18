@@ -136,6 +136,70 @@ class ConversationStore:
             created_at=now,
         )
 
+    def append_turn(
+        self,
+        turn_id: str,
+        session_id: str,
+        visitor_id: str,
+        question: str,
+        answer: str,
+        trace_id: str = "",
+        sources: list[dict[str, Any]] | None = None,
+        tool_trace: list[dict[str, Any]] | None = None,
+    ) -> bool:
+        normalized_visitor = _clean_id(visitor_id)
+        now = _utc_now()
+        with self._connect() as conn:
+            session = conn.execute(
+                "SELECT 1 FROM conversation_sessions WHERE session_id = ? AND visitor_id = ?",
+                (session_id, normalized_visitor),
+            ).fetchone()
+            if session is None:
+                return False
+            marker = conn.execute(
+                """
+                INSERT OR IGNORE INTO completed_realtime_turns
+                (turn_id, session_id, visitor_id, created_at) VALUES (?, ?, ?, ?)
+                """,
+                (turn_id, session_id, normalized_visitor, now),
+            )
+            if marker.rowcount == 0:
+                return False
+            # Both messages share one transaction so a retry cannot leave an orphan user message.
+            conn.execute(
+                """
+                INSERT INTO chat_messages
+                (session_id, visitor_id, role, content, trace_id, sources_json, tool_trace_json, created_at)
+                VALUES (?, ?, 'user', ?, '', '[]', '[]', ?)
+                """,
+                (session_id, normalized_visitor, question, now),
+            )
+            conn.execute(
+                """
+                INSERT INTO chat_messages
+                (session_id, visitor_id, role, content, trace_id, sources_json, tool_trace_json, created_at)
+                VALUES (?, ?, 'assistant', ?, ?, ?, ?, ?)
+                """,
+                (
+                    session_id,
+                    normalized_visitor,
+                    answer,
+                    trace_id,
+                    json.dumps(sources or [], ensure_ascii=False),
+                    json.dumps(tool_trace or [], ensure_ascii=False),
+                    now,
+                ),
+            )
+            conn.execute(
+                """
+                UPDATE conversation_sessions
+                SET recent_question = ?, updated_at = ?
+                WHERE session_id = ? AND visitor_id = ?
+                """,
+                (question, now, session_id, normalized_visitor),
+            )
+        return True
+
     def list_messages(self, session_id: str, visitor_id: str) -> list[StoredChatMessage]:
         if self.get_session(session_id, visitor_id) is None:
             return []
@@ -213,6 +277,13 @@ class ConversationStore:
                     ON conversation_sessions(visitor_id, updated_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_chat_messages_session_visitor
                     ON chat_messages(session_id, visitor_id, message_id);
+
+                CREATE TABLE IF NOT EXISTS completed_realtime_turns (
+                    turn_id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL,
+                    visitor_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
                 """
             )
 

@@ -1,0 +1,17 @@
+version: 1
+terms:
+  - canonical: "鼋头渚"
+    aliases: ["园头渚", "源头渚"]
+    pinyin: "yuan tou zhu"
+    weight: 5
+    enabled: true
+  - canonical: "拈花湾"
+    aliases: ["年华湾", "粘花湾"]
+    pinyin: "nian hua wan"
+    weight: 5
+    enabled: true
+  - canonical: "灵山胜境"
+    aliases: ["灵山圣境"]
+    pinyin: "ling shan sheng jing"
+    weight: 5
+    enabled: true

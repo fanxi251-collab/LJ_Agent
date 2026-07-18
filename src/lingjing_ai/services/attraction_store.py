@@ -177,6 +177,22 @@ class AttractionStore:
         )
         return self._record_from_row(row) if row else None
 
+    def get_published_attraction_by_name(self, name: str) -> AttractionRecord | None:
+        normalized_name = str(name or "").strip()
+        if not normalized_name:
+            return None
+        row = self._fetchone(
+            """
+            SELECT * FROM attractions
+            WHERE name = ? AND status = 'published'
+            ORDER BY updated_at DESC, created_at DESC, rowid DESC
+            LIMIT 1
+            """,
+            (normalized_name,),
+        )
+        # Exact published-name lookup prevents draft landmarks or fuzzy matches from entering public routes.
+        return self._record_from_row(row) if row else None
+
     def archive_attraction(self, attraction_id: str) -> bool:
         with self._connect() as conn:
             cursor = conn.execute(

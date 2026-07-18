@@ -44,7 +44,10 @@ def test_vue_source_contains_required_visitor_layout_and_api_calls():
     app_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
     chat_source = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
     session_source = Path("frontend/src/components/SessionSidebar.vue").read_text(encoding="utf-8")
-    chat_composable = Path("frontend/src/composables/useChat.js").read_text(encoding="utf-8")
+    chat_composable = Path("frontend/src/composables/useRealtimeChat.js").read_text(encoding="utf-8")
+    transcript_confirmation_source = Path(
+        "frontend/src/features/digital-human/components/TranscriptConfirmation.vue"
+    ).read_text(encoding="utf-8")
     session_composable = Path("frontend/src/composables/useSessions.js").read_text(encoding="utf-8")
     styles = Path("frontend/src/styles.css").read_text(encoding="utf-8")
 
@@ -53,14 +56,117 @@ def test_vue_source_contains_required_visitor_layout_and_api_calls():
     assert "session-sidebar" in session_source
     assert "history-side" in app_source
     assert "给 LingJing AI 发送消息" in chat_source
-    assert '"/api/agent/chat/stream"' in chat_composable
-    assert '"/api/rag/chat/stream"' in chat_composable
-    assert "visitor_id: visitorId" in chat_composable
-    assert "session_id: currentSessionId.value" in chat_composable
+    assert "常规模式" in chat_source
+    assert "数字人模式" in chat_source
+    assert "text.submit" in chat_composable
+    assert "audio.start" in chat_composable
+    assert "response.cancel" in chat_composable
+    assert "user.transcript.confirmation_required" in chat_composable
+    assert "transcript.confirm" in chat_composable
+    assert "转写结果需要确认" in transcript_confirmation_source
+    assert "buildRealtimeUrl" in chat_composable
+    assert "retryQuestion" in chat_composable
+    assert '@retry="emit(\'ask\', $event)"' in chat_source
+    assert 'mode.value = nextMode' not in chat_source
+    assert 'event.type === "assistant.text.done"' in chat_composable
+    assert 'event.turn_id !== activeTurnId.value' in chat_composable
     assert '"/api/visitor/sessions?visitor_id="' in session_composable
     assert "`/api/visitor/sessions/${currentSessionId.value}?" in session_composable
     assert ".history-side" in styles
     assert ".composer-card" in styles
+
+
+def test_digital_human_frontend_uses_local_pcm_and_replaceable_stage():
+    feature_root = Path("frontend/src/features/digital-human")
+    stage_source = (feature_root / "components/DigitalHumanStage.vue").read_text(
+        encoding="utf-8"
+    )
+    audio_source = (feature_root / "composables/usePcmAudio.js").read_text(
+        encoding="utf-8"
+    )
+    chat_source = Path("frontend/src/composables/useRealtimeChat.js").read_text(encoding="utf-8")
+    guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+    voice_controls_source = (feature_root / "components/DigitalHumanVoiceControls.vue").read_text(
+        encoding="utf-8"
+    )
+    worklet_source = Path(
+        "frontend/public/digital-human/pcm-capture-worklet.js"
+    ).read_text(encoding="utf-8")
+
+    assert "audioLevel" in stage_source
+    assert "speaking" in stage_source
+    assert "AudioWorkletNode" in audio_source
+    assert "sampleRate: 24000" in audio_source
+    assert "preparePlayback" in audio_source
+    assert "await audio.preparePlayback()" not in chat_source
+    assert "stopRecordingRequested" in chat_source
+    assert "capturedAudioChunks" in chat_source
+    assert "['starting', 'recording'].includes(microphoneState)" in voice_controls_source
+    recording_block = chat_source.split("async function startRecording()", 1)[1].split(
+        "async function stopRecording()", 1
+    )[0]
+    assert recording_block.index("audio.preparePlayback()") < recording_block.index(
+        "ensureConnected()"
+    )
+    assert 'event.type === "session.ready"' in chat_source
+    assert "buildModeSetEvent(mode.value)" in chat_source
+    assert "assistantTranscript" in chat_source
+    assert "avatarCaption" in guide_source
+    assert "registerProcessor" in worklet_source
+    assert "16000" in worklet_source
+
+
+def test_digital_human_frontend_isolated_behind_feature_entrypoint():
+    feature_root = Path("frontend/src/features/digital-human")
+    expected_files = (
+        feature_root / "index.js",
+        feature_root / "components/DigitalHumanStage.vue",
+        feature_root / "components/DigitalHumanVoiceControls.vue",
+        feature_root / "components/TranscriptConfirmation.vue",
+        feature_root / "renderers/SvgAvatarRenderer.vue",
+        feature_root / "composables/usePcmAudio.js",
+        feature_root / "lib/audioCaptureQuality.js",
+        feature_root / "lib/pcmAudio.js",
+    )
+
+    assert all(path.is_file() for path in expected_files)
+    feature_entrypoint = (feature_root / "index.js").read_text(encoding="utf-8")
+    chat_main = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
+    realtime_chat = Path("frontend/src/composables/useRealtimeChat.js").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'from "../features/digital-human"' in chat_main
+    assert 'from "../features/digital-human"' in realtime_chat
+    assert "<svg" not in chat_main
+    assert "../lib/audioCaptureQuality.js" not in realtime_chat
+    assert 'from "./usePcmAudio"' not in realtime_chat
+    for exported_name in (
+        "DigitalHumanStage",
+        "DigitalHumanVoiceControls",
+        "TranscriptConfirmation",
+        "usePcmAudio",
+        "createTailProtection",
+        "createCaptureQualityTracker",
+        "TAIL_PROTECTION_MS",
+        "float32Metrics",
+        "float32ToInt16",
+        "pcmRms",
+    ):
+        assert exported_name in feature_entrypoint
+
+
+def test_digital_human_svg_renderer_has_stable_replaceable_contract():
+    renderer_path = Path(
+        "frontend/src/features/digital-human/renderers/SvgAvatarRenderer.vue"
+    )
+
+    assert renderer_path.is_file()
+    renderer_source = renderer_path.read_text(encoding="utf-8")
+    assert "state:" in renderer_source
+    assert "audioLevel:" in renderer_source
+    assert "transcript:" not in renderer_source
+    assert "avatar-mouth" in renderer_source
 
 
 def test_visitor_router_exposes_guide_explore_and_map_views():
@@ -111,6 +217,20 @@ def test_explore_and_map_views_contain_expected_interactions():
     assert "destroy" in map_composable
 
 
+def test_route_views_use_v2_summary_and_show_all_key_steps():
+    guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+    route_panel = Path("frontend/src/components/RoutePanel.vue").read_text(encoding="utf-8")
+    map_source = Path("frontend/src/views/MapView.vue").read_text(encoding="utf-8")
+
+    assert "watch(chatApi.hasRouteSource" in guide_source
+    assert 'activeToolPanel.value = "route"' in guide_source
+    assert "resolveRouteSummary" in route_panel
+    assert "高德原始步骤共" in route_panel
+    assert "total_step_count" in route_panel
+    assert ".slice(0, 8)" not in route_panel
+    assert ".slice(0, 8)" not in map_source
+
+
 def test_all_map_loaders_apply_amap_security_code_before_loading_script():
     loader_paths = (
         "frontend/src/composables/useInteractiveMap.js",
@@ -134,6 +254,18 @@ def test_fastapi_serves_visitor_subroutes(tmp_path: Path):
 
     assert explore.status_code == 200
     assert map_page.status_code == 200
+
+
+def test_fastapi_serves_pcm_capture_worklet(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+
+    canonical_response = request_path(app, "/digital-human/pcm-capture-worklet.js")
+    compatibility_response = request_path(app, "/pcm-capture-worklet.js")
+
+    assert canonical_response.status_code == 200
+    assert compatibility_response.status_code == 200
+    assert canonical_response.text == compatibility_response.text
+    assert "registerProcessor" in canonical_response.text
 
 
 def test_legacy_admin_assets_are_still_served(tmp_path: Path):

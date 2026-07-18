@@ -1,6 +1,7 @@
 ﻿from dataclasses import dataclass, field
 from pathlib import Path
 import json
+import math
 from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -10,12 +11,16 @@ from pydantic import BaseModel, Field
 
 from lingjing_ai.api.analytics_routes import build_analytics_router
 from lingjing_ai.api.attraction_routes import build_attraction_router
+from lingjing_ai.api.realtime_routes import build_realtime_router
 from lingjing_ai.agent.executor import AgentExecutor
 from lingjing_ai.agent.langgraph_executor import LangGraphAgentExecutor
 from lingjing_ai.agent.models import AgentAnswer, ToolTrace
 from lingjing_ai.models.rag import RagAnswer, SourceChunk
 from lingjing_ai.rag.llm_client import AliyunQwenClient
 from lingjing_ai.rag.pipeline import RagPipeline
+from lingjing_ai.realtime.conversation import RealtimeConversationService
+from lingjing_ai.realtime.glossary import GlossaryProvider
+from lingjing_ai.realtime.transcript import TranscriptNormalizer
 from lingjing_ai.services.conversation import ConversationMessage, build_conversation_context
 from lingjing_ai.services.conversation_store import (
     ConversationSessionRecord,
@@ -190,9 +195,6 @@ class StreamTurnState:
 
 def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     app = FastAPI(title="LingJing AI RAG API")
-    agent_executor = _build_agent_executor(pipeline)
-    question_expander = _build_question_expander(pipeline)
-    conversation_store = ConversationStore(pipeline.settings.data_dir / "conversations.db")
     frontend_dir = _project_root() / "frontend"
     visitor_dist_dir = frontend_dir / "dist"
     visitor_assets_dir = visitor_dist_dir / "assets"
@@ -203,11 +205,38 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         attraction_image_dir,
         seed_on_empty=seed_attractions,
     )
+    agent_executor = _build_agent_executor(pipeline, attraction_store)
+    question_expander = _build_question_expander(pipeline)
+    conversation_store = ConversationStore(pipeline.settings.data_dir / "conversations.db")
+    glossary_path = Path(pipeline.settings.asr_glossary_path)
+    if not glossary_path.is_absolute():
+        glossary_path = pipeline.settings.workspace_dir / glossary_path
+    glossary_provider = GlossaryProvider(
+        attraction_store,
+        pipeline.document_manifest,
+        glossary_path,
+        ttl_seconds=pipeline.settings.asr_glossary_ttl_seconds,
+    )
+    transcript_normalizer = (
+        TranscriptNormalizer(glossary_provider.snapshot)
+        if pipeline.settings.asr_correction_enabled
+        else None
+    )
+    realtime_conversation_service = RealtimeConversationService(
+        pipeline.settings,
+        conversation_store,
+        agent_executor,
+        question_expander,
+        transcript_normalizer,
+    )
     app.include_router(build_attraction_router(attraction_store))
     analytics_store = AnalyticsSnapshotStore(
         pipeline.settings.data_dir / "tourism_analytics_snapshot.json"
     )
     app.include_router(build_analytics_router(analytics_store))
+    app.include_router(
+        build_realtime_router(pipeline.settings, realtime_conversation_service)
+    )
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
     app.mount(
         "/media/attractions",
@@ -216,6 +245,15 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     )
     if visitor_assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=visitor_assets_dir), name="visitor_assets")
+
+    @app.get("/digital-human/pcm-capture-worklet.js", response_class=FileResponse)
+    @app.get("/pcm-capture-worklet.js", response_class=FileResponse)
+    def visitor_pcm_capture_worklet() -> FileResponse:
+        # Keep the old route beside the feature-scoped route because cached visitor builds may request either URL.
+        return FileResponse(
+            frontend_dir / "public" / "digital-human" / "pcm-capture-worklet.js",
+            media_type="application/javascript",
+        )
 
     @app.get("/visitor")
     def visitor_page():
@@ -331,7 +369,10 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         origin_location: str = "",
         destination_location: str = "",
     ) -> ToolQueryResponse:
-        result = AmapRouteTool(pipeline.settings).run(
+        result = AmapRouteTool(
+            pipeline.settings,
+            location_resolver=lambda name: _published_attraction_location(attraction_store, name),
+        ).run(
             f"从{origin}到{destination}怎么走",
             mode=mode,
             origin_location=origin_location,
@@ -468,14 +509,22 @@ def _visitor_build_hint_html() -> str:
 """
 
 
-def _build_agent_executor(pipeline: RagPipeline) -> AgentExecutor:
+def _build_agent_executor(
+    pipeline: RagPipeline,
+    attraction_store: AttractionStore | None = None,
+) -> AgentExecutor:
+    location_resolver = (
+        (lambda name: _published_attraction_location(attraction_store, name))
+        if attraction_store is not None
+        else None
+    )
     tools = [
         QueryRewriteTool(),
         RagSearchTool(pipeline),
         KnowledgeGraphSearchTool(pipeline),
         DocumentSearchTool(pipeline),
         AmapWeatherTool(pipeline.settings),
-        AmapRouteTool(pipeline.settings),
+        AmapRouteTool(pipeline.settings, location_resolver=location_resolver),
         AmapPlaceSearchTool(pipeline.settings),
         WebSearchTool(pipeline.settings),
     ]
@@ -484,6 +533,21 @@ def _build_agent_executor(pipeline: RagPipeline) -> AgentExecutor:
     if pipeline.settings.agent_executor_mode == "langgraph":
         return LangGraphAgentExecutor(settings=pipeline.settings, tools=tools)
     raise ValueError("AGENT_EXECUTOR_MODE 仅支持 legacy 或 langgraph。")
+
+
+def _published_attraction_location(
+    attraction_store: AttractionStore,
+    name: str,
+) -> str | None:
+    attraction = attraction_store.get_published_attraction_by_name(name)
+    if attraction is None:
+        return None
+    if not math.isfinite(attraction.longitude) or not math.isfinite(attraction.latitude):
+        return None
+    if attraction.longitude == 0 or attraction.latitude == 0:
+        return None
+    # The shared coordinate formatter keeps Agent and HTTP route requests on the same local truth.
+    return f"{attraction.longitude},{attraction.latitude}"
 
 
 def _build_question_expander(pipeline: RagPipeline) -> QwenQuestionExpander | None:

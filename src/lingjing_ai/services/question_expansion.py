@@ -1,9 +1,11 @@
 ﻿from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 import re
 from typing import Any, Protocol
+
+from lingjing_ai.realtime.transcript import TranscriptCorrection
 
 
 class QuestionExpansionClient(Protocol):
@@ -16,6 +18,14 @@ class QuestionExpansionResult:
     expanded_questions: list[str]
     selected_questions: list[str]
     assumptions: str
+
+
+@dataclass(frozen=True)
+class VoiceQuestionUnderstanding:
+    normalized_question: str = ""
+    correction_confidence: float = 0.0
+    expanded_questions: list[str] | None = field(default_factory=list)
+    correction: TranscriptCorrection | None = None
 
 
 class QwenQuestionExpander:
@@ -51,6 +61,41 @@ class QwenQuestionExpander:
             },
         ]
         return _parse_model_candidates(self.client.chat(messages), max_candidates=max_candidates)
+
+    def understand_voice(
+        self,
+        question: str,
+        correction_candidates: list[str],
+        history: list[Any],
+        max_candidates: int,
+    ) -> VoiceQuestionUnderstanding:
+        allowed = _unique([question, *correction_candidates])
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    f"你是景区 AI 导游的语音理解模块，当前使用模型：{self.model_name}。\n"
+                    "normalized_question 只能选择候选中的完整文本，不能改写候选以外的数字、时间、数量或否定含义。"
+                    "同时生成检索扩写问题，只输出 JSON 对象，字段为 normalized_question、"
+                    "correction_confidence、expanded_questions。每个扩写不超过40个中文字符。"
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"原始转写：{question}\n"
+                    f"只能选择候选：{json.dumps(allowed, ensure_ascii=False)}\n"
+                    f"最近历史：{_history_text(history)}\n"
+                    f"最多生成：{max(0, max_candidates - 1)} 个扩写"
+                ),
+            },
+        ]
+        return _parse_voice_understanding(
+            self.client.chat(messages),
+            question,
+            allowed,
+            max_candidates,
+        )
 
 
 def expand_question(
@@ -132,6 +177,37 @@ def _parse_model_candidates(content: str, max_candidates: int) -> list[str]:
         for item in data
         if isinstance(item, str) and str(item).strip()
     ][: max(0, max_candidates - 1)]
+
+
+def _parse_voice_understanding(
+    content: str,
+    original: str,
+    allowed: list[str],
+    max_candidates: int,
+) -> VoiceQuestionUnderstanding:
+    try:
+        data = json.loads(_strip_code_fence(content.strip()))
+    except (json.JSONDecodeError, TypeError):
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    normalized = str(data.get("normalized_question") or original).strip()
+    if normalized not in allowed:
+        normalized = original
+    try:
+        confidence = min(1.0, max(0.0, float(data.get("correction_confidence", 0))))
+    except (TypeError, ValueError):
+        confidence = 0.0
+    expansions = data.get("expanded_questions")
+    if not isinstance(expansions, list):
+        expansions = []
+    return VoiceQuestionUnderstanding(
+        normalized_question=normalized,
+        correction_confidence=confidence,
+        expanded_questions=_unique(
+            [str(item).strip() for item in expansions if isinstance(item, str)]
+        )[: max(0, max_candidates - 1)],
+    )
 
 
 def _history_text(history: list[Any]) -> str:

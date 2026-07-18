@@ -1,0 +1,73 @@
+<h2>第一版SVG数字人：选择角色方向</h2>
+<p class="subtitle">三种方案都能复用现有“待机 / 聆听 / 思考 / 说话 / 异常”状态与音量口型。请主要判断角色气质，而不是当前示意图的精细度。</p>
+
+<div class="cards">
+  <div class="card" data-choice="jiangnan-guide" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(160deg,#edf8f3,#dcece5);min-height:360px;display:grid;place-items:center;overflow:hidden">
+      <svg viewBox="0 0 300 380" style="width:250px;height:330px" aria-label="江南文化导游示意">
+        <defs><linearGradient id="coatA" x1="0" x2="1"><stop stop-color="#58a99a"/><stop offset="1" stop-color="#23685e"/></linearGradient></defs>
+        <circle cx="150" cy="150" r="78" fill="#f3c8aa"/>
+        <path d="M76 157c-8-72 23-123 76-123 57 0 88 45 77 119-22-35-56-50-100-39-13 24-30 38-53 43" fill="#263d39"/>
+        <path d="M188 48q30-25 45-7-24 5-27 31" fill="#263d39"/>
+        <path d="M203 48q20-25 34-5-18 4-25 20" fill="#d8b467"/>
+        <path d="M108 154q12-9 25 0m34 0q12-9 25 0" fill="none" stroke="#3e3936" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="121" cy="158" r="4" fill="#233934"/><circle cx="180" cy="158" r="4" fill="#233934"/>
+        <path d="M136 203q14 12 29 0" fill="none" stroke="#a95151" stroke-width="5" stroke-linecap="round"/>
+        <path d="M59 370q10-128 91-128t91 128" fill="url(#coatA)"/>
+        <path d="M105 248l45 57 45-57-11 122h-68z" fill="#f7eee0"/>
+        <path d="M125 299q25 18 50 0" fill="none" stroke="#d8b467" stroke-width="4"/>
+        <path d="M82 329q68 28 136 0" fill="none" stroke="#b9dfd4" stroke-width="5" opacity=".8"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A · 江南文化导游（推荐）</h3>
+      <p>青绿色新中式制服、温和专业、带江南水纹与发簪元素。适合无锡景区品牌，辨识度和长期扩展性最好。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="modern-guide" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(160deg,#f2f6fb,#e4eaf2);min-height:360px;display:grid;place-items:center;overflow:hidden">
+      <svg viewBox="0 0 300 380" style="width:250px;height:330px" aria-label="现代景区导游示意">
+        <defs><linearGradient id="coatB" x1="0" x2="1"><stop stop-color="#5079a7"/><stop offset="1" stop-color="#243f63"/></linearGradient></defs>
+        <circle cx="150" cy="151" r="78" fill="#edc3a5"/>
+        <path d="M75 150q3-112 78-112 69 0 75 101-38-35-89-27-34 6-64 38" fill="#29333e"/>
+        <path d="M105 153q14-8 27 0m36 0q14-8 27 0" fill="none" stroke="#34383e" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="119" cy="158" r="4" fill="#27333d"/><circle cx="182" cy="158" r="4" fill="#27333d"/>
+        <path d="M138 204q13 10 26 0" fill="none" stroke="#a15452" stroke-width="5" stroke-linecap="round"/>
+        <path d="M54 370q12-127 96-127t96 127" fill="url(#coatB)"/>
+        <path d="M108 250l42 44 42-44-9 120h-66z" fill="#fbfcfd"/>
+        <rect x="174" y="294" width="39" height="22" rx="5" fill="#e3c36c"/><circle cx="194" cy="305" r="5" fill="#fff7d8"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B · 现代景区讲解员</h3>
+      <p>蓝灰制服、可靠克制、政务和服务大厅气质。最容易被大众接受，但地域特色与IP辨识度较弱。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="mascot-guide" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(160deg,#fff7e8,#f3e6ca);min-height:360px;display:grid;place-items:center;overflow:hidden">
+      <svg viewBox="0 0 300 380" style="width:250px;height:330px" aria-label="Q版景区精灵示意">
+        <defs><linearGradient id="coatC" x1="0" x2="1"><stop stop-color="#e5a94d"/><stop offset="1" stop-color="#b66c33"/></linearGradient></defs>
+        <circle cx="150" cy="156" r="98" fill="#f5c9a8"/>
+        <path d="M53 149q6-118 99-118 91 0 97 117-35-48-99-43-56 3-97 44" fill="#3c2f2b"/>
+        <path d="M78 63q24-35 48 1M220 65q-22-34-46 0" fill="#3c2f2b"/>
+        <ellipse cx="112" cy="160" rx="10" ry="14" fill="#352f2d"/><ellipse cx="188" cy="160" rx="10" ry="14" fill="#352f2d"/>
+        <circle cx="109" cy="156" r="3" fill="white"/><circle cx="185" cy="156" r="3" fill="white"/>
+        <path d="M132 211q18 20 36 0" fill="#a84f4c"/>
+        <circle cx="86" cy="195" r="14" fill="#ec9c92" opacity=".45"/><circle cx="214" cy="195" r="14" fill="#ec9c92" opacity=".45"/>
+        <path d="M64 370q12-111 86-111t86 111" fill="url(#coatC)"/>
+        <path d="M123 262l27 37 27-37-3 108h-48z" fill="#fff4df"/>
+        <path d="M115 315q35 25 70 0" fill="none" stroke="#fff1bd" stroke-width="7"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C · Q版景区精灵</h3>
+      <p>亲切活泼、动作幅度大、最适合低成本序列帧。对亲子游客友好，但正式讲解场景的专业感较弱。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:22px">
+  <p><strong>共同的第一版动画：</strong>眨眼、轻微呼吸、聆听侧头、思考停顿、音量驱动三档口型、错误提示；不制作复杂手势和全身行走。</p>
+</div>

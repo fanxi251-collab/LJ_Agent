@@ -54,6 +54,7 @@ def test_settings_reads_qwen_api_configuration_from_environment(tmp_path: Path, 
 
 def test_settings_reads_map_api_from_workspace_env_file(tmp_path: Path, monkeypatch):
     monkeypatch.delenv("MAP_API", raising=False)
+    monkeypatch.delenv("MAP_JS_API", raising=False)
     monkeypatch.delenv("MAP_JS_SECURITY_CODE", raising=False)
     (tmp_path / ".env").write_text("MAP_API=map-key-from-file\n", encoding="utf-8")
 
@@ -63,6 +64,30 @@ def test_settings_reads_map_api_from_workspace_env_file(tmp_path: Path, monkeypa
     assert settings.map_js_api_key is None
     assert settings.map_js_security_code is None
     assert settings.amap_route_default_mode == "driving"
+
+
+def test_settings_exposes_qwen_audio_realtime_defaults(tmp_path: Path, monkeypatch):
+    for name in (
+        "LJ_REALTIME_MODEL",
+        "LJ_REALTIME_WORKSPACE_ID",
+        "LJ_REALTIME_URL",
+        "LJ_REALTIME_VOICE",
+        "LJ_REALTIME_HISTORY_TURNS",
+        "LJ_REALTIME_CONNECT_TIMEOUT_SECONDS",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    settings = AppSettings.for_workspace(tmp_path)
+
+    assert settings.realtime_model == "qwen-audio-3.0-realtime-flash"
+    assert settings.realtime_workspace_id == ""
+    assert settings.realtime_url == ""
+    assert settings.realtime_voice == "longanqian"
+    assert settings.realtime_history_turns == 6
+    assert settings.realtime_connect_timeout_seconds == 15
+    assert settings.asr_correction_enabled is True
+    assert settings.asr_glossary_path == "config/asr_glossary.yml"
+    assert settings.asr_glossary_ttl_seconds == 60
 
 
 def test_settings_reads_map_js_security_code_from_environment(tmp_path: Path, monkeypatch):

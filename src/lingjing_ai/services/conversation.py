@@ -105,10 +105,15 @@ def _extract_target_from_history(history: list[ConversationMessage]) -> str:
 
 def _standalone_question(question: str, target: str) -> str:
     stripped = question.strip()
+    if _is_route_question(stripped) and _has_route_origin_and_destination(stripped):
+        # Explicit endpoints are stronger than historical context, which must never replace A or B.
+        return stripped
     if not target:
         return stripped
     if _is_short_ticket_follow_up(stripped):
         return f"{target}门票信息"
+    if _is_opening_time_follow_up(stripped) and not _extract_target(stripped):
+        return f"{target}开放时间"
     if _is_weather_question(stripped) and not _extract_target(stripped):
         return f"{target}今日天气如何？"
     if _is_short_how_to_play(stripped) and target:
@@ -143,6 +148,11 @@ def _context_summary(target: str, history: list[ConversationMessage]) -> str:
 def _is_short_ticket_follow_up(question: str) -> bool:
     compact = _compact(question)
     return "门票" in compact and len(compact) <= 8
+
+
+def _is_opening_time_follow_up(question: str) -> bool:
+    compact = _compact(question)
+    return any(keyword in compact for keyword in ("开放时间", "几点开放", "几点开门", "营业时间"))
 
 
 def _is_weather_question(question: str) -> bool:

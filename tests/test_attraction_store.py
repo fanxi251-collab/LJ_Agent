@@ -41,6 +41,24 @@ def test_store_creates_updates_filters_and_archives_attractions(tmp_path: Path):
     assert store.get_attraction(created.attraction_id).status == "archived"
 
 
+def test_store_finds_latest_published_attraction_by_exact_name(tmp_path: Path):
+    store = AttractionStore(tmp_path / "attractions.db", tmp_path / "images", seed_on_empty=False)
+    published = store.create_attraction(
+        {**attraction_payload("五明桥"), "longitude": 120.102248, "latitude": 31.421749}
+    )
+    store.create_attraction(
+        {**attraction_payload("五明桥", status="draft"), "longitude": 1.0, "latitude": 2.0}
+    )
+
+    found = store.get_published_attraction_by_name("五明桥")
+
+    assert found is not None
+    assert found.attraction_id == published.attraction_id
+    assert found.longitude == 120.102248
+    assert store.get_published_attraction_by_name("五明") is None
+    assert store.get_published_attraction_by_name("不存在景点") is None
+
+
 def test_store_orders_gallery_and_deletes_only_requested_image(tmp_path: Path):
     image_dir = tmp_path / "images"
     store = AttractionStore(tmp_path / "attractions.db", image_dir, seed_on_empty=False)

@@ -4,13 +4,17 @@ from datetime import datetime, timezone
 import uuid
 from typing import Any
 
-from lingjing_ai.agent.models import AgentAnswer, ToolResult, ToolTrace
+from lingjing_ai.agent.models import AgentAnswer, AgentEvidence, ToolResult, ToolTrace
 from lingjing_ai.agent.planner import AgentPlanner
 from lingjing_ai.config.settings import AppSettings
 from lingjing_ai.models.rag import SourceChunk
 from lingjing_ai.services.conversation import ConversationContext
 from lingjing_ai.services.question_expansion import rank_question_candidates
-from lingjing_ai.services.tool_intent import classify_fast_tool_intent, status_message_for_question
+from lingjing_ai.services.tool_intent import (
+    classify_fast_tool_intent,
+    route_endpoint_clarification,
+    status_message_for_question,
+)
 
 
 class AgentExecutor:
@@ -20,6 +24,101 @@ class AgentExecutor:
         self.tools = {tool.name: tool for tool in tools}
         self.pipeline = self._find_pipeline(tools)
         self.answer_generator = self._find_answer_generator(tools)
+
+    def collect_evidence(
+        self,
+        question: str,
+        conversation_context: ConversationContext | None = None,
+    ) -> AgentEvidence:
+        """Collect tool evidence without generating, so one final model serves text and voice modes."""
+        active_question = self._active_question(question, conversation_context)
+        if conversation_context and conversation_context.needs_clarification:
+            return AgentEvidence(
+                question=active_question,
+                sources=[],
+                confidence=0.0,
+                is_answered=False,
+                trace_id=f"evidence_{uuid.uuid4().hex}",
+                tool_trace=[],
+                needs_clarification=True,
+                clarifying_question=conversation_context.clarifying_question,
+            )
+        route_clarification = route_endpoint_clarification(active_question)
+        if route_clarification:
+            return AgentEvidence(
+                question=active_question,
+                sources=[],
+                confidence=0.0,
+                is_answered=False,
+                trace_id=f"evidence_{uuid.uuid4().hex}",
+                tool_trace=[],
+                needs_clarification=True,
+                clarifying_question=route_clarification,
+            )
+
+        fast_evidence = self._collect_fast_tool_evidence(active_question)
+        if fast_evidence is not None:
+            return fast_evidence
+
+        plan = self.planner.plan(active_question)
+        queries = [active_question]
+        traces: list[ToolTrace] = []
+        sources: list[SourceChunk] = []
+        for step in plan.steps:
+            tool = self.tools.get(step.tool_name)
+            if tool is None:
+                traces.append(ToolTrace(step.tool_name, step.tool_input, "skipped", "工具未注册"))
+                continue
+            result = self._run_tool(tool, step.tool_input, queries)
+            traces.append(
+                ToolTrace(
+                    tool_name=step.tool_name,
+                    tool_input=step.tool_input,
+                    status=result.status,
+                    message=result.message,
+                    source_count=len(result.sources),
+                )
+            )
+            if step.tool_name == "query_rewrite" and result.data.get("queries"):
+                queries = result.data["queries"][:3]
+            sources.extend(result.sources)
+
+        ranked = self._compress_sources(self._prioritize_sources(active_question, self._dedupe_sources(sources)))
+        return AgentEvidence(
+            question=active_question,
+            sources=ranked,
+            confidence=ranked[0].score if ranked else 0.0,
+            is_answered=bool(ranked),
+            trace_id=f"evidence_{uuid.uuid4().hex}",
+            tool_trace=traces,
+        )
+
+    def _collect_fast_tool_evidence(self, question: str) -> AgentEvidence | None:
+        if not self.settings.agent_fast_tool_path_enabled:
+            return None
+        intent = classify_fast_tool_intent(question)
+        if intent is None:
+            return None
+        tool = self.tools.get(intent.tool_name)
+        if tool is None:
+            return None
+        result = tool.run(question)
+        sources = self._compress_sources(self._prioritize_sources(question, self._dedupe_sources(result.sources)))
+        trace = ToolTrace(
+            tool_name=intent.tool_name,
+            tool_input=question,
+            status=result.status,
+            message=result.message,
+            source_count=len(result.sources),
+        )
+        return AgentEvidence(
+            question=question,
+            sources=sources,
+            confidence=sources[0].score if sources else 0.0,
+            is_answered=bool(sources),
+            trace_id=f"evidence_{uuid.uuid4().hex}",
+            tool_trace=[trace],
+        )
 
     def run(self, question: str, conversation_context: ConversationContext | None = None) -> AgentAnswer:
         active_question = self._active_question(question, conversation_context)
@@ -33,6 +132,20 @@ class AgentExecutor:
                 tool_trace=[],
                 needs_clarification=True,
                 clarifying_question=conversation_context.clarifying_question,
+            )
+            self._write_agent_log(active_question, result)
+            return result
+        route_clarification = route_endpoint_clarification(active_question)
+        if route_clarification:
+            result = AgentAnswer(
+                answer=route_clarification,
+                sources=[],
+                confidence=0.0,
+                is_answered=False,
+                trace_id=f"agent_{uuid.uuid4().hex}",
+                tool_trace=[],
+                needs_clarification=True,
+                clarifying_question=route_clarification,
             )
             self._write_agent_log(active_question, result)
             return result

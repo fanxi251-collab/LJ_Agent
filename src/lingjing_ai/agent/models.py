@@ -42,3 +42,15 @@ class AgentAnswer:
     tool_trace: list[ToolTrace]
     needs_clarification: bool = False
     clarifying_question: str = ""
+
+
+@dataclass(frozen=True)
+class AgentEvidence:
+    question: str
+    sources: list[SourceChunk]
+    confidence: float
+    is_answered: bool
+    trace_id: str
+    tool_trace: list[ToolTrace]
+    needs_clarification: bool = False
+    clarifying_question: str = ""

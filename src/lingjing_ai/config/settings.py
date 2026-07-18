@@ -43,6 +43,19 @@ class AppSettings:
     llm_model: str = "qwen3.7-max"
     llm_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     llm_timeout_seconds: int = 30
+    realtime_model: str = "qwen-audio-3.0-realtime-flash"
+    realtime_workspace_id: str = ""
+    realtime_url: str = ""
+    realtime_voice: str = "longanqian"
+    realtime_history_turns: int = 6
+    realtime_connect_timeout_seconds: int = 15
+    asr_correction_enabled: bool = True
+    asr_glossary_path: str = "config/asr_glossary.yml"
+    asr_glossary_ttl_seconds: int = 60
+    realtime_instructions: str = (
+        "你是灵境景区的AI数字人导游。只能依据系统提供的景区证据回答，"
+        "语气亲切、准确；严格遵守每轮临时证据中的回答契约。"
+    )
     agent_enabled: bool = True
     agent_max_steps: int = 4
     agent_executor_mode: str = "legacy"
@@ -98,6 +111,33 @@ class AppSettings:
                 "LJ_LLM_BASE_URL",
                 workspace_env.get("LJ_LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
             ).rstrip("/"),
+            realtime_model=_env_value(
+                "LJ_REALTIME_MODEL",
+                workspace_env,
+                "qwen-audio-3.0-realtime-flash",
+            ).strip()
+            or "qwen-audio-3.0-realtime-flash",
+            realtime_workspace_id=_env_value("LJ_REALTIME_WORKSPACE_ID", workspace_env, "").strip(),
+            realtime_url=_env_value("LJ_REALTIME_URL", workspace_env, "").strip(),
+            realtime_voice=_env_value("LJ_REALTIME_VOICE", workspace_env, "longanqian").strip()
+            or "longanqian",
+            realtime_history_turns=max(
+                1,
+                min(50, int(_env_value("LJ_REALTIME_HISTORY_TURNS", workspace_env, "6"))),
+            ),
+            realtime_connect_timeout_seconds=max(
+                1,
+                int(_env_value("LJ_REALTIME_CONNECT_TIMEOUT_SECONDS", workspace_env, "15")),
+            ),
+            asr_correction_enabled=_env_bool("LJ_ASR_CORRECTION_ENABLED", workspace_env, True),
+            asr_glossary_path=_env_value(
+                "LJ_ASR_GLOSSARY_PATH", workspace_env, "config/asr_glossary.yml"
+            ).strip()
+            or "config/asr_glossary.yml",
+            asr_glossary_ttl_seconds=max(
+                1,
+                int(_env_value("LJ_ASR_GLOSSARY_TTL_SECONDS", workspace_env, "60")),
+            ),
             embedding_provider=_env_value("LJ_EMBEDDING_PROVIDER", workspace_env, "aliyun").strip().lower()
             or "aliyun",
             embedding_model=_env_value("LJ_EMBEDDING_MODEL", workspace_env, "text-embedding-v4").strip()

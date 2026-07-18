@@ -62,6 +62,21 @@ def should_skip_question_expansion(question: str, target: str = "") -> bool:
     return False
 
 
+def route_endpoint_clarification(question: str) -> str:
+    """Ask for named endpoints before map execution because Amap cannot plan a trustworthy partial route."""
+    text = question.strip()
+    route_words = ("怎么走", "怎么去", "如何去", "如何走", "导航")
+    if not any(word in text for word in route_words) or _looks_like_direct_route_question(text):
+        return ""
+    has_origin = "从" in text
+    has_destination = "到" in text
+    if has_destination and not has_origin:
+        return "请补充明确的起点，例如：从无锡站到灵山胜境怎么走？"
+    if has_origin and not has_destination:
+        return "请补充明确的终点，例如：从无锡站到灵山胜境怎么走？"
+    return "请同时提供明确的起点和终点，例如：从无锡站到灵山胜境怎么走？"
+
+
 def _looks_like_weather_question(question: str) -> bool:
     return any(keyword in question for keyword in ("天气", "气温", "温度", "下雨", "风力", "湿度"))
 

@@ -9,7 +9,10 @@ description = "LingJing AI scenic RAG and agent backend"
 requires-python = ">=3.10"
 dependencies = [
     "openpyxl>=3.1,<4",
+    "pypinyin>=0.52,<1",
+    "PyYAML>=6,<7",
     "redis>=8.0,<9",
+    "websockets>=16,<17",
 ]
 
 [tool.setuptools.packages.find]
