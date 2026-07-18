@@ -1,0 +1,7 @@
+Live2D Cubism Core is copyright Live2D Inc. All rights reserved.
+
+The bundled live2dcubismcore.min.js identifies itself as "Redistributable Code" and is licensed under the Live2D Proprietary Software License Agreement:
+
+https://www.live2d.com/eula/live2d-proprietary-software-license-agreement_en.html
+
+This notice does not replace that agreement. Use or redistribution of Cubism Core requires accepting and complying with the current official agreement.

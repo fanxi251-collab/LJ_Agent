@@ -25,6 +25,20 @@ export function resolveAvatarCaption(assistantText, userText) {
   return String(assistantText || "").trim() || String(userText || "").trim();
 }
 
+export function resolveAvatarAudioState({ eventType, playbackActive, turnActive }) {
+  if (playbackActive) return "speaking";
+  if (eventType === "assistant.audio.started") return "thinking";
+  if (eventType === "turn.completed") return "idle";
+  if (["assistant.audio.done", "playback.ended"].includes(eventType)) {
+    return turnActive ? "thinking" : "idle";
+  }
+  return turnActive ? "thinking" : "idle";
+}
+
+export function isRealtimeBusy(activeTurnId, playbackActive) {
+  return Boolean(activeTurnId) || Boolean(playbackActive);
+}
+
 export function createTurnId() {
   const random = globalThis.crypto?.randomUUID?.().replaceAll("-", "");
   return `turn_${random || `${Date.now()}_${Math.random().toString(16).slice(2)}`}`;

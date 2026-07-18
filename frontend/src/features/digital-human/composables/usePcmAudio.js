@@ -1,9 +1,10 @@
 import { ref } from "vue";
 import { createCaptureQualityTracker } from "../lib/audioCaptureQuality.js";
-import { pcmRms } from "../lib/pcmAudio.js";
+import { float32Metrics } from "../lib/pcmAudio.js";
 
-export function usePcmAudio({ onCaptureChunk }) {
+export function usePcmAudio({ onCaptureChunk, onPlaybackStateChange }) {
   const audioLevel = ref(0);
+  const playbackActive = ref(false);
   const inputLevel = ref(0);
   const inputQuality = ref("good");
   const autoGainState = ref("unknown");
@@ -13,15 +14,50 @@ export function usePcmAudio({ onCaptureChunk }) {
   let captureStream = null;
   let captureNode = null;
   let playbackContext = null;
+  let playbackAnalyser = null;
+  let playbackAnalysisFrame = null;
+  let playbackAnalysisSamples = null;
   let playbackCursor = 0;
+  let playbackGeneration = 0;
   const playbackSources = new Set();
-  const levelTimers = new Set();
+
+  function setPlaybackActive(active) {
+    const nextActive = Boolean(active);
+    if (playbackActive.value === nextActive) return;
+    playbackActive.value = nextActive;
+    onPlaybackStateChange?.(nextActive);
+  }
+
+  function stopPlaybackAnalysis() {
+    if (playbackAnalysisFrame !== null) cancelAnimationFrame(playbackAnalysisFrame);
+    playbackAnalysisFrame = null;
+    audioLevel.value = 0;
+  }
+
+  function samplePlaybackLevel() {
+    playbackAnalysisFrame = null;
+    if (!playbackActive.value || !playbackAnalyser || !playbackAnalysisSamples) return;
+    playbackAnalyser.getFloatTimeDomainData(playbackAnalysisSamples);
+    audioLevel.value = Math.min(1, float32Metrics(playbackAnalysisSamples).rms * 3.2);
+    // Follow the audio device clock every rendered frame because server chunk timing can run ahead of playback.
+    playbackAnalysisFrame = requestAnimationFrame(samplePlaybackLevel);
+  }
+
+  function startPlaybackAnalysis() {
+    if (playbackAnalysisFrame !== null) return;
+    playbackAnalysisFrame = requestAnimationFrame(samplePlaybackLevel);
+  }
 
   async function preparePlayback() {
     if (!playbackContext) {
       // Create playback during a user gesture because browsers may block contexts created by later socket events.
       playbackContext = new AudioContext({ sampleRate: 24000 });
       playbackCursor = playbackContext.currentTime;
+      playbackAnalyser = playbackContext.createAnalyser();
+      playbackAnalyser.fftSize = 512;
+      playbackAnalysisSamples = new Float32Array(playbackAnalyser.fftSize);
+      // Route every source through one analyser so lip sync reflects the sound actually sent to the speakers.
+      playbackAnalyser.connect(playbackContext.destination);
     }
     if (playbackContext.state === "suspended") await playbackContext.resume();
   }
@@ -94,26 +130,29 @@ export function usePcmAudio({ onCaptureChunk }) {
     const channel = buffer.getChannelData(0);
     for (let index = 0; index < pcm.length; index += 1) channel[index] = pcm[index] / 32768;
     const source = playbackContext.createBufferSource();
+    const sourceGeneration = playbackGeneration;
     source.buffer = buffer;
-    source.connect(playbackContext.destination);
+    source.connect(playbackAnalyser);
     const startAt = Math.max(playbackCursor, playbackContext.currentTime + 0.015);
     playbackCursor = startAt + buffer.duration;
     playbackSources.add(source);
-    const levelTimer = setTimeout(() => {
-      levelTimers.delete(levelTimer);
-      audioLevel.value = Math.min(1, pcmRms(pcm) * 3.2);
-    }, Math.max(0, (startAt - playbackContext.currentTime) * 1000));
-    levelTimers.add(levelTimer);
+    setPlaybackActive(true);
+    startPlaybackAnalysis();
     source.onended = () => {
+      // Ignore callbacks from a cancelled queue because a newer answer may already be playing.
+      if (sourceGeneration !== playbackGeneration) return;
       playbackSources.delete(source);
-      if (!playbackSources.size) audioLevel.value = 0;
+      if (!playbackSources.size) {
+        stopPlaybackAnalysis();
+        setPlaybackActive(false);
+      }
     };
     source.start(startAt);
   }
 
   function clearPlayback() {
-    for (const timer of levelTimers) clearTimeout(timer);
-    levelTimers.clear();
+    playbackGeneration += 1;
+    stopPlaybackAnalysis();
     for (const source of playbackSources) {
       try {
         source.stop();
@@ -124,6 +163,7 @@ export function usePcmAudio({ onCaptureChunk }) {
     playbackSources.clear();
     playbackCursor = playbackContext?.currentTime || 0;
     audioLevel.value = 0;
+    setPlaybackActive(false);
   }
 
   async function dispose() {
@@ -131,10 +171,13 @@ export function usePcmAudio({ onCaptureChunk }) {
     clearPlayback();
     if (playbackContext) await playbackContext.close();
     playbackContext = null;
+    playbackAnalyser = null;
+    playbackAnalysisSamples = null;
   }
 
   return {
     audioLevel,
+    playbackActive,
     inputLevel,
     inputQuality,
     autoGainState,

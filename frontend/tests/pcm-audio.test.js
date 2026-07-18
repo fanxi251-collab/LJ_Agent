@@ -8,6 +8,79 @@ import {
   createTailProtection,
 } from "../src/features/digital-human/lib/audioCaptureQuality.js";
 
+function installPlaybackFakes() {
+  const sources = [];
+  const animationFrames = new Map();
+  const analyser = {
+    samples: new Float32Array(512),
+    connect(target) { this.connectedTo = target; },
+    disconnect() { this.disconnected = true; },
+    getFloatTimeDomainData(target) { target.set(this.samples); },
+  };
+  let nextAnimationFrame = 0;
+
+  class FakeAudioContext {
+    constructor() {
+      this.currentTime = 0;
+      this.destination = {};
+      this.state = "running";
+    }
+
+    createBuffer(_channels, length, sampleRate) {
+      return {
+        duration: length / sampleRate,
+        getChannelData: () => new Float32Array(length),
+      };
+    }
+
+    createBufferSource() {
+      const source = {
+        connect(target) { source.connectedTo = target; },
+        start() {},
+        stop() { source.stopped = true; },
+        finish() { source.onended?.(); },
+      };
+      sources.push(source);
+      return source;
+    }
+
+    createAnalyser() { return analyser; }
+
+    async resume() {}
+    async close() {}
+  }
+
+  Object.defineProperty(globalThis, "AudioContext", {
+    configurable: true,
+    value: FakeAudioContext,
+  });
+  Object.defineProperty(globalThis, "requestAnimationFrame", {
+    configurable: true,
+    value(callback) {
+      nextAnimationFrame += 1;
+      animationFrames.set(nextAnimationFrame, callback);
+      return nextAnimationFrame;
+    },
+  });
+  Object.defineProperty(globalThis, "cancelAnimationFrame", {
+    configurable: true,
+    value(handle) { animationFrames.delete(handle); },
+  });
+  return {
+    analyser,
+    animationFrames,
+    sources,
+    runAnimationFrame(samples) {
+      analyser.samples.fill(0);
+      analyser.samples.set(samples);
+      const entry = animationFrames.entries().next().value;
+      assert.ok(entry, "expected a scheduled playback analysis frame");
+      animationFrames.delete(entry[0]);
+      entry[1]();
+    },
+  };
+}
+
 test("microphone exposes a starting state while browser permission is pending", async () => {
   let rejectPermission;
   const permission = new Promise((resolve, reject) => {
@@ -105,4 +178,69 @@ test("tail protection finishes after 300ms and cancellation suppresses commit", 
   await scheduled[1].callback();
   assert.equal(commits, 1);
   assert.equal(tail.active(), false);
+});
+
+test("playback remains active until the final queued PCM source ends", async () => {
+  const { sources } = installPlaybackFakes();
+  const playbackStates = [];
+  const audio = usePcmAudio({
+    onCaptureChunk() {},
+    onPlaybackStateChange(active) { playbackStates.push(active); },
+  });
+  const pcm = new Int16Array([1000, -1000, 500, -500]).buffer;
+
+  await audio.enqueuePlayback(pcm);
+  await audio.enqueuePlayback(pcm);
+  await audio.enqueuePlayback(pcm);
+
+  assert.equal(audio.playbackActive.value, true);
+  assert.deepEqual(playbackStates, [true]);
+  sources[0].finish();
+  sources[1].finish();
+  assert.equal(audio.playbackActive.value, true);
+  assert.deepEqual(playbackStates, [true]);
+  sources[2].finish();
+  assert.equal(audio.playbackActive.value, false);
+  assert.deepEqual(playbackStates, [true, false]);
+});
+
+test("playback analyser continuously follows the audio sent to the speakers", async () => {
+  const { analyser, animationFrames, runAnimationFrame, sources } = installPlaybackFakes();
+  const audio = usePcmAudio({ onCaptureChunk() {} });
+
+  await audio.enqueuePlayback(new Int16Array([1000, -1000]).buffer);
+  assert.equal(sources[0].connectedTo, analyser);
+  assert.equal(analyser.fftSize, 512);
+  assert.equal(animationFrames.size, 1);
+
+  runAnimationFrame(new Float32Array(512).fill(0.1));
+  assert.ok(audio.audioLevel.value > 0.31 && audio.audioLevel.value < 0.33);
+  runAnimationFrame(new Float32Array(512));
+  assert.equal(audio.audioLevel.value, 0);
+
+  audio.clearPlayback();
+  assert.equal(audio.audioLevel.value, 0);
+  assert.equal(audio.playbackActive.value, false);
+  assert.equal(animationFrames.size, 0);
+});
+
+test("a cancelled queue cannot end a newer playback generation", async () => {
+  const { animationFrames, sources } = installPlaybackFakes();
+  const states = [];
+  const audio = usePcmAudio({
+    onCaptureChunk() {},
+    onPlaybackStateChange(active) { states.push(active); },
+  });
+  const pcm = new Int16Array([800, -800]).buffer;
+
+  await audio.enqueuePlayback(pcm);
+  audio.clearPlayback();
+  await audio.enqueuePlayback(pcm);
+  sources[0].finish();
+
+  assert.equal(audio.playbackActive.value, true);
+  assert.equal(animationFrames.size, 1);
+  sources[1].finish();
+  assert.equal(audio.playbackActive.value, false);
+  assert.deepEqual(states, [true, false, true, false]);
 });

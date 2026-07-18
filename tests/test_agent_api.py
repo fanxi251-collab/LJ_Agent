@@ -100,19 +100,7 @@ def test_agent_chat_autonomously_calls_amap_route_tool(tmp_path: Path, monkeypat
 
     def fake_get(url, params, timeout):
         if url.endswith("/v3/geocode/geo"):
-            locations = {
-                "无锡站": "120.305,31.590",
-                "灵山胜境": "120.100,31.500",
-            }
-            return httpx.Response(
-                200,
-                request=httpx.Request("GET", url),
-                json={
-                    "status": "1",
-                    "infocode": "10000",
-                    "geocodes": [{"formatted_address": params["address"], "location": locations[params["address"]]}],
-                },
-            )
+            raise AssertionError(f"已发布景点不应调用地理编码：{params['address']}")
         return httpx.Response(
             200,
             request=httpx.Request("GET", url),
@@ -122,11 +110,13 @@ def test_agent_chat_autonomously_calls_amap_route_tool(tmp_path: Path, monkeypat
                 "route": {
                     "paths": [
                         {
-                            "distance": "42000",
-                            "duration": "3600",
+                            "distance": "210",
+                            "duration": "180",
                             "steps": [
-                                {"instruction": "从无锡站出发", "polyline": "120.305,31.590;120.200,31.550"},
-                                {"instruction": "到达灵山胜境", "polyline": "120.200,31.550;120.100,31.500"},
+                                {
+                                    "instruction": "沿景区步道前行至五智门",
+                                    "polyline": "120.102248,31.421749;120.101292,31.423055",
+                                },
                             ],
                         }
                     ]
@@ -140,7 +130,7 @@ def test_agent_chat_autonomously_calls_amap_route_tool(tmp_path: Path, monkeypat
     async def post_chat() -> httpx.Response:
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-            return await client.post("/api/agent/chat", json={"question": "从无锡站到灵山胜境怎么走？"})
+            return await client.post("/api/agent/chat", json={"question": "从五明桥到五智门怎么走？"})
 
     response = asyncio.run(post_chat())
     body = response.json()
@@ -148,13 +138,12 @@ def test_agent_chat_autonomously_calls_amap_route_tool(tmp_path: Path, monkeypat
     assert response.status_code == 200
     assert [trace["tool_name"] for trace in body["tool_trace"]] == ["amap_route"]
     assert body["sources"][0]["document_name"] == "高德路线规划"
-    assert "约42.0公里" in body["answer"]
+    assert "约210米" in body["answer"]
     assert body["sources"][0]["metadata"]["source_type"] == "amap_route"
-    assert body["sources"][0]["metadata"]["route_summary"]["mode"] == "driving"
+    assert body["sources"][0]["metadata"]["route_summary"]["mode"] == "walking"
     assert body["sources"][0]["metadata"]["route_summary"]["polyline"] == [
-        "120.305,31.590",
-        "120.200,31.550",
-        "120.100,31.500",
+        "120.102248,31.421749",
+        "120.101292,31.423055",
     ]
 
 

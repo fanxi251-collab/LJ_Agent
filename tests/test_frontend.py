@@ -123,9 +123,11 @@ def test_digital_human_frontend_isolated_behind_feature_entrypoint():
         feature_root / "components/DigitalHumanStage.vue",
         feature_root / "components/DigitalHumanVoiceControls.vue",
         feature_root / "components/TranscriptConfirmation.vue",
-        feature_root / "renderers/SvgAvatarRenderer.vue",
+        feature_root / "renderers/Live2DAvatarRenderer.vue",
         feature_root / "composables/usePcmAudio.js",
         feature_root / "lib/audioCaptureQuality.js",
+        feature_root / "lib/live2dExpression.js",
+        feature_root / "lib/live2dMotion.js",
         feature_root / "lib/pcmAudio.js",
     )
 
@@ -156,17 +158,64 @@ def test_digital_human_frontend_isolated_behind_feature_entrypoint():
         assert exported_name in feature_entrypoint
 
 
-def test_digital_human_svg_renderer_has_stable_replaceable_contract():
-    renderer_path = Path(
-        "frontend/src/features/digital-human/renderers/SvgAvatarRenderer.vue"
-    )
+def test_digital_human_live2d_renderer_replaces_svg_with_stable_contract():
+    feature_root = Path("frontend/src/features/digital-human")
+    renderer_path = feature_root / "renderers/Live2DAvatarRenderer.vue"
+    svg_path = feature_root / "renderers/SvgAvatarRenderer.vue"
 
     assert renderer_path.is_file()
+    assert not svg_path.exists()
     renderer_source = renderer_path.read_text(encoding="utf-8")
     assert "state:" in renderer_source
     assert "audioLevel:" in renderer_source
+    assert "expression:" in renderer_source
     assert "transcript:" not in renderer_source
-    assert "avatar-mouth" in renderer_source
+    assert "beforeModelUpdate" in renderer_source
+    assert "ResizeObserver" in renderer_source
+    assert 'import * as PIXI from "pixi.js"' not in renderer_source
+    motion_source = (feature_root / "lib/live2dMotion.js").read_text(encoding="utf-8")
+    assert "lipSyncIds" in motion_source
+    assert "applyLipSyncValue" in renderer_source
+    loader_source = (feature_root / "lib/live2dLoader.js").read_text(encoding="utf-8")
+    assert 'import("pixi.js")' in loader_source
+
+    stage_source = (feature_root / "components/DigitalHumanStage.vue").read_text(
+        encoding="utf-8"
+    )
+    assert "Live2DAvatarRenderer" in stage_source
+    assert "SvgAvatarRenderer" not in stage_source
+    assert "emotionText" in stage_source
+    assert "数字人形象加载失败" in stage_source
+
+
+def test_live2d_dependencies_and_local_mao_pro_assets_are_complete():
+    package = Path("frontend/package.json").read_text(encoding="utf-8")
+    live2d_root = Path("frontend/public/digital-human/live2d")
+    model_root = live2d_root / "mao_pro"
+    model_json = model_root / "mao_pro.model3.json"
+
+    assert '"pixi.js": "6.5.10"' in package
+    assert '"pixi-live2d-display": "0.4.0"' in package
+    assert (live2d_root / "live2dcubismcore.min.js").is_file()
+    assert (live2d_root / "NOTICE.md").is_file()
+    assert (live2d_root / "LICENSE-Live2D-Cubism-SDK.txt").is_file()
+    assert (model_root / "README.md").is_file()
+    assert model_json.is_file()
+
+    model_source = model_json.read_text(encoding="utf-8")
+    assert "http://" not in model_source
+    assert "https://" not in model_source
+    for expected_asset in (
+        "mao_pro.moc3",
+        "mao_pro.4096/texture_00.png",
+        "mao_pro.physics3.json",
+        "mao_pro.pose3.json",
+        "expressions/exp_01.exp3.json",
+        "expressions/exp_02.exp3.json",
+        "expressions/exp_04.exp3.json",
+        "expressions/exp_05.exp3.json",
+    ):
+        assert (model_root / expected_asset).is_file(), expected_asset
 
 
 def test_visitor_router_exposes_guide_explore_and_map_views():
@@ -266,6 +315,23 @@ def test_fastapi_serves_pcm_capture_worklet(tmp_path: Path):
     assert compatibility_response.status_code == 200
     assert canonical_response.text == compatibility_response.text
     assert "registerProcessor" in canonical_response.text
+
+
+def test_fastapi_serves_local_live2d_assets(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+
+    model = request_path(app, "/digital-human/live2d/mao_pro/mao_pro.model3.json")
+    moc = request_path(app, "/digital-human/live2d/mao_pro/mao_pro.moc3")
+    texture = request_path(
+        app, "/digital-human/live2d/mao_pro/mao_pro.4096/texture_00.png"
+    )
+    core = request_path(app, "/digital-human/live2d/live2dcubismcore.min.js")
+
+    assert model.status_code == 200
+    assert moc.status_code == 200
+    assert texture.status_code == 200
+    assert core.status_code == 200
+    assert model.json()["Version"] == 3
 
 
 def test_legacy_admin_assets_are_still_served(tmp_path: Path):

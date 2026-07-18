@@ -1,13 +1,18 @@
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from lingjing_ai.agent.executor import AgentExecutor
 from lingjing_ai.agent.models import AgentEvidence, ToolTrace
 from lingjing_ai.config.settings import AppSettings
 from lingjing_ai.models.rag import SourceChunk
 from lingjing_ai.realtime.conversation import RealtimeConversationService
 from lingjing_ai.services.conversation_store import ConversationStore
+from lingjing_ai.tools.amap_client import AmapClient
+from lingjing_ai.tools.amap_tools import AmapRouteTool
+from lingjing_ai.tools.route_scope import ScenicNavigationScope
 
 
 class FakeAgentExecutor:
@@ -33,6 +38,14 @@ class FakeAgentExecutor:
             trace_id="trace_1",
             tool_trace=[ToolTrace("rag_search", question, "ok", "命中资料", 1)],
         )
+
+
+class PipelineBackedNoopTool:
+    name = "rag_search"
+    pipeline = SimpleNamespace(answer_generator=object())
+
+    def run(self, question):
+        raise AssertionError(f"路线快速路径不应调用RAG：{question}")
 
 
 def build_service(tmp_path: Path):
@@ -104,6 +117,102 @@ def test_prepare_turn_preserves_explicit_internal_route_in_existing_session(tmp_
     assert route.evidence.question == "从五明桥到五智门怎么走"
     assert route.evidence.needs_clarification is False
     assert agent.contexts[-1].standalone_question == "从五明桥到五智门怎么走"
+
+
+def test_avatar_turn_routes_cleaned_internal_attraction_names_through_amap(tmp_path: Path):
+    settings = replace(
+        AppSettings.for_workspace(tmp_path),
+        question_expansion_enabled=False,
+        agent_use_query_rewrite=False,
+        agent_use_document_search=False,
+    )
+    locations = {
+        "灵山大佛": "120.096477,31.430194",
+        "九龙灌浴": "120.099984,31.424601",
+    }
+    requested = []
+
+    def fake_walking_route(origin: str, destination: str) -> dict:
+        requested.append((origin, destination))
+        return {
+            "route": {
+                "paths": [{
+                    "distance": "900",
+                    "duration": "600",
+                    "steps": [{"instruction": "沿景区步道前行", "polyline": f"{origin};{destination}"}],
+                }]
+            }
+        }
+
+    client = AmapClient(api_key="map-key")
+    client.geocode = lambda address, city="": (_ for _ in ()).throw(
+        AssertionError(f"本地景点不应调用地理编码：{address}")
+    )
+    client.walking_route = fake_walking_route
+    scope = ScenicNavigationScope(lambda: locations.values(), radius_km=10.0)
+    route_tool = AmapRouteTool(
+        settings,
+        client=client,
+        location_resolver=locations.get,
+        scope_validator=scope.validate,
+    )
+    agent = AgentExecutor(settings=settings, tools=[PipelineBackedNoopTool(), route_tool])
+    store = ConversationStore(tmp_path / "route-conversations.db")
+    service = RealtimeConversationService(settings, store, agent)
+
+    prepared = service.prepare_turn(
+        "从灵山大佛到九龙灌浴的步行路线",
+        "visitor_a",
+        "",
+        mode="avatar",
+    )
+
+    assert requested == [(locations["灵山大佛"], locations["九龙灌浴"])]
+    assert prepared.evidence.tool_trace[0].tool_name == "amap_route"
+    assert prepared.evidence.tool_trace[0].status == "ok"
+    summary = prepared.evidence.sources[0].metadata["route_summary"]
+    assert summary["origin"] == "灵山大佛"
+    assert summary["destination"] == "九龙灌浴"
+    assert summary["mode"] == "walking"
+
+
+def test_avatar_turn_rejects_out_of_scope_route_without_direction_or_sources(tmp_path: Path):
+    settings = replace(
+        AppSettings.for_workspace(tmp_path),
+        question_expansion_enabled=False,
+        agent_use_query_rewrite=False,
+        agent_use_document_search=False,
+    )
+    anchors = {"灵山大佛": "120.096477,31.430194"}
+    direction_calls = []
+    client = AmapClient(api_key="map-key")
+    client.geocode = lambda address, city="": {"geocodes": [{"location": "120.305000,31.590000"}]}
+    client.driving_route = lambda *args: direction_calls.append(args)
+    scope = ScenicNavigationScope(lambda: anchors.values(), radius_km=10.0)
+    route_tool = AmapRouteTool(
+        settings,
+        client=client,
+        location_resolver=anchors.get,
+        scope_validator=scope.validate,
+    )
+    agent = AgentExecutor(settings=settings, tools=[PipelineBackedNoopTool(), route_tool])
+    service = RealtimeConversationService(
+        settings,
+        ConversationStore(tmp_path / "outside-route-conversations.db"),
+        agent,
+    )
+
+    prepared = service.prepare_turn(
+        "从灵山大佛到无锡站驾车怎么走",
+        "visitor_a",
+        "",
+        mode="avatar",
+    )
+
+    assert direction_calls == []
+    assert prepared.evidence.sources == []
+    assert prepared.evidence.tool_trace[0].status == "error"
+    assert "10公里" in prepared.evidence.tool_trace[0].message
 
 
 def test_completed_turn_is_persisted_once_and_wrong_visitor_is_rejected(tmp_path: Path):
