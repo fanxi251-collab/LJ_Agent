@@ -53,7 +53,12 @@ class FakeWebSocket:
 
 
 def realtime_endpoint(app):
-    return next(route.endpoint for route in app.routes if route.path == "/api/visitor/realtime")
+    for route in app.routes:
+        candidates = getattr(getattr(route, "original_router", None), "routes", [route])
+        for candidate in candidates:
+            if getattr(candidate, "path", "") == "/api/visitor/realtime":
+                return candidate.endpoint
+    raise LookupError("Realtime WebSocket route is not registered.")
 
 
 def test_realtime_websocket_falls_back_to_text_and_persists_complete_turn(tmp_path: Path):
