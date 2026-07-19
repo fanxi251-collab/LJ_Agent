@@ -47,6 +47,9 @@ class AppSettings:
     realtime_workspace_id: str = ""
     realtime_url: str = ""
     realtime_voice: str = "longanqian"
+    realtime_voice_mao_pro: str = "longanqian"
+    realtime_voice_chitose: str = "longanlufeng"
+    realtime_voice_haruto: str = "longanxiaoxin"
     realtime_history_turns: int = 6
     realtime_connect_timeout_seconds: int = 15
     asr_correction_enabled: bool = True
@@ -122,6 +125,18 @@ class AppSettings:
             realtime_url=_env_value("LJ_REALTIME_URL", workspace_env, "").strip(),
             realtime_voice=_env_value("LJ_REALTIME_VOICE", workspace_env, "longanqian").strip()
             or "longanqian",
+            realtime_voice_mao_pro=_env_value(
+                "LJ_REALTIME_VOICE_MAO_PRO", workspace_env, "longanqian"
+            ).strip()
+            or "longanqian",
+            realtime_voice_chitose=_env_value(
+                "LJ_REALTIME_VOICE_CHITOSE", workspace_env, "longanlufeng"
+            ).strip()
+            or "longanlufeng",
+            realtime_voice_haruto=_env_value(
+                "LJ_REALTIME_VOICE_HARUTO", workspace_env, "longanxiaoxin"
+            ).strip()
+            or "longanxiaoxin",
             realtime_history_turns=max(
                 1,
                 min(50, int(_env_value("LJ_REALTIME_HISTORY_TURNS", workspace_env, "6"))),

@@ -124,9 +124,13 @@ class QwenAudioRealtimeClient:
     async def clear_audio(self) -> None:
         await self.send_event({"type": "input_audio_buffer.clear"})
 
-    async def create_response(self, mode: str) -> None:
+    async def create_response(self, mode: str, voice: str | None = None) -> None:
         modalities = ["audio", "text"] if mode == "avatar" else ["text"]
-        await self.send_event({"type": "response.create", "response": {"modalities": modalities}})
+        response: dict[str, Any] = {"modalities": modalities}
+        # Per-turn voice belongs only to avatar responses so text mode never requests audio features.
+        if mode == "avatar" and voice:
+            response["voice"] = voice
+        await self.send_event({"type": "response.create", "response": response})
 
     async def cancel_response(self) -> None:
         await self.send_event({"type": "response.cancel"})

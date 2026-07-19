@@ -100,12 +100,12 @@ test("Live2D lip sync writes clamp values to the model parameter range", () => {
 });
 
 test("Live2D expression uses professional categories and conflict priority", () => {
-  assert.equal(resolveLive2DExpression({ state: "idle", assistantText: "欢迎您" }), "exp_01");
-  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "欢迎体验精彩景区" }), "exp_02");
-  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "这里非常壮观，是首次开放" }), "exp_04");
-  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "很抱歉，特别活动暂不可用" }), "exp_05");
-  assert.equal(resolveLive2DExpression({ state: "error", assistantText: "欢迎" }), "exp_05");
-  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "普通路线说明" }), "exp_01");
+  assert.equal(resolveLive2DExpression({ state: "idle", assistantText: "欢迎您" }), "neutral");
+  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "欢迎体验精彩景区" }), "joy");
+  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "这里非常壮观，是首次开放" }), "surprise");
+  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "很抱歉，特别活动暂不可用" }), "apology");
+  assert.equal(resolveLive2DExpression({ state: "error", assistantText: "欢迎" }), "apology");
+  assert.equal(resolveLive2DExpression({ state: "speaking", assistantText: "普通路线说明" }), "neutral");
 });
 
 test("Live2D expression waits 300ms and reset returns to neutral immediately", () => {
@@ -121,12 +121,12 @@ test("Live2D expression waits 300ms and reset returns to neutral immediately", (
     },
   });
 
-  debouncer.update("exp_02");
+  debouncer.update("joy");
   assert.equal(EXPRESSION_DEBOUNCE_MS, 300);
   assert.equal(scheduled[0].delay, 300);
   assert.deepEqual(committed, []);
 
   debouncer.reset();
   assert.equal(scheduled[0].cancelled, true);
-  assert.deepEqual(committed, ["exp_01"]);
+  assert.deepEqual(committed, ["neutral"]);
 });

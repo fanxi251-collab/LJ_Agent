@@ -1,0 +1,60 @@
+.map-layer-switch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin: 12px 12px 0;
+  padding: 4px;
+  border-radius: 13px;
+  background: #edf2ef;
+}
+
+.map-layer-switch button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 10px;
+  color: #687a74;
+  font-weight: 700;
+  background: transparent;
+  cursor: pointer;
+}
+
+.map-layer-switch button.active {
+  color: #225f57;
+  background: white;
+  box-shadow: 0 5px 12px rgba(31, 73, 63, .1);
+}
+
+.map-attraction-list button.is-food.active,
+.map-attraction-list button.is-food:hover {
+  background: #faf1df;
+}
+
+.map-selected-card.is-food {
+  border-color: rgba(212, 166, 76, .32);
+  box-shadow: 0 18px 40px rgba(117, 82, 31, .17);
+}
+
+.map-selected-card.is-food small {
+  color: #a47224;
+}
+
+.map-place-marker {
+  display: block;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, .94);
+  border-radius: 50% 50% 50% 14%;
+  box-shadow: 0 5px 12px rgba(20, 63, 57, .28);
+  transform: rotate(-45deg);
+}
+
+.map-place-marker.is-food {
+  box-shadow: 0 5px 12px rgba(121, 82, 24, .3);
+}
+
+@media (max-width: 820px) {
+  .map-layer-switch {
+    margin-top: 0;
+  }
+}

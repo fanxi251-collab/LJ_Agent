@@ -75,8 +75,8 @@ def test_realtime_client_uses_explicit_modalities_for_each_mode(tmp_path: Path):
     async def scenario():
         client = QwenAudioRealtimeClient(settings, connect_factory=connect)
         await client.open([])
-        await client.create_response("text")
-        await client.create_response("avatar")
+        await client.create_response("text", voice="longanlufeng")
+        await client.create_response("avatar", voice="longanlufeng")
         await client.append_audio(b"\x01\x02")
         await client.commit_audio()
 
@@ -86,9 +86,11 @@ def test_realtime_client_uses_explicit_modalities_for_each_mode(tmp_path: Path):
     response_events = [event for event in events if event["type"] == "response.create"]
     assert response_events == [
         {"type": "response.create", "response": {"modalities": ["text"]}},
-        {"type": "response.create", "response": {"modalities": ["audio", "text"]}},
+        {
+            "type": "response.create",
+            "response": {"modalities": ["audio", "text"], "voice": "longanlufeng"},
+        },
     ]
     audio_event = next(event for event in events if event["type"] == "input_audio_buffer.append")
     assert audio_event["audio"] == "AQI="
     assert events[-1] == {"type": "input_audio_buffer.commit"}
-

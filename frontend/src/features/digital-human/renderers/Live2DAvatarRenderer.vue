@@ -1,6 +1,7 @@
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { loadLive2DLibrary } from "../lib/live2dLoader.js";
+import { resolveAvatarProfile } from "../lib/live2dCharacters.js";
 import {
   applyLipSyncValue,
   createMissingLipSyncWarning,
@@ -8,14 +9,14 @@ import {
   smoothLipSyncValue,
 } from "../lib/live2dMotion.js";
 
-const MODEL_URL = "/digital-human/live2d/mao_pro/mao_pro.model3.json";
-
 const props = defineProps({
+  avatarId: { type: String, default: "mao_pro" },
   state: { type: String, default: "idle" },
   audioLevel: { type: Number, default: 0 },
-  expression: { type: String, default: "exp_01" },
+  expression: { type: String, default: null },
 });
 const emit = defineEmits(["ready", "error"]);
+const avatarProfile = computed(() => resolveAvatarProfile(props.avatarId));
 
 const host = ref(null);
 let application = null;
@@ -33,14 +34,16 @@ function fitModel() {
   const height = Math.max(1, host.value.clientHeight);
   const unscaledWidth = model.width / Math.max(model.scale.x, 0.0001);
   const unscaledHeight = model.height / Math.max(model.scale.y, 0.0001);
-  const scale = Math.min((width * 0.92) / unscaledWidth, (height * 1.06) / unscaledHeight);
+  const fit = avatarProfile.value.fit;
+  const scale = Math.min((width * 0.92) / unscaledWidth, (height * 1.06) / unscaledHeight)
+    * fit.scale;
   model.scale.set(scale);
-  model.position.set(width / 2, (height / 2) + (height * 0.04));
+  model.position.set(width / 2, (height / 2) + (height * fit.yOffset));
   application.renderer.resize(width, height);
 }
 
 async function applyExpression(expression) {
-  if (!model) return;
+  if (!model || !expression) return;
   try {
     await model.expression(expression);
   } catch (error) {
@@ -87,7 +90,9 @@ async function initializeRenderer() {
     });
     host.value.appendChild(application.view);
 
-    const loadedModel = await Live2DModel.from(MODEL_URL, { autoInteract: false });
+    const loadedModel = await Live2DModel.from(avatarProfile.value.modelUrl, {
+      autoInteract: false,
+    });
     if (token !== lifecycleToken || !application) {
       loadedModel.destroy({ children: true, texture: true, baseTexture: true });
       return;
@@ -121,6 +126,7 @@ async function initializeRenderer() {
 }
 
 watch(() => props.expression, (expression) => applyExpression(expression));
+watch(() => props.avatarId, initializeRenderer);
 watch(() => props.state, (state) => {
   if (state !== "speaking") currentMouthValue = 0;
 });
@@ -130,7 +136,12 @@ onBeforeUnmount(destroyRenderer);
 </script>
 
 <template>
-  <div ref="host" class="live2d-avatar" role="img" aria-label="Mao Pro Live2D 数字人导游"></div>
+  <div
+    ref="host"
+    class="live2d-avatar"
+    role="img"
+    :aria-label="`${avatarProfile.roleLabel} ${avatarProfile.label} Live2D数字人`"
+  ></div>
 </template>
 
 <style scoped>

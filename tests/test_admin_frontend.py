@@ -67,7 +67,13 @@ def test_admin_attractions_page_and_crud_assets_are_served(tmp_path: Path):
 def test_all_admin_pages_share_sidebar_navigation(tmp_path: Path):
     app = create_app(build_pipeline(tmp_path))
 
-    for path in ("/admin/analytics", "/admin/attractions", "/admin/documents"):
+    for path in (
+        "/admin/analytics",
+        "/admin/attractions",
+        "/admin/documents",
+        "/admin/foods",
+        "/admin/feedback",
+    ):
         page = request_path(app, path)
 
         assert page.status_code == 200
@@ -76,8 +82,42 @@ def test_all_admin_pages_share_sidebar_navigation(tmp_path: Path):
         assert 'href="/admin/analytics"' in page.text
         assert 'href="/admin/attractions"' in page.text
         assert 'href="/admin/documents"' in page.text
+        assert 'href="/admin/foods"' in page.text
+        assert 'href="/admin/feedback"' in page.text
         assert f'class="admin-nav-item active" href="{path}"' in page.text
         assert "/static/admin.css" in page.text
+
+
+def test_admin_foods_page_exposes_crud_location_and_image_workflow(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path), seed_foods=False)
+
+    page = request_path(app, "/admin/foods")
+    script = request_path(app, "/static/admin_foods.js")
+
+    assert page.status_code == 200
+    assert "美食推荐管理" in page.text
+    assert "/static/admin_foods.js" in page.text
+    assert script.status_code == 200
+    assert 'fetch("/api/admin/foods"' in script.text
+    assert 'fetch(`/api/admin/foods/${foodId}/images?' in script.text
+    assert 'fetch("/api/tools/map/search?' in script.text
+    assert "美食内容已归档" in script.text
+
+
+def test_admin_feedback_page_exposes_filters_reply_and_no_delete_action(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path), seed_foods=False)
+
+    page = request_path(app, "/admin/feedback")
+    script = request_path(app, "/static/admin_feedback.js")
+
+    assert page.status_code == 200
+    assert "游客反馈处理" in page.text
+    assert "/static/admin_feedback.js" in page.text
+    assert script.status_code == 200
+    assert 'fetch("/api/admin/feedback"' in script.text
+    assert 'fetch(`/api/admin/feedback/${selected.feedback_id}`' in script.text
+    assert 'method: "PATCH"' in script.text
+    assert 'method: "DELETE"' not in script.text
 
 
 def test_admin_analytics_page_and_local_chart_assets_are_served(tmp_path: Path):

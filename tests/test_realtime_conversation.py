@@ -87,6 +87,27 @@ def test_prepare_turn_writes_mode_specific_answer_contract_into_evidence_prompt(
     assert "3—6句" in avatar.evidence_prompt
 
 
+def test_avatar_style_is_temporary_and_does_not_change_persisted_history(tmp_path: Path):
+    service, store, _ = build_service(tmp_path)
+
+    prepared = service.prepare_turn(
+        "灵山胜境怎么玩？",
+        "visitor_a",
+        "",
+        mode="avatar",
+        avatar_style="使用活泼易懂的短句，但不得省略路线事实。",
+    )
+    service.persist_completed(prepared, "建议先参观灵山大佛。")
+
+    assert "角色表达：使用活泼易懂的短句" in prepared.evidence_prompt
+    messages = store.list_messages(prepared.session.session_id, "visitor_a")
+    assert [message.content for message in messages] == [
+        "灵山胜境怎么玩？",
+        "建议先参观灵山大佛。",
+    ]
+    assert all("角色表达" not in message.content for message in messages)
+
+
 def test_prepare_turn_uses_same_session_history_across_modes(tmp_path: Path):
     service, store, agent = build_service(tmp_path)
     first = service.prepare_turn("灵山胜境有什么特色？", "visitor_a", "")

@@ -1,6 +1,7 @@
 import { computed, onBeforeUnmount, ref } from "vue";
 import {
   buildModeSetEvent,
+  buildAvatarSetEvent,
   buildRealtimeUrl,
   buildTranscriptConfirmEvent,
   createTurnId,
@@ -8,7 +9,13 @@ import {
   resolveAvatarAudioState,
   resolveAvatarCaption,
 } from "../lib/realtimeProtocol";
-import { createTailProtection, usePcmAudio } from "../features/digital-human";
+import {
+  createTailProtection,
+  loadAvatarPreference,
+  normalizeAvatarId,
+  saveAvatarPreference,
+  usePcmAudio,
+} from "../features/digital-human";
 import { findSuccessfulRouteSource } from "../lib/routeSummary.js";
 
 export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged }) {
@@ -18,6 +25,8 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
   const confidence = ref("--");
   const serviceState = ref("正在连接");
   const avatarState = ref("idle");
+  const avatarId = ref(loadAvatarPreference());
+  const avatarSynchronized = ref(false);
   const liveTranscript = ref("");
   const assistantTranscript = ref("");
   const activeTurnId = ref("");
@@ -47,6 +56,7 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     },
   });
   const isLoading = computed(() => isRealtimeBusy(activeTurnId.value, audio.playbackActive.value));
+  const avatarReady = computed(() => mode.value !== "avatar" || avatarSynchronized.value);
   const avatarCaption = computed(() =>
     resolveAvatarCaption(assistantTranscript.value, liveTranscript.value),
   );
@@ -56,6 +66,8 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
 
   function connect(sessionId = currentSessionId.value) {
     disconnect(false);
+    // Every socket must re-acknowledge the role so a reconnect cannot reuse stale voice state.
+    avatarSynchronized.value = false;
     socketState.value = "connecting";
     connectPromise = new Promise((resolve) => {
       socket = new WebSocket(buildRealtimeUrl(window.location, visitorId, sessionId));
@@ -85,6 +97,7 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
       };
       socket.onclose = () => {
         socketState.value = "closed";
+        avatarSynchronized.value = false;
         if (activeTurnId.value) failActiveMessage("连接已断开，请重试。", true);
         resolve();
       };
@@ -109,6 +122,7 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
         });
       }
       await ensureConnected();
+      ensureAvatarReady();
       if (activeTurnId.value) cancelResponse();
       const turnId = createTurnId();
       activeTurnId.value = turnId;
@@ -142,6 +156,7 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
         serviceState.value = "浏览器暂未允许语音播放，将继续显示回答字幕";
       });
       await ensureConnected();
+      ensureAvatarReady();
       cancelResponse();
       const turnId = createTurnId();
       recordingTurnId = turnId;
@@ -220,6 +235,23 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     avatarState.value = "idle";
   }
 
+  function setAvatar(nextAvatarId) {
+    const normalized = normalizeAvatarId(nextAvatarId);
+    if (normalized !== avatarId.value) cancelResponse();
+    avatarId.value = saveAvatarPreference(globalThis.localStorage, normalized);
+    avatarSynchronized.value = false;
+    sendJson(buildAvatarSetEvent(avatarId.value));
+    serviceState.value = "正在切换数字人形象";
+    avatarState.value = "idle";
+  }
+
+  function ensureAvatarReady() {
+    if (mode.value === "avatar" && !avatarSynchronized.value) {
+      serviceState.value = "正在同步数字人角色，请稍候";
+      throw new Error("数字人角色尚未同步完成");
+    }
+  }
+
   function cancelResponse() {
     tailProtection.cancel();
     transcriptConfirmation.value = null;
@@ -249,7 +281,15 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     if (event.type === "session.ready") {
       // Reassert local mode after every connection because mode changes made while connecting are otherwise lost.
       sendJson(buildModeSetEvent(mode.value));
+      avatarSynchronized.value = false;
+      sendJson(buildAvatarSetEvent(avatarId.value));
       if (!event.upstream_available) serviceState.value = "语音服务暂不可用，可继续尝试文字回答";
+      return;
+    }
+    if (event.type === "avatar.changed") {
+      avatarId.value = saveAvatarPreference(globalThis.localStorage, event.avatar_id);
+      avatarSynchronized.value = true;
+      serviceState.value = mode.value === "avatar" ? "数字人已就绪" : serviceState.value;
       return;
     }
     if (event.type === "session.bound" && event.session_id) {
@@ -435,6 +475,17 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     socketState.value = "closed";
   }
 
+  function suspendForRoute() {
+    tailProtection.cancel();
+    stopRecordingRequested = true;
+    // 缓存页面离场时只释放麦克风与扬声器，保留 WebSocket 让正在生成的文字回答能够继续完成。
+    audio.stopCapture();
+    audio.clearPlayback();
+    if (avatarState.value === "listening" || avatarState.value === "speaking") {
+      avatarState.value = activeTurnId.value ? "thinking" : "idle";
+    }
+  }
+
   function sendJson(event) {
     if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(event));
   }
@@ -456,6 +507,9 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     confidence,
     serviceState,
     avatarState,
+    avatarId,
+    avatarSynchronized,
+    avatarReady,
     liveTranscript,
     assistantTranscript,
     transcriptConfirmation,
@@ -472,11 +526,13 @@ export function useRealtimeChat({ currentSessionId, visitorId, onSessionChanged 
     startRecording,
     stopRecording,
     setMode,
+    setAvatar,
     cancelResponse,
     confirmTranscript,
     restoreMessages,
     resetConversation,
     markKnowledgeUpdated,
+    suspendForRoute,
   };
 }
 

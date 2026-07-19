@@ -2,25 +2,32 @@ import { onBeforeUnmount, ref } from "vue";
 
 let amapLoadPromise = null;
 
+const markerThemes = {
+  attraction: { color: "#2f766d" },
+  food: { color: "#d4a64c" },
+};
+
 export function useInteractiveMap(elementId) {
   const notice = ref("正在准备互动地图...");
   let map = null;
-  let attractions = [];
+  let places = [];
+  let markers = [];
+  let routeLine = null;
   let onSelect = null;
 
   async function initialize(items, selectHandler) {
-    attractions = items.filter((item) => Number.isFinite(item.longitude) && Number.isFinite(item.latitude));
+    places = withValidCoordinates(items);
     onSelect = selectHandler;
     const config = await fetchMapConfig();
     if (!config.enabled || !config.js_api_key || !config.security_js_code) {
-      notice.value = config.message || "高德前端地图配置不完整，仍可使用景点列表和文字路线。";
+      notice.value = config.message || "高德前端地图配置不完整，仍可使用地点列表和文字路线。";
       return false;
     }
     try {
       await loadAmapScript(config.js_api_key, config.security_js_code);
       createMap();
       drawMarkers();
-      notice.value = "点击地图标记或左侧列表查看景点。";
+      notice.value = "青绿色为景点，暖金色为美食；点击标记可查看详情。";
       return true;
     } catch (error) {
       notice.value = `地图加载失败：${error.message}`;
@@ -30,30 +37,48 @@ export function useInteractiveMap(elementId) {
 
   function createMap() {
     const element = document.getElementById(elementId);
-    if (!element || !window.AMap) return;
+    if (!element || !window.AMap || map) return;
     map = new window.AMap.Map(element, {
       zoom: 16,
-      center: attractions.length ? [attractions[0].longitude, attractions[0].latitude] : [120.09, 31.424],
+      center: places.length ? [places[0].longitude, places[0].latitude] : [120.09, 31.424],
       viewMode: "2D",
     });
   }
 
   function drawMarkers() {
     if (!map || !window.AMap) return;
-    attractions.forEach((item) => {
+    if (markers.length) map.remove(markers);
+    markers = places.map((place) => {
+      const theme = place.kind === "food" ? markerThemes.food : markerThemes.attraction;
+      const markerContent = document.createElement("span");
+      markerContent.className = `map-place-marker is-${place.kind}`;
+      markerContent.style.background = theme.color;
       const marker = new window.AMap.Marker({
         map,
-        position: [item.longitude, item.latitude],
-        title: item.name,
+        position: [place.longitude, place.latitude],
+        title: place.name,
+        content: markerContent,
+        offset: new window.AMap.Pixel(-10, -10),
       });
-      marker.on("click", () => onSelect?.(item));
+      marker.on("click", () => onSelect?.(place));
+      return marker;
     });
-    if (attractions.length) map.setFitView();
+    if (places.length) map.setFitView(markers);
   }
 
-  function selectAttraction(item) {
-    if (!map || !item) return;
-    map.setZoomAndCenter(17, [item.longitude, item.latitude]);
+  function setPlaces(items) {
+    places = withValidCoordinates(items);
+    if (!map) return;
+    if (routeLine) {
+      map.remove(routeLine);
+      routeLine = null;
+    }
+    drawMarkers();
+  }
+
+  function selectPlace(place) {
+    if (!map || !place) return;
+    map.setZoomAndCenter(17, [place.longitude, place.latitude]);
   }
 
   function renderRoute(summary) {
@@ -63,20 +88,35 @@ export function useInteractiveMap(elementId) {
       notice.value = "路线坐标不足，暂时只能显示文字步骤。";
       return;
     }
-    map.clearMap();
-    drawMarkers();
-    new window.AMap.Polyline({ map, path, strokeColor: "#2f766d", strokeWeight: 7, strokeOpacity: 0.9 });
-    map.setFitView();
+    if (routeLine) map.remove(routeLine);
+    routeLine = new window.AMap.Polyline({
+      map,
+      path,
+      strokeColor: "#2f766d",
+      strokeWeight: 7,
+      strokeOpacity: .9,
+    });
+    map.setFitView([...markers, routeLine]);
     notice.value = "路线已绘制，实际通行请以现场指引为准。";
+  }
+
+  function resize() {
+    map?.resize();
   }
 
   function destroy() {
     if (map) map.destroy();
     map = null;
+    markers = [];
+    routeLine = null;
   }
 
   onBeforeUnmount(destroy);
-  return { notice, initialize, selectAttraction, renderRoute, destroy };
+  return { notice, initialize, setPlaces, selectPlace, renderRoute, resize, destroy };
+}
+
+function withValidCoordinates(items) {
+  return items.filter((item) => Number.isFinite(item.longitude) && Number.isFinite(item.latitude));
 }
 
 async function fetchMapConfig() {
@@ -88,7 +128,7 @@ async function fetchMapConfig() {
 function loadAmapScript(apiKey, securityCode) {
   if (window.AMap) return Promise.resolve();
   if (amapLoadPromise) return amapLoadPromise;
-  // 高德要求安全配置先于 JS API 脚本生效，否则新申请的 Web 端 Key 会校验失败。
+  // 安全配置必须先于高德脚本注册，确保 Web 端 Key 能通过平台校验并正常加载地图。
   window._AMapSecurityConfig = { securityJsCode: securityCode };
   amapLoadPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");

@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { getOrCreateVisitorId } from "../lib/visitorIdentity";
 
 export function useSessions() {
   const visitorId = getOrCreateVisitorId();
@@ -81,18 +82,4 @@ export function useSessions() {
     startNewSession,
     deleteCurrentSession,
   };
-}
-
-function getOrCreateVisitorId() {
-  const storageKey = "lingjing_visitor_id";
-  const existing = localStorage.getItem(storageKey);
-  if (existing) {
-    return existing;
-  }
-  const randomPart = window.crypto?.randomUUID
-    ? window.crypto.randomUUID().replaceAll("-", "")
-    : `${Date.now()}${Math.random().toString(16).slice(2)}`;
-  const visitor = `visitor_${randomPart}`;
-  localStorage.setItem(storageKey, visitor);
-  return visitor;
 }

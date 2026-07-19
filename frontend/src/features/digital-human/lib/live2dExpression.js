@@ -1,5 +1,5 @@
 export const EXPRESSION_DEBOUNCE_MS = 300;
-export const NEUTRAL_EXPRESSION = "exp_01";
+export const NEUTRAL_EXPRESSION = "neutral";
 
 const KEYWORDS = {
   apology: ["抱歉", "无法", "失败", "关闭", "暂停", "不便", "遗憾", "暂不可用"],
@@ -12,13 +12,13 @@ function containsAny(text, keywords) {
 }
 
 export function resolveLive2DExpression({ state = "idle", assistantText = "" } = {}) {
-  if (state === "error") return "exp_05";
+  if (state === "error") return "apology";
   if (state !== "speaking") return NEUTRAL_EXPRESSION;
 
   const text = String(assistantText || "");
-  if (containsAny(text, KEYWORDS.apology)) return "exp_05";
-  if (containsAny(text, KEYWORDS.surprise)) return "exp_04";
-  if (containsAny(text, KEYWORDS.joy)) return "exp_02";
+  if (containsAny(text, KEYWORDS.apology)) return "apology";
+  if (containsAny(text, KEYWORDS.surprise)) return "surprise";
+  if (containsAny(text, KEYWORDS.joy)) return "joy";
   return NEUTRAL_EXPRESSION;
 }
 

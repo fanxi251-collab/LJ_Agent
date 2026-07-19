@@ -10,6 +10,9 @@ LJ_REALTIME_MODEL: qwen-audio-3.0-realtime-flash
 LJ_REALTIME_WORKSPACE_ID: 可选的北京地域 Workspace ID
 LJ_REALTIME_URL: 可选的完整 WebSocket 地址
 LJ_REALTIME_VOICE: longanqian
+LJ_REALTIME_VOICE_MAO_PRO: longanqian
+LJ_REALTIME_VOICE_CHITOSE: longanlufeng
+LJ_REALTIME_VOICE_HARUTO: longanxiaoxin
 LJ_REALTIME_HISTORY_TURNS: 6
 LJ_REALTIME_CONNECT_TIMEOUT_SECONDS: 15
 LJ_ASR_CORRECTION_ENABLED: true
@@ -24,6 +27,7 @@ LJ_ASR_GLOSSARY_TTL_SECONDS: 60
 - 浏览器发送 JSON 控制事件，以及 16kHz、16bit、单声道 PCM 二进制帧。
 - 常规模式每次响应显式使用 `modalities: ["text"]`。
 - 数字人模式每次响应显式使用 `modalities: ["audio", "text"]`。
+- 数字人模式通过服务端角色白名单逐轮覆盖音色；常规模式不携带`voice`字段。
 - 服务端向浏览器返回 JSON 状态/字幕事件和 24kHz PCM 二进制帧。
 - Agent/RAG 先收集证据，证据作为临时系统消息注入 Qwen；完整回答后立即删除。
 - 只有完整回答或本地证据降级文本会写入 SQLite；取消、失败和空白转写不保存半截内容。
@@ -33,9 +37,17 @@ LJ_ASR_GLOSSARY_TTL_SECONDS: 60
 
 浏览器请求单声道、回声消除、降噪和自动增益，并使用 `AudioWorklet` 降采样后按约 100ms 分片上传。工作线程同时计算输入 RMS、峰值和削波比例；连续严重削波会要求重录，低音量只提示而不阻断。松开按钮后继续采集 300ms，以保护句尾辅音和景区名称。
 
-输出 PCM 通过 `AudioContext` 队列播放，输出 RMS 只用于驱动本地 SVG 数字人口型；输入音量和输出音量使用不同状态。数字人舞台只依赖 `state` 与 `audioLevel`，后续可替换为 Live2D 或 3D 渲染器而不修改会话协议。
+输出 PCM 通过 `AudioContext` 队列播放，输出 RMS 用于驱动当前Live2D模型声明的口型参数；输入音量和输出音量使用不同状态。数字人舞台只依赖稳定的角色、状态、音量和语义表情接口，后续替换模型或升级3D渲染器无需修改音频链路。
 
 数字人专属代码统一位于 `frontend/src/features/digital-human/`，业务组件只通过该目录的 `index.js` 使用舞台、语音控件和音频能力。共享的 `useRealtimeChat.js` 与 `realtimeProtocol.js` 继续服务常规和数字人两种模式。Worklet 的规范地址为 `/digital-human/pcm-capture-worklet.js`，旧 `/pcm-capture-worklet.js` 地址暂时保持兼容。
+
+## Live2D角色
+
+- `mao_pro`：默认女导游，使用`longanqian`，表达亲切自然。
+- `chitose`：男导游，使用`longanlufeng`，表达沉稳清晰。
+- `haruto`：儿童导游，使用`longanxiaoxin`，使用活泼易懂的短句，但不得省略路线事实和限制条件。
+
+角色选择保存在浏览器`lingjing_digital_human_avatar`，不写入SQLite。浏览器只发送角色ID，音色和表达提示由后端白名单决定。收到`avatar.changed`前，数字人输入会保持禁用；切换角色会取消当前录音、生成和播放，但不会调用模型或清空历史。
 
 ## 景区词典与转写纠错
 

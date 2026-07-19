@@ -1,10 +1,10 @@
-import { ref } from "vue";
+import { ref, unref } from "vue";
 
 let amapLoadPromise = null;
-let amapMap = null;
 
-export function useRouteMap(elementId) {
+export function useRouteMap(target) {
   const notice = ref("暂无路线数据。");
+  let amapMap = null;
 
   async function renderRoute(summary) {
     if (!summary) {
@@ -27,7 +27,7 @@ export function useRouteMap(elementId) {
   }
 
   function drawRoute(summary) {
-    const element = document.getElementById(elementId);
+    const element = resolveMapElement(target);
     if (!element || !window.AMap) {
       return;
     }
@@ -56,7 +56,21 @@ export function useRouteMap(elementId) {
     amapMap.setFitView();
   }
 
-  return { notice, renderRoute };
+  function destroy() {
+    if (!amapMap) return;
+    // Release WebGL and DOM listeners because history changes can remove several inline maps at once.
+    amapMap.destroy();
+    amapMap = null;
+  }
+
+  return { notice, renderRoute, destroy };
+}
+
+function resolveMapElement(target) {
+  const elementOrId = unref(target);
+  return typeof elementOrId === "string"
+    ? document.getElementById(elementOrId)
+    : elementOrId || null;
 }
 
 async function fetchMapConfig() {

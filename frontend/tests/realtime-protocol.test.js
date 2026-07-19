@@ -36,6 +36,18 @@ test("realtime mode is resynchronized after a socket becomes ready", () => {
   });
 });
 
+test("avatar selection sends only an approved avatar identifier", () => {
+  assert.equal(typeof realtimeProtocol.buildAvatarSetEvent, "function");
+  assert.deepEqual(realtimeProtocol.buildAvatarSetEvent("chitose"), {
+    type: "avatar.set",
+    avatar_id: "chitose",
+  });
+  assert.deepEqual(realtimeProtocol.buildAvatarSetEvent("not-allowed"), {
+    type: "avatar.set",
+    avatar_id: "mao_pro",
+  });
+});
+
 test("transcript confirmation sends the chosen or edited text for the same turn", () => {
   assert.deepEqual(
     realtimeProtocol.buildTranscriptConfirmEvent("turn_1", "鼋头渚几点开放"),

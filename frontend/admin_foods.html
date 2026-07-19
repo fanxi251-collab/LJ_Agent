@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>美食推荐管理</title>
+    <link rel="stylesheet" href="/static/app.css" />
+    <link rel="stylesheet" href="/static/admin.css" />
+    <link rel="stylesheet" href="/static/admin_services.css" />
+  </head>
+  <body>
+    <div class="admin-app-shell">
+      <aside class="admin-sidebar">
+        <div class="admin-brand"><div class="admin-brand-mark">LJ</div><div><strong>LingJing AI</strong><span>管理中心</span></div></div>
+        <nav class="admin-sidebar-nav" aria-label="管理端导航">
+          <a class="admin-nav-item" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客分析</span></a>
+          <a class="admin-nav-item" href="/admin/attractions"><svg viewBox="0 0 24 24"><path d="m3 20 6-10 4 6 3-4 5 8H3Z" /></svg><span>景点资料</span></a>
+          <a class="admin-nav-item" href="/admin/documents"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z" /></svg><span>知识库资料</span></a>
+          <a class="admin-nav-item active" href="/admin/foods"><svg viewBox="0 0 24 24"><path d="M4 10h16c0 5-3 9-8 9s-8-4-8-9Z" /><path d="M7 10c0-3 2-5 5-5m0 5c0-3 2-5 5-5" /></svg><span>美食推荐</span></a>
+          <a class="admin-nav-item" href="/admin/feedback"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4V4Z" /><path d="M8 9h8m-8 4h5" /></svg><span>游客反馈</span></a>
+        </nav>
+        <p class="admin-sidebar-note">比赛演示环境<br />结构化内容与游客洞察中心</p>
+      </aside>
+      <main class="admin-main"><div class="admin-main-scroll"><section class="chat-shell attraction-admin-shell" aria-label="美食推荐管理">
+        <header class="topbar"><div><p class="eyebrow">LingJing AI Admin</p><h1>美食推荐管理</h1></div><span class="status-pill" id="adminState">管理端在线</span></header>
+        <section class="admin-attraction-layout">
+          <aside class="sources-panel attraction-list-panel">
+            <div class="section-heading"><h2>美食列表</h2><button id="newFoodButton" type="button">新建美食</button></div>
+            <div class="admin-filters"><input id="foodSearch" type="search" placeholder="搜索名称或菜品" /><select id="statusFilter"><option value="">全部状态</option><option value="draft">草稿</option><option value="published">已发布</option><option value="archived">已归档</option></select></div>
+            <div id="foodList" class="sources-list"></div>
+          </aside>
+          <form id="foodForm" class="sources-panel attraction-form">
+            <div class="section-heading"><h2 id="formTitle">新建美食</h2><span id="formStatus">尚未保存</span></div>
+            <input id="foodId" type="hidden" />
+            <div class="form-grid">
+              <label>名称<input id="name" required maxlength="120" /></label>
+              <label>范围<select id="scope"><option value="inside">景区内</option><option value="nearby">周边</option></select></label>
+              <label>分类<input id="category" required maxlength="80" placeholder="蔬食、江南菜、小吃" /></label>
+              <label>预算等级<select id="priceLevel"><option value="1">¥</option><option value="2">¥¥</option><option value="3">¥¥¥</option><option value="4">¥¥¥¥</option></select></label>
+              <label class="full-field">摘要<textarea id="summary" required maxlength="500"></textarea></label>
+              <label class="full-field">详细正文<textarea id="description" required maxlength="10000"></textarea></label>
+              <label class="full-field">口味标签（逗号分隔）<input id="tasteTags" /></label>
+              <label class="full-field">招牌菜（逗号分隔）<input id="signatureDishes" /></label>
+              <label class="full-field">地址<input id="address" required maxlength="300" /></label>
+              <label>营业信息<input id="openingHours" maxlength="300" /></label>
+              <label>核验日期<input id="verifiedAt" type="date" /></label>
+              <label>经度<input id="longitude" type="number" step="0.000001" min="-180" max="180" required /></label>
+              <label>纬度<input id="latitude" type="number" step="0.000001" min="-90" max="90" required /></label>
+              <label class="full-field">公开来源<input id="sourceUrl" type="url" maxlength="500" /></label>
+              <label>排序值<input id="sortOrder" type="number" value="0" /></label>
+              <label>状态<select id="status"><option value="draft">草稿</option><option value="published">已发布</option><option value="archived">已归档</option></select></label>
+              <label class="checkbox-field"><input id="vegetarianFriendly" type="checkbox" />素食友好</label>
+              <label class="checkbox-field"><input id="featured" type="checkbox" />编辑精选</label>
+            </div>
+            <div class="upload-actions attraction-actions"><button id="placeSearchButton" type="button">高德补全坐标</button><button type="submit">保存美食</button><button id="archiveButton" class="danger-button" type="button">归档美食</button></div>
+            <section class="image-manager"><div class="section-heading"><h2>菜品氛围图片</h2><span>单张最大 5 MB</span></div><div class="upload-actions"><label class="file-picker" for="imageInput">选择图片</label><input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp" /><label class="checkbox-field"><input id="imageIsCover" type="checkbox" />设为封面</label><button id="uploadImageButton" type="button">上传图片</button></div><div id="imageList" class="admin-image-grid"></div></section>
+          </form>
+        </section>
+      </section></div></main>
+    </div>
+    <script src="/static/admin_foods.js"></script>
+  </body>
+</html>

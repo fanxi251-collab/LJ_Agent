@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { useRouteMap } from "../composables/useRouteMap";
 import { findSuccessfulRouteSource, resolveRouteSummary } from "../lib/routeSummary.js";
 
@@ -19,6 +19,7 @@ watch(summary, (value) => {
 });
 
 onMounted(() => routeMap.renderRoute(summary.value));
+onBeforeUnmount(routeMap.destroy);
 </script>
 
 <template>

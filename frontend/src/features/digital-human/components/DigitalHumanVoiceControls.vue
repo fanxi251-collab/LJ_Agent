@@ -3,6 +3,7 @@ defineProps({
   microphoneState: { type: String, default: "idle" },
   inputQuality: { type: String, default: "good" },
   autoGainState: { type: String, default: "unknown" },
+  disabled: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["start-recording", "stop-recording"]);
@@ -25,7 +26,7 @@ const emit = defineEmits(["start-recording", "stop-recording"]);
         @pointerup.prevent="emit('stop-recording')"
         @pointercancel.prevent="emit('stop-recording')"
         @pointerleave="['starting', 'recording'].includes(microphoneState) && emit('stop-recording')"
-        :disabled="microphoneState === 'finishing'"
+        :disabled="disabled || microphoneState === 'finishing'"
       >
         {{ microphoneState === "recording" ? "松开发送" : microphoneState === "finishing" ? "正在补全句尾" : "按住说话" }}
       </button>

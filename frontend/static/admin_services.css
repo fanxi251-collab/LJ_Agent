@@ -1,0 +1,217 @@
+.feedback-admin-shell {
+  min-height: calc(100vh - 48px);
+}
+
+.feedback-admin-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.feedback-admin-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px;
+  border: 1px solid #e3e9e5;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .78);
+}
+
+.feedback-admin-summary strong {
+  color: #205c53;
+  font-size: 30px;
+}
+
+.feedback-admin-summary span {
+  color: #75827d;
+  font-size: 12px;
+}
+
+.feedback-admin-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(130px, .7fr));
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid #e2e9e5;
+  border-radius: 15px;
+  background: white;
+}
+
+.feedback-admin-filters input,
+.feedback-admin-filters select,
+.feedback-admin-detail select,
+.feedback-admin-detail textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #dce5e0;
+  border-radius: 10px;
+  color: #29473f;
+  background: #f8faf9;
+}
+
+.feedback-admin-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, .8fr) minmax(420px, 1.2fr);
+  min-height: 570px;
+  overflow: hidden;
+  border: 1px solid #dde6e1;
+  border-radius: 18px;
+  background: white;
+}
+
+.feedback-admin-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  max-height: 660px;
+  overflow-y: auto;
+  padding: 12px;
+  border-right: 1px solid #e5ebe7;
+  background: #f7f9f8;
+}
+
+.feedback-admin-item {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: #29473f;
+  text-align: left;
+  background: white;
+  cursor: pointer;
+}
+
+.feedback-admin-item.active {
+  border-color: rgba(47, 118, 109, .45);
+  box-shadow: 0 8px 22px rgba(34, 87, 78, .1);
+}
+
+.feedback-admin-item > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feedback-admin-item em {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #956923;
+  font-size: 10px;
+  font-style: normal;
+  background: #fbf1de;
+}
+
+.feedback-admin-item em.is-processing {
+  color: #23665d;
+  background: #e7f2ef;
+}
+
+.feedback-admin-item em.is-resolved {
+  color: #376847;
+  background: #e9f4ec;
+}
+
+.feedback-admin-item p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #64736e;
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.feedback-admin-item small {
+  color: #a07d3f;
+}
+
+.feedback-admin-detail {
+  padding: 26px;
+}
+
+.feedback-admin-empty {
+  display: grid;
+  min-height: 480px;
+  place-items: center;
+  color: #82908b;
+  text-align: center;
+}
+
+.feedback-admin-detail [hidden] {
+  display: none;
+}
+
+.feedback-admin-detail dl {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 8px 14px;
+  margin: 20px 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f8f6;
+}
+
+.feedback-admin-detail dt {
+  color: #87938f;
+}
+
+.feedback-admin-detail dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #29473f;
+}
+
+.feedback-admin-detail article {
+  margin-bottom: 20px;
+  padding: 18px;
+  border-left: 3px solid #c8933f;
+  border-radius: 0 12px 12px 0;
+  color: #405c54;
+  background: #fbf8f0;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.feedback-admin-detail label {
+  display: grid;
+  gap: 7px;
+  margin-top: 14px;
+  color: #576a64;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.feedback-admin-detail textarea {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.feedback-admin-detail button[type="submit"] {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
+}
+
+@media (max-width: 980px) {
+  .feedback-admin-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .feedback-admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .feedback-admin-list {
+    max-height: 360px;
+    border-right: 0;
+    border-bottom: 1px solid #e5ebe7;
+  }
+}

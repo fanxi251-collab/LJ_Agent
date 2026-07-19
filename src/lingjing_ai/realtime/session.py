@@ -9,6 +9,7 @@ from typing import Any
 from fastapi import WebSocketDisconnect
 
 from lingjing_ai.config.settings import AppSettings
+from lingjing_ai.realtime.avatar_profiles import DEFAULT_AVATAR_ID, resolve_avatar_profile
 from lingjing_ai.realtime.conversation import PreparedRealtimeTurn, RealtimeConversationService
 from lingjing_ai.realtime.qwen_audio import QwenAudioRealtimeClient
 from lingjing_ai.services.question_expansion import VoiceQuestionUnderstanding
@@ -22,6 +23,7 @@ class PendingTurn:
     turn_id: str
     mode: str
     prepared: PreparedRealtimeTurn
+    avatar_id: str = DEFAULT_AVATAR_ID
     answer_parts: list[str] = field(default_factory=list)
     evidence_item_id: str = ""
     user_item_id: str = ""
@@ -57,6 +59,7 @@ class VisitorRealtimeSession:
         self.service = conversation_service
         self.qwen = qwen_client
         self.mode = "text"
+        self.avatar_id = DEFAULT_AVATAR_ID
         self.pending: PendingTurn | None = None
         self.pending_transcript: PendingTranscript | None = None
         self.audio_turn_id = ""
@@ -85,6 +88,7 @@ class VisitorRealtimeSession:
             {
                 "type": "session.ready",
                 "mode": self.mode,
+                "avatar_id": self.avatar_id,
                 "upstream_available": self.upstream_available,
             }
         )
@@ -116,6 +120,20 @@ class VisitorRealtimeSession:
             if mode != self.mode and (self.pending or self.pending_transcript or self.audio_turn_id):
                 await self._cancel_current(str(event.get("turn_id", "")))
             self.mode = mode
+            return
+        if event_type == "avatar.set":
+            requested_avatar_id = str(event.get("avatar_id", "")).strip()
+            if resolve_avatar_profile(self.settings, requested_avatar_id) is None:
+                await self._send_error("INVALID_AVATAR", "不支持的数字人角色。")
+                return
+            if requested_avatar_id != self.avatar_id and (
+                self.pending or self.pending_transcript or self.audio_turn_id
+            ):
+                await self._cancel_current("")
+            self.avatar_id = requested_avatar_id
+            await self._send_json(
+                {"type": "avatar.changed", "avatar_id": self.avatar_id}
+            )
             return
         if event_type == "text.submit":
             await self._start_question(
@@ -284,7 +302,7 @@ class VisitorRealtimeSession:
             pending.evidence_item_id = await self.qwen.inject_evidence(
                 pending.prepared.evidence_prompt
             )
-            await self.qwen.create_response(pending.mode)
+            await self.qwen.create_response(pending.mode, voice=self._voice_for_turn(pending))
         except Exception:
             # A failed upstream send still has complete Agent evidence, so preserve the turn via text fallback.
             await self._fallback_current("实时回答请求失败，已使用本地证据文本。")
@@ -303,6 +321,10 @@ class VisitorRealtimeSession:
             return
         if self.pending is not None:
             await self._cancel_current(self.pending.turn_id)
+        avatar_profile = resolve_avatar_profile(self.settings, self.avatar_id)
+        if avatar_profile is None:
+            await self._send_error("INVALID_AVATAR", "当前数字人角色不可用。")
+            return
         try:
             prepared = await asyncio.to_thread(
                 self.service.prepare_turn,
@@ -311,6 +333,9 @@ class VisitorRealtimeSession:
                 self.session_id,
                 expanded_questions=expanded_questions,
                 mode=self.mode,
+                avatar_style=(
+                    avatar_profile.style_instruction if self.mode == "avatar" else ""
+                ),
             )
         except PermissionError as exc:
             await self._send_error("SESSION_FORBIDDEN", str(exc))
@@ -320,7 +345,13 @@ class VisitorRealtimeSession:
             return
 
         self.session_id = prepared.session.session_id
-        self.pending = PendingTurn(normalized_turn_id, self.mode, prepared)
+        # Snapshot the role so a response cannot change voice or persona midway through a turn.
+        self.pending = PendingTurn(
+            normalized_turn_id,
+            self.mode,
+            prepared,
+            avatar_id=self.avatar_id,
+        )
         self.pending.user_item_id = user_item_id
         await self._send_json(
             {
@@ -686,7 +717,10 @@ class VisitorRealtimeSession:
                 self.pending.evidence_item_id = await self.qwen.inject_evidence(
                     self.pending.prepared.evidence_prompt
                 )
-                await self.qwen.create_response(self.pending.mode)
+                await self.qwen.create_response(
+                    self.pending.mode,
+                    voice=self._voice_for_turn(self.pending),
+                )
             elif self.audio_turn_id:
                 turn_id = self.audio_turn_id
                 self.audio_turn_id = ""
@@ -706,6 +740,12 @@ class VisitorRealtimeSession:
         except Exception:
             # Evidence is also discarded when the socket closes; cleanup must not hide a completed answer.
             return
+
+    def _voice_for_turn(self, pending: PendingTurn) -> str | None:
+        if pending.mode != "avatar":
+            return None
+        profile = resolve_avatar_profile(self.settings, pending.avatar_id)
+        return profile.voice if profile is not None else None
 
     async def _delete_turn_items(self, pending: PendingTurn) -> None:
         for item_id in (

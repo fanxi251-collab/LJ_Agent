@@ -1,0 +1,77 @@
+.visitor-route-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.visitor-route-stage > main {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  outline: none;
+}
+
+.visitor-route-stage > .guide-view {
+  overflow: hidden;
+}
+
+.lake-dissolve-enter-active,
+.lake-dissolve-leave-active {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  will-change: opacity, transform, filter;
+}
+
+.lake-dissolve-enter-active {
+  z-index: 2;
+  transition:
+    opacity 340ms cubic-bezier(.22, .72, .22, 1),
+    transform 340ms cubic-bezier(.22, .72, .22, 1),
+    filter 340ms cubic-bezier(.22, .72, .22, 1);
+}
+
+.lake-dissolve-leave-active {
+  z-index: 1;
+  pointer-events: none;
+  transition:
+    opacity 220ms cubic-bezier(.4, 0, .8, .2),
+    transform 220ms cubic-bezier(.4, 0, .8, .2),
+    filter 220ms cubic-bezier(.4, 0, .8, .2);
+}
+
+.lake-dissolve-enter-from {
+  opacity: 0;
+  filter: blur(7px);
+  transform: translateY(14px) scale(.994);
+}
+
+.lake-dissolve-leave-to {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(-6px) scale(1.002);
+}
+
+@supports not (filter: blur(1px)) {
+  .lake-dissolve-enter-from,
+  .lake-dissolve-leave-to {
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lake-dissolve-enter-active,
+  .lake-dissolve-leave-active {
+    transition: opacity 100ms linear;
+  }
+
+  .lake-dissolve-enter-from,
+  .lake-dissolve-leave-to {
+    filter: none;
+    transform: none;
+  }
+}
+

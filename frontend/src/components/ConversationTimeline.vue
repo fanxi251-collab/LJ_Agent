@@ -1,10 +1,21 @@
 <script setup>
 import { nextTick, ref, watch } from "vue";
 import AssistantAnswer from "./AssistantAnswer.vue";
+import InlineRouteCard from "./InlineRouteCard.vue";
 
 const props = defineProps({ messages: { type: Array, required: true } });
-const emit = defineEmits(["retry", "show-sources"]);
+const emit = defineEmits(["retry", "ask"]);
 const timeline = ref(null);
+const quickPrompts = [
+  "第一次来灵山胜境怎么玩？",
+  "今天有哪些值得看的表演？",
+  "适合老人和孩子的路线怎么走？",
+  "从无锡站到灵山胜境怎么走？",
+];
+
+function askPrompt(prompt) {
+  emit("ask", prompt);
+}
 
 watch(
   () => props.messages.map((message) => message.content).join("|"),
@@ -18,9 +29,14 @@ watch(
 <template>
   <section ref="timeline" class="conversation-timeline" aria-live="polite">
     <div v-if="!messages.length" class="conversation-empty">
-      <span class="brand-badge">AI</span>
-      <h2>今天想了解哪个景区？</h2>
-      <p>可以询问景点特色、开放时间、门票、天气和路线。</p>
+      <p class="welcome-kicker">LINGSHAN · SMART JOURNEY</p>
+      <h2>今天，想怎样遇见灵山？</h2>
+      <p class="welcome-copy">从景点故事、开放时间到行程路线，我会陪你把旅途安排得从容一些。</p>
+      <div class="quick-prompts" aria-label="快捷提问">
+        <button v-for="prompt in quickPrompts" :key="prompt" type="button" @click="askPrompt(prompt)">
+          {{ prompt }}
+        </button>
+      </div>
     </div>
     <article v-for="message in messages" :key="message.id" :class="['message-row', message.role]">
       <div class="message-avatar">{{ message.role === "user" ? "你" : "AI" }}</div>
@@ -36,14 +52,7 @@ watch(
             @click="emit('retry', message.retryQuestion)"
           >重试</button>
         </div>
-        <button
-          v-if="message.role === 'assistant' && message.sources?.length"
-          class="citation-link"
-          type="button"
-          @click="emit('show-sources', message.sources)"
-        >
-          查看 {{ message.sources.length }} 条引用
-        </button>
+        <InlineRouteCard v-if="message.role === 'assistant'" :sources="message.sources || []" />
       </div>
     </article>
   </section>

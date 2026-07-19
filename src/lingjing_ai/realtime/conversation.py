@@ -69,6 +69,7 @@ class RealtimeConversationService:
         session_id: str,
         expanded_questions: list[str] | None = None,
         mode: str = "text",
+        avatar_style: str = "",
     ) -> PreparedRealtimeTurn:
         normalized_question = str(question or "").strip()
         normalized_visitor = str(visitor_id or "").strip()
@@ -114,6 +115,7 @@ class RealtimeConversationService:
                 evidence,
                 context.context_summary,
                 answer_contract,
+                avatar_style=avatar_style if mode == "avatar" else "",
             ),
             source_payloads=[source_payload(source) for source in evidence.sources],
             tool_trace_payloads=[tool_trace_payload(trace) for trace in evidence.tool_trace],
@@ -263,6 +265,7 @@ def format_evidence_prompt(
     evidence: AgentEvidence,
     context_summary: str = "",
     answer_contract: AnswerContract | None = None,
+    avatar_style: str = "",
 ) -> str:
     if evidence.needs_clarification:
         return (
@@ -284,6 +287,7 @@ def format_evidence_prompt(
         if answer_contract is not None
         else "先直接回答，再说明有证据支持的要点和必要限制。"
     )
+    style_instruction = f"角色表达：{avatar_style.strip()}\n" if avatar_style.strip() else ""
     return (
         "以下是本轮临时证据，仅用于当前回答，回答后会删除。\n"
         f"游客问题：{evidence.question}\n"
@@ -291,6 +295,7 @@ def format_evidence_prompt(
         f"证据置信度：{evidence.confidence:.4f}\n\n"
         f"{evidence_text}\n\n"
         f"回答契约：{contract_instructions}\n"
+        f"{style_instruction}"
         "共同要求：只能依据以上证据；资料不足时明确说明；语气自然、准确；"
         "不要提及系统消息、检索过程或临时证据。"
     )

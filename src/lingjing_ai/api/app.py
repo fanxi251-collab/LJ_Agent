@@ -11,6 +11,8 @@ from pydantic import BaseModel, Field
 
 from lingjing_ai.api.analytics_routes import build_analytics_router
 from lingjing_ai.api.attraction_routes import build_attraction_router
+from lingjing_ai.api.feedback_routes import build_feedback_router
+from lingjing_ai.api.food_routes import build_food_router
 from lingjing_ai.api.realtime_routes import build_realtime_router
 from lingjing_ai.agent.executor import AgentExecutor
 from lingjing_ai.agent.langgraph_executor import LangGraphAgentExecutor
@@ -29,6 +31,8 @@ from lingjing_ai.services.conversation_store import (
 )
 from lingjing_ai.services.attraction_store import AttractionStore
 from lingjing_ai.services.analytics_snapshot import AnalyticsSnapshotStore
+from lingjing_ai.services.feedback_store import FeedbackStore
+from lingjing_ai.services.food_store import FoodStore
 from lingjing_ai.services.question_expansion import QwenQuestionExpander
 from lingjing_ai.tools.amap_tools import AmapPlaceSearchTool, AmapRouteTool, AmapWeatherTool
 from lingjing_ai.tools.route_scope import ScenicNavigationScope
@@ -194,14 +198,22 @@ class StreamTurnState:
     trace_id: str = ""
 
 
-def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
+def create_app(
+    pipeline: RagPipeline,
+    seed_attractions: bool = True,
+    seed_foods: bool = True,
+) -> FastAPI:
     app = FastAPI(title="LingJing AI RAG API")
     frontend_dir = _project_root() / "frontend"
     visitor_dist_dir = frontend_dir / "dist"
     visitor_assets_dir = visitor_dist_dir / "assets"
     visitor_digital_human_dir = visitor_dist_dir / "digital-human"
-    if not (visitor_digital_human_dir / "live2d").is_dir():
-        # Fall back to Vite public sources so local FastAPI tests and unbuilt development runs use the same assets.
+    required_avatar_dirs = ("mao_pro", "chitose", "haruto")
+    if not all(
+        (visitor_digital_human_dir / "live2d" / avatar_id).is_dir()
+        for avatar_id in required_avatar_dirs
+    ):
+        # A stale build may contain only some roles, so use complete public sources to avoid partial 404s.
         visitor_digital_human_dir = frontend_dir / "public" / "digital-human"
     static_dir = frontend_dir / "static"
     attraction_image_dir = pipeline.settings.data_dir / "attraction_images"
@@ -210,6 +222,13 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         attraction_image_dir,
         seed_on_empty=seed_attractions,
     )
+    food_image_dir = pipeline.settings.data_dir / "food_images"
+    food_store = FoodStore(
+        pipeline.settings.data_dir / "foods.db",
+        food_image_dir,
+        seed_on_empty=seed_foods,
+    )
+    feedback_store = FeedbackStore(pipeline.settings.data_dir / "feedback.db")
     route_scope = _build_scenic_navigation_scope(pipeline, attraction_store)
     agent_executor = _build_agent_executor(pipeline, attraction_store, route_scope)
     question_expander = _build_question_expander(pipeline)
@@ -236,6 +255,8 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         transcript_normalizer,
     )
     app.include_router(build_attraction_router(attraction_store))
+    app.include_router(build_food_router(food_store))
+    app.include_router(build_feedback_router(feedback_store))
     analytics_store = AnalyticsSnapshotStore(
         pipeline.settings.data_dir / "tourism_analytics_snapshot.json"
     )
@@ -248,6 +269,11 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
         "/media/attractions",
         StaticFiles(directory=attraction_image_dir),
         name="attraction_images",
+    )
+    app.mount(
+        "/media/foods",
+        StaticFiles(directory=food_image_dir),
+        name="food_images",
     )
     if visitor_assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=visitor_assets_dir), name="visitor_assets")
@@ -274,7 +300,7 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
 
     @app.get("/visitor/{page}")
     def visitor_subpage(page: str):
-        if page not in {"guide", "explore", "map"}:
+        if page not in {"guide", "explore", "map", "food", "feedback"}:
             raise HTTPException(status_code=404, detail="游客页面不存在。")
         dist_index = visitor_dist_dir / "index.html"
         if dist_index.is_file():
@@ -288,6 +314,14 @@ def create_app(pipeline: RagPipeline, seed_attractions: bool = True) -> FastAPI:
     @app.get("/admin/attractions", response_class=FileResponse)
     def admin_attractions_page() -> FileResponse:
         return FileResponse(frontend_dir / "admin_attractions.html")
+
+    @app.get("/admin/foods", response_class=FileResponse)
+    def admin_foods_page() -> FileResponse:
+        return FileResponse(frontend_dir / "admin_foods.html")
+
+    @app.get("/admin/feedback", response_class=FileResponse)
+    def admin_feedback_page() -> FileResponse:
+        return FileResponse(frontend_dir / "admin_feedback.html")
 
     @app.get("/admin/analytics", response_class=FileResponse)
     def admin_analytics_page() -> FileResponse:

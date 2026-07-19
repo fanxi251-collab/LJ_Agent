@@ -1,4 +1,5 @@
 ﻿import asyncio
+import json
 from pathlib import Path
 
 import httpx
@@ -49,12 +50,15 @@ def test_vue_source_contains_required_visitor_layout_and_api_calls():
         "frontend/src/features/digital-human/components/TranscriptConfirmation.vue"
     ).read_text(encoding="utf-8")
     session_composable = Path("frontend/src/composables/useSessions.js").read_text(encoding="utf-8")
-    styles = Path("frontend/src/styles.css").read_text(encoding="utf-8")
+    styles = (
+        Path("frontend/src/styles.css").read_text(encoding="utf-8")
+        + Path("frontend/src/guide.css").read_text(encoding="utf-8")
+    )
 
     assert "visitor-layout" in app_source
     assert "chat-main" in chat_source
     assert "session-sidebar" in session_source
-    assert "history-side" in app_source
+    assert "history-drawer" in app_source
     assert "给 LingJing AI 发送消息" in chat_source
     assert "常规模式" in chat_source
     assert "数字人模式" in chat_source
@@ -72,7 +76,7 @@ def test_vue_source_contains_required_visitor_layout_and_api_calls():
     assert 'event.turn_id !== activeTurnId.value' in chat_composable
     assert '"/api/visitor/sessions?visitor_id="' in session_composable
     assert "`/api/visitor/sessions/${currentSessionId.value}?" in session_composable
-    assert ".history-side" in styles
+    assert ".history-drawer" in styles
     assert ".composer-card" in styles
 
 
@@ -111,7 +115,8 @@ def test_digital_human_frontend_uses_local_pcm_and_replaceable_stage():
     assert 'event.type === "session.ready"' in chat_source
     assert "buildModeSetEvent(mode.value)" in chat_source
     assert "assistantTranscript" in chat_source
-    assert "avatarCaption" in guide_source
+    assert ':answer-text="chatApi.assistantTranscript.value"' in guide_source
+    assert "avatarCaption" not in guide_source
     assert "registerProcessor" in worklet_source
     assert "16000" in worklet_source
 
@@ -166,6 +171,9 @@ def test_digital_human_live2d_renderer_replaces_svg_with_stable_contract():
     assert renderer_path.is_file()
     assert not svg_path.exists()
     renderer_source = renderer_path.read_text(encoding="utf-8")
+    assert "avatarId:" in renderer_source
+    assert "const MODEL_URL" not in renderer_source
+    assert "resolveAvatarProfile" in renderer_source
     assert "state:" in renderer_source
     assert "audioLevel:" in renderer_source
     assert "expression:" in renderer_source
@@ -186,6 +194,89 @@ def test_digital_human_live2d_renderer_replaces_svg_with_stable_contract():
     assert "SvgAvatarRenderer" not in stage_source
     assert "emotionText" in stage_source
     assert "数字人形象加载失败" in stage_source
+
+
+def test_digital_human_selector_lives_in_topbar_without_owning_realtime_state():
+    feature_root = Path("frontend/src/features/digital-human")
+    stage_source = (feature_root / "components/DigitalHumanStage.vue").read_text(
+        encoding="utf-8"
+    )
+    selector_path = feature_root / "components/DigitalHumanAvatarSelector.vue"
+    assert selector_path.is_file()
+    selector_source = selector_path.read_text(encoding="utf-8")
+    chat_main = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
+    guide_view = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+    realtime_chat = Path("frontend/src/composables/useRealtimeChat.js").read_text(
+        encoding="utf-8"
+    )
+
+    assert "AVATAR_PROFILES" in selector_source
+    assert "emit('avatar-change'" in selector_source
+    assert "DigitalHumanAvatarSelector" in chat_main
+    assert 'v-if="mode === \'avatar\'"' in chat_main
+    assert 'class="topbar-avatar-selector"' in chat_main
+    assert "AVATAR_PROFILES" not in stage_source
+    assert 'class="avatar-selector"' not in stage_source
+    assert "emit('avatar-change'" not in stage_source
+    assert ':avatar-id="avatarId"' in stage_source
+    assert "avatarId:" in chat_main
+    assert '@avatar-change="emit(\'avatar-change\', $event)"' in chat_main
+    assert ':avatar-id="chatApi.avatarId.value"' in guide_view
+    assert '@avatar-change="chatApi.setAvatar"' in guide_view
+    assert "loadAvatarPreference" in realtime_chat
+    assert "saveAvatarPreference" in realtime_chat
+    assert "profile.id === avatarId && !avatarReady" in selector_source
+
+    stage_style = stage_source.split(".digital-human-stage {", 1)[1].split(
+        ".avatar-loading,", 1
+    )[0]
+    assert "background: transparent;" in stage_style
+    assert "border: 1px solid transparent;" in stage_style
+    assert "backdrop-filter: none;" in stage_style
+    assert "radial-gradient" not in stage_style
+
+
+def test_digital_human_stage_uses_left_visual_and_latest_answer_panel():
+    feature_root = Path("frontend/src/features/digital-human")
+    stage_source = (feature_root / "components/DigitalHumanStage.vue").read_text(
+        encoding="utf-8"
+    )
+    answer_panel_path = feature_root / "components/DigitalHumanAnswerPanel.vue"
+    assert answer_panel_path.is_file()
+    answer_panel_source = answer_panel_path.read_text(encoding="utf-8")
+    chat_source = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
+    guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+
+    assert "DigitalHumanAnswerPanel" in stage_source
+    assert 'class="avatar-visual"' in stage_source
+    assert ':answer-text="answerText"' in stage_source
+    assert "avatar-transcript" not in stage_source
+    assert "width: min(980px, 100%);" in stage_source
+    assert "grid-template-columns: minmax(300px, 42%) minmax(0, 58%);" in stage_source
+    assert "@media (max-width: 900px)" in stage_source
+    assert "grid-template-columns: 1fr;" in stage_source
+
+    for expected_copy in (
+        "向数字人提问后，回答将在这里显示。",
+        "正在聆听你的问题…",
+        "正在为你整理回答…",
+        "正在生成回答…",
+        "暂时无法生成回答，请稍后重试。",
+    ):
+        assert expected_copy in answer_panel_source
+    assert "const STICKY_THRESHOLD = 48" in answer_panel_source
+    assert "scrollHeight - scrollTop - clientHeight" in answer_panel_source
+    assert "watch(() => props.answerText" in answer_panel_source
+    assert "overflow-y: auto" in answer_panel_source
+    assert "white-space: pre-wrap" in answer_panel_source
+
+    assert "answerText:" in chat_source
+    assert ':answer-text="answerText"' in chat_source
+    assert "transcript:" not in chat_source
+    assert ':answer-text="chatApi.assistantTranscript.value"' in guide_source
+    assert ':transcript="chatApi.avatarCaption.value"' not in guide_source
+    assert "给 LingJing AI 发送消息，例如：给我推荐灵山胜境的游玩路线" in chat_source
+    assert "灵山胜境适合老人怎么玩" not in chat_source
 
 
 def test_live2d_dependencies_and_local_mao_pro_assets_are_complete():
@@ -218,7 +309,64 @@ def test_live2d_dependencies_and_local_mao_pro_assets_are_complete():
         assert (model_root / expected_asset).is_file(), expected_asset
 
 
-def test_visitor_router_exposes_guide_explore_and_map_views():
+def test_local_chitose_and_haruto_runtime_assets_are_complete():
+    live2d_root = Path("frontend/public/digital-human/live2d")
+    expected = {
+        "chitose": (
+            "chitose.model3.json",
+            "chitose.moc3",
+            "chitose.2048/texture_00.png",
+            "chitose.physics3.json",
+            "chitose.pose3.json",
+            "expressions/Normal.exp3.json",
+            "expressions/Smile.exp3.json",
+            "expressions/Sad.exp3.json",
+            "expressions/Surprised.exp3.json",
+        ),
+        "haruto": (
+            "haruto.model3.json",
+            "haruto.moc3",
+            "haruto.2048/texture_00.png",
+            "haruto.physics3.json",
+            "motion/idle.motion3.json",
+        ),
+    }
+
+    for avatar_id, assets in expected.items():
+        model_root = live2d_root / avatar_id
+        assert (model_root / "README.md").is_file()
+        model_path = model_root / assets[0]
+        model = json.loads(model_path.read_text(encoding="utf-8"))
+        assert "http://" not in model_path.read_text(encoding="utf-8")
+        assert "https://" not in model_path.read_text(encoding="utf-8")
+        for asset in assets:
+            assert (model_root / asset).is_file(), f"{avatar_id}: {asset}"
+        referenced_paths = _collect_live2d_runtime_paths(model["FileReferences"])
+        for referenced_path in referenced_paths:
+            assert (model_root / referenced_path).is_file(), f"{avatar_id}: {referenced_path}"
+
+        if avatar_id == "haruto":
+            groups = {group["Name"]: group["Ids"] for group in model["Groups"]}
+            assert groups["LipSync"] == ["PARAM_MOUTH_OPEN_Y"]
+            assert groups["EyeBlink"] == ["PARAM_EYE_L_OPEN", "PARAM_EYE_R_OPEN"]
+
+
+def _collect_live2d_runtime_paths(value) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [path for item in value for path in _collect_live2d_runtime_paths(item)]
+    if isinstance(value, dict):
+        return [
+            path
+            for key, item in value.items()
+            if key != "Name"
+            for path in _collect_live2d_runtime_paths(item)
+        ]
+    return []
+
+
+def test_visitor_router_exposes_five_primary_views():
     package = Path("frontend/package.json").read_text(encoding="utf-8")
     main_source = Path("frontend/src/main.js").read_text(encoding="utf-8")
     app_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
@@ -228,9 +376,13 @@ def test_visitor_router_exposes_guide_explore_and_map_views():
     assert 'path: "/visitor/guide"' in main_source
     assert 'path: "/visitor/explore"' in main_source
     assert 'path: "/visitor/map"' in main_source
+    assert 'path: "/visitor/food"' in main_source
+    assert 'path: "/visitor/feedback"' in main_source
     assert "AI 智能导游" in app_source
     assert "景点探索" in app_source
     assert "互动地图" in app_source
+    assert "美食推荐" in app_source
+    assert "游客反馈" in app_source
     assert "RouterView" in app_source
 
 
@@ -241,10 +393,73 @@ def test_visitor_root_uses_shared_left_sidebar_navigation():
     assert "visitor-sidebar" in app_source
     assert "visitor-content-shell" in app_source
     assert "visitor-global-header" not in app_source
-    assert app_source.count("visitor-sidebar-icon") == 3
+    assert app_source.count("visitor-sidebar-icon") == 5
     assert "grid-template-columns: 232px minmax(0, 1fr)" in page_styles
     assert "overflow-y: auto" in page_styles
-    assert "@media (max-width: 760px)" in page_styles
+    assert "@media (max-width: 820px)" in page_styles
+    assert ".guide-view {\n  height: 100%;\n  min-height: 100%;\n}" in page_styles
+
+
+def test_visitor_shell_uses_lake_dissolve_transition_and_caches_five_views():
+    app_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+    transition_source = Path(
+        "frontend/src/components/VisitorRouteTransition.vue"
+    ).read_text(encoding="utf-8")
+    page_styles = Path("frontend/src/route-transition.css").read_text(encoding="utf-8")
+
+    assert 'v-slot="{ Component, route }"' in app_source
+    assert "VisitorRouteTransition" in app_source
+    assert "KeepAlive" in transition_source
+    assert ':max="5"' in transition_source
+    assert 'name="lake-dissolve"' in transition_source
+    assert "lake-dissolve-enter-from" in page_styles
+    assert "filter: blur(7px)" in page_styles
+    assert "prefers-reduced-motion: reduce" in page_styles
+
+
+def test_food_and_feedback_views_have_complete_visitor_flows():
+    food_source = Path("frontend/src/views/FoodView.vue").read_text(encoding="utf-8")
+    food_drawer = Path("frontend/src/components/FoodDetailDrawer.vue").read_text(encoding="utf-8")
+    feedback_source = Path("frontend/src/views/FeedbackView.vue").read_text(encoding="utf-8")
+    vite_config = Path("frontend/vite.config.js").read_text(encoding="utf-8")
+
+    assert 'fetch("/api/visitor/foods")' in food_source
+    assert "filterFoods" in food_source
+    assert "景区内" in food_source and "周边" in food_source
+    assert "FoodDetailDrawer" in food_source
+    assert 'query: { food: props.food.food_id }' in food_drawer
+    assert "询问 AI 导游" in food_drawer
+    assert 'fetch("/api/visitor/feedback"' in feedback_source
+    assert "getOrCreateVisitorId" in feedback_source
+    assert "request_id" in feedback_source
+    assert "待处理" in feedback_source
+    assert '"/media/foods": "http://127.0.0.1:8000"' in vite_config
+
+
+def test_map_view_supports_food_layer_and_cross_type_routes():
+    map_source = Path("frontend/src/views/MapView.vue").read_text(encoding="utf-8")
+    map_composable = Path("frontend/src/composables/useInteractiveMap.js").read_text(encoding="utf-8")
+
+    assert 'fetch("/api/visitor/foods")' in map_source
+    assert "normalizeFoodPlace" in map_source
+    assert "route.query.food" in map_source
+    assert "景点" in map_source and "美食" in map_source
+    assert "place.kind === \"food\"" in map_composable
+    assert 'color: "#d4a64c"' in map_composable
+    assert "resize" in map_composable
+
+
+def test_cached_guide_reactivates_query_questions_and_suspends_hidden_audio():
+    guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+    realtime_source = Path("frontend/src/composables/useRealtimeChat.js").read_text(encoding="utf-8")
+
+    assert "onActivated" in guide_source
+    assert "onDeactivated" in guide_source
+    assert "consumeRouteQuestion" in guide_source
+    assert "chatApi.suspendForRoute" in guide_source
+    assert "function suspendForRoute" in realtime_source
+    assert "audio.stopCapture()" in realtime_source
+    assert "audio.clearPlayback()" in realtime_source
 
 
 def test_explore_and_map_views_contain_expected_interactions():
@@ -269,15 +484,106 @@ def test_explore_and_map_views_contain_expected_interactions():
 def test_route_views_use_v2_summary_and_show_all_key_steps():
     guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
     route_panel = Path("frontend/src/components/RoutePanel.vue").read_text(encoding="utf-8")
+    timeline_source = Path("frontend/src/components/ConversationTimeline.vue").read_text(
+        encoding="utf-8"
+    )
     map_source = Path("frontend/src/views/MapView.vue").read_text(encoding="utf-8")
 
-    assert "watch(chatApi.hasRouteSource" in guide_source
-    assert 'activeToolPanel.value = "route"' in guide_source
+    assert "RoutePanel" not in guide_source
+    assert "InlineRouteCard" in timeline_source
     assert "resolveRouteSummary" in route_panel
     assert "高德原始步骤共" in route_panel
     assert "total_step_count" in route_panel
     assert ".slice(0, 8)" not in route_panel
     assert ".slice(0, 8)" not in map_source
+
+
+def test_guide_view_uses_immersive_shell_without_visitor_source_tools():
+    app_shell_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+    guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+    chat_source = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
+    timeline_source = Path("frontend/src/components/ConversationTimeline.vue").read_text(
+        encoding="utf-8"
+    )
+    answer_source = Path("frontend/src/components/AssistantAnswer.vue").read_text(
+        encoding="utf-8"
+    )
+    guide_styles = Path("frontend/src/guide.css").read_text(encoding="utf-8")
+    styles = Path("frontend/src/styles.css").read_text(encoding="utf-8") + guide_styles
+    page_styles = Path("frontend/src/visitor-pages.css").read_text(encoding="utf-8")
+
+    assert "useRoute" in app_shell_source
+    assert "visitor-app-shell--guide" in app_shell_source
+    assert 'route.path === "/visitor/guide"' in app_shell_source
+    assert "SourcePanel" not in guide_source
+    assert "UploadPanel" not in guide_source
+    assert "tool-dock" not in guide_source
+    assert "show-sources" not in guide_source
+    assert "guide-background" in guide_source
+    assert "history-drawer" in guide_source
+    assert "historyOpen" in guide_source
+    assert "toggle-history" in chat_source
+    assert 'aria-label="历史会话"' in chat_source
+    assert "status-pill" not in chat_source
+    assert "serviceState" not in chat_source
+    assert "常规模式仅请求文字输出，不产生语音输出费用" not in chat_source
+    assert "quick-prompts" in timeline_source
+    assert 'emit("ask", prompt)' in timeline_source
+    assert "show-sources" not in timeline_source
+    assert "citation-link" not in timeline_source
+    assert "InlineRouteCard" in timeline_source
+    assert 'items.push({ type: "source"' not in answer_source
+    assert "guide-home-background.jpg" in page_styles
+    assert "guide-lingshan-buddha.webp" not in guide_styles
+    assert "--guide-ink: #143f46" in page_styles
+    assert "--guide-accent: #2f7d78" in page_styles
+    assert "--guide-gold: #d4a64c" in page_styles
+    assert ".visitor-app-shell--guide .visitor-sidebar" in page_styles
+    assert "background-position: 56% center" in page_styles
+    assert ".history-drawer" in styles
+    assert ".guide-view .composer-buttons" in styles
+    assert "margin-left: auto" in styles
+    topbar_mode_button_style = guide_styles.split(
+        ".guide-view .mode-switch button {", 1
+    )[1].split("}", 1)[0]
+    assert "padding: 0 14px;" in topbar_mode_button_style
+    assert "white-space: nowrap;" in topbar_mode_button_style
+    assert ".history-toggle-button > span:last-child" in styles
+    assert ".history-drawer .session-sidebar {\n    grid-template-rows: auto auto auto minmax(0, 1fr) auto;" in styles
+    assert "grid-template-columns: repeat(3, minmax(0, 1fr))" in page_styles
+
+
+def test_inline_route_cards_use_lazy_independent_map_instances():
+    card_path = Path("frontend/src/components/InlineRouteCard.vue")
+    route_map_source = Path("frontend/src/composables/useRouteMap.js").read_text(
+        encoding="utf-8"
+    )
+
+    assert card_path.is_file()
+    card_source = card_path.read_text(encoding="utf-8")
+    assert "findSuccessfulRouteSource" in card_source
+    assert "resolveRouteSummary" in card_source
+    assert "routeMap.renderRoute(summary.value)" in card_source
+    assert "v-if=\"expanded\"" in card_source
+    assert "onBeforeUnmount(routeMap.destroy)" in card_source
+
+    composable_index = route_map_source.index("export function useRouteMap")
+    instance_index = route_map_source.index("let amapMap = null;")
+    assert instance_index > composable_index
+    assert "function resolveMapElement" in route_map_source
+    assert "function destroy" in route_map_source
+    assert "amapMap.destroy()" in route_map_source
+    assert "return { notice, renderRoute, destroy }" in route_map_source
+
+
+def test_guide_background_is_a_fixed_frontend_asset():
+    background = Path("frontend/public/images/guide-home-background.jpg")
+    source = Path("首页背景图.jpg")
+    legacy_background = Path("frontend/public/images/guide-lingshan-buddha.webp")
+
+    assert background.is_file()
+    assert background.read_bytes() == source.read_bytes()
+    assert legacy_background.is_file()
 
 
 def test_all_map_loaders_apply_amap_security_code_before_loading_script():
@@ -320,18 +626,45 @@ def test_fastapi_serves_pcm_capture_worklet(tmp_path: Path):
 def test_fastapi_serves_local_live2d_assets(tmp_path: Path):
     app = create_app(build_pipeline(tmp_path))
 
-    model = request_path(app, "/digital-human/live2d/mao_pro/mao_pro.model3.json")
-    moc = request_path(app, "/digital-human/live2d/mao_pro/mao_pro.moc3")
+    models = {
+        "mao_pro": ("mao_pro.model3.json", "mao_pro.moc3"),
+        "chitose": ("chitose.model3.json", "chitose.moc3"),
+        "haruto": ("haruto.model3.json", "haruto.moc3"),
+    }
+    responses = {
+        avatar_id: (
+            request_path(app, f"/digital-human/live2d/{avatar_id}/{model_name}"),
+            request_path(app, f"/digital-human/live2d/{avatar_id}/{moc_name}"),
+        )
+        for avatar_id, (model_name, moc_name) in models.items()
+    }
     texture = request_path(
         app, "/digital-human/live2d/mao_pro/mao_pro.4096/texture_00.png"
     )
     core = request_path(app, "/digital-human/live2d/live2dcubismcore.min.js")
 
-    assert model.status_code == 200
-    assert moc.status_code == 200
+    assert all(model.status_code == 200 for model, _ in responses.values())
+    assert all(moc.status_code == 200 for _, moc in responses.values())
     assert texture.status_code == 200
     assert core.status_code == 200
-    assert model.json()["Version"] == 3
+    assert all(model.json()["Version"] == 3 for model, _ in responses.values())
+
+
+def test_avatar_mode_blocks_submission_until_server_acknowledges_role():
+    chat_source = Path("frontend/src/composables/useRealtimeChat.js").read_text(encoding="utf-8")
+    chat_main = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
+
+    assert "const avatarReady = computed" in chat_source
+    assert "ensureAvatarReady()" in chat_source
+    connect_block = chat_source.split("function connect(", 1)[1].split(
+        "async function ensureConnected", 1
+    )[0]
+    assert "avatarSynchronized.value = false" in connect_block
+    assert ':avatar-ready="chatApi.avatarReady.value"' in Path(
+        "frontend/src/views/GuideView.vue"
+    ).read_text(encoding="utf-8")
+    assert 'avatarReady: { type: Boolean' in chat_main
+    assert ':disabled="mode === \'avatar\' && !avatarReady"' in chat_main
 
 
 def test_legacy_admin_assets_are_still_served(tmp_path: Path):
@@ -344,3 +677,48 @@ def test_legacy_admin_assets_are_still_served(tmp_path: Path):
     assert 'fetch("/api/admin/documents"' in script_response.text
     assert style_response.status_code == 200
     assert ".source-meta" in style_response.text
+
+
+def test_scenic_intro_is_owned_by_the_app_shell_without_restyling_the_guide():
+    component_path = Path(
+        "frontend/src/features/scenic-intro/components/ScenicIntro.vue"
+    )
+    composable_path = Path(
+        "frontend/src/features/scenic-intro/composables/useGuideIntro.js"
+    )
+    policy_path = Path("frontend/src/features/scenic-intro/lib/introPolicy.js")
+    style_path = Path("frontend/src/features/scenic-intro/scenic-intro.css")
+
+    assert component_path.is_file()
+    assert composable_path.is_file()
+    assert policy_path.is_file()
+    assert style_path.is_file()
+
+    app_source = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+    component_source = component_path.read_text(encoding="utf-8")
+    composable_source = composable_path.read_text(encoding="utf-8")
+    style_source = style_path.read_text(encoding="utf-8")
+    package = json.loads(Path("frontend/package.json").read_text(encoding="utf-8"))
+
+    assert "ScenicIntro" in app_source
+    assert "useGuideIntro" in app_source
+    assert ':inert="introVisible || undefined"' in app_source
+    assert ':aria-hidden="introVisible ? \'true\' : undefined"' in app_source
+    assert "遇见灵山，开启灵境" in component_source
+    assert "一场风景与智慧共同展开的旅程" in component_source
+    assert "开启灵境之旅" in component_source
+    assert 'import("gsap")' in component_source
+    assert "exitTimeline?.kill()" in component_source
+    assert "prefers-reduced-motion: reduce" in style_source
+    assert (
+        'import scenicIntroBackground from "../../../../public/images/guide-home-background.jpg";'
+        in component_source
+    )
+    assert ':src="scenicIntroBackground"' in component_source
+    assert "sessionStorage" in composable_source
+    assert package["dependencies"]["gsap"] == "^3.15.0"
+
+    guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
+    chat_source = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
+    assert "ScenicIntro" not in guide_source
+    assert "ScenicIntro" not in chat_source

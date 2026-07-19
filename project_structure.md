@@ -1,6 +1,6 @@
 # 项目子目录说明
 
-当前时间：2026-07-18  Asia/Shanghai
+当前时间：2026-07-20  Asia/Shanghai
 
 本文档记录 LingJing_AI 当前目录职责。项目已整理为标准 Python `src` 包结构：根目录放工程资产，后端代码统一放入 `src/lingjing_ai/`。
 
@@ -26,13 +26,16 @@ python -m pip install -e .
 
 原生前端页面和静态资源。
 
-- 游客端页面：`/visitor`
+- 游客端页面：`/visitor`，包含导游、探索、地图、美食和反馈五个一级页面
 - 管理端资料页面：`/admin/documents`
 - 管理端景点页面：`/admin/attractions`
 - 管理端游客分析：`/admin/analytics`
+- 管理端美食页面：`/admin/foods`
+- 管理端反馈页面：`/admin/feedback`
 - 静态 JS 和 CSS：`frontend/static/`
-- 数字人前端模块：`frontend/src/features/digital-human/`，集中管理舞台、Mao Pro Live2D渲染器、口型/表情规则、语音控件、PCM采集播放和音频质量逻辑。
-- Live2D资源：`frontend/public/digital-human/live2d/`，包含本地Mao Pro运行时、Cubism Core、来源和授权说明；运行时不请求第三方模型资源。
+- 数字人前端模块：`frontend/src/features/digital-human/`，集中管理三角色注册表、Live2D渲染器、口型/表情规则、语音控件、PCM采集播放和音频质量逻辑。
+- Live2D资源：`frontend/public/digital-human/live2d/`，包含本地Mao Pro、Chitose、Haruto运行时、Cubism Core、来源和授权说明；运行时不请求第三方模型资源。
+- 数字人角色：`mao_pro`为默认女导游，`chitose`为男导游，`haruto`为儿童导游；浏览器只保存角色ID，服务端白名单决定音色和表达约束。
 - 数字人 AudioWorklet：`frontend/public/digital-human/pcm-capture-worklet.js`；共享实时会话与协议仍保留在前端公共层。
 
 ### `data/`
@@ -42,6 +45,8 @@ python -m pip install -e .
 - `uploaded/`：前端或脚本上传后的 `.txt` / `.md` 资料。
 - `document_manifest.json`：资料清单，记录文档 ID、路径、MD5、切片数等。
 - `tourism_analytics_snapshot.json`：由本地 Excel 生成且不提交 Git 的游客分析快照。
+- `foods.db`、`food_images/`：独立保存美食推荐数据和本地摄影封面。
+- `feedback.db`：独立保存匿名游客反馈、处理状态和管理员回复。
 
 ### `qdrant_db/`
 
@@ -93,7 +98,9 @@ FastAPI 服务入口与 HTTP 接口层。
 
 - `main.py`：应用启动入口。
 - `bootstrap.py`：组装默认 RAG 管线、Qdrant、Embedding、回答生成器和知识图谱。
-- `app.py`：定义游客端、管理端、RAG、Agent、上传、地图工具等 API。
+- `app.py`：组装游客端、管理端、RAG、Agent、上传、地图工具、美食和反馈 API。
+- `food_routes.py`：提供美食游客筛选、管理 CRUD、发布和图片管理接口。
+- `feedback_routes.py`：提供匿名反馈提交、本人进度查询和管理处理接口。
 
 ### `src/lingjing_ai/rag/`
 
@@ -132,6 +139,7 @@ RAG 检索增强生成核心能力。
 - `conversation.py`：准备 Agent/RAG 证据、会话上下文和持久化数据。
 - `answer_contract.py`：按常规/数字人及路线/非路线生成回答契约，并做确定性完整性校验。
 - `session.py`：桥接浏览器和 Qwen WebSocket，管理取消、降级、音频与最终文本。
+- `avatar_profiles.py`：维护三角色白名单、逐轮Qwen音色和临时表达风格，避免客户端直接指定任意音色或提示词。
 
 ### `src/lingjing_ai/kg/`
 
@@ -146,6 +154,8 @@ RAG 检索增强生成核心能力。
 - 文档清单。
 - Redis JSON 缓存封装。
 - 工具意图判断。
+- `food_store.py`：使用独立 SQLite 数据库管理美食、图集、封面、发布和空库种子数据。
+- `feedback_store.py`：使用独立 SQLite 数据库管理幂等反馈、游客隔离和处理状态。
 
 ### `src/lingjing_ai/storage/`
 
@@ -189,4 +199,5 @@ RAG 检索增强生成核心能力。
 - 阿里云大模型 API Key 使用 `LJAPI_KEY`。
 - 双模式智能导游使用 `src/lingjing_ai/realtime/` 连接 Qwen-Audio Realtime；SQLite 仍是历史事实源。
 - 常规模式只请求文本，数字人模式请求音频和文本，模式切换不清空会话。
+- 三个数字人角色共用同一会话和历史；切换角色会取消正在录音、生成或播放的轮次，但切换本身不调用模型。
 - 不再使用 Chroma。

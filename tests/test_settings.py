@@ -82,6 +82,9 @@ def test_settings_exposes_qwen_audio_realtime_defaults(tmp_path: Path, monkeypat
         "LJ_REALTIME_WORKSPACE_ID",
         "LJ_REALTIME_URL",
         "LJ_REALTIME_VOICE",
+        "LJ_REALTIME_VOICE_MAO_PRO",
+        "LJ_REALTIME_VOICE_CHITOSE",
+        "LJ_REALTIME_VOICE_HARUTO",
         "LJ_REALTIME_HISTORY_TURNS",
         "LJ_REALTIME_CONNECT_TIMEOUT_SECONDS",
     ):
@@ -93,6 +96,9 @@ def test_settings_exposes_qwen_audio_realtime_defaults(tmp_path: Path, monkeypat
     assert settings.realtime_workspace_id == ""
     assert settings.realtime_url == ""
     assert settings.realtime_voice == "longanqian"
+    assert settings.realtime_voice_mao_pro == "longanqian"
+    assert settings.realtime_voice_chitose == "longanlufeng"
+    assert settings.realtime_voice_haruto == "longanxiaoxin"
     assert settings.realtime_history_turns == 6
     assert settings.realtime_connect_timeout_seconds == 15
     assert settings.asr_correction_enabled is True

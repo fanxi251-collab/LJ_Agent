@@ -50,7 +50,7 @@ function parseAnswer(text) {
     if (line.startsWith("依据：")) {
       flushParagraph();
       flushList();
-      items.push({ type: "source", text: line });
+      // Source data still powers retrieval and routes, but visitor answers intentionally omit attribution UI.
       continue;
     }
     paragraph.push(line);
@@ -67,7 +67,6 @@ function parseAnswer(text) {
       <template v-for="(block, index) in blocks" :key="index">
         <h3 v-if="block.type === 'h3'">{{ block.text }}</h3>
         <p v-else-if="block.type === 'p'">{{ block.text }}</p>
-        <p v-else-if="block.type === 'source'" class="answer-source">{{ block.text }}</p>
         <ul v-else-if="block.type === 'ul'">
           <li v-for="item in block.items" :key="item">{{ item }}</li>
         </ul>

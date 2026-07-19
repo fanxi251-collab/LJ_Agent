@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>游客端页面切换动效方向</title>
+  <style>
+    :root {
+      color: #163f44;
+      background: #eef4f2;
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 42px clamp(20px, 5vw, 76px) 56px;
+      background:
+        radial-gradient(circle at 8% 4%, rgba(220, 174, 85, .22), transparent 28%),
+        linear-gradient(145deg, #f7faf7 0%, #dcecea 58%, #c6dfdf 100%);
+    }
+
+    .heading { max-width: 900px; margin: 0 auto 26px; }
+    .eyebrow { margin: 0 0 8px; color: #bc8731; font-size: 12px; font-weight: 800; letter-spacing: .2em; }
+    h1 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: clamp(30px, 4vw, 52px); font-weight: 500; letter-spacing: .04em; }
+    .subtitle { margin: 12px 0 0; color: rgba(22, 63, 68, .68); line-height: 1.7; }
+
+    .cards {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 25px;
+      padding: 10px;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 20px 55px rgba(29, 70, 70, .12);
+      backdrop-filter: blur(18px);
+      cursor: pointer;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .card:hover { transform: translateY(-5px); box-shadow: 0 28px 65px rgba(29, 70, 70, .18); }
+    .card.selected { border-color: #c59238; box-shadow: 0 0 0 3px rgba(197,146,56,.15), 0 28px 65px rgba(29,70,70,.18); }
+
+    .preview {
+      position: relative;
+      height: 330px;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      overflow: hidden;
+      border-radius: 18px;
+      background: #c2d8da;
+      isolation: isolate;
+    }
+
+    .nav {
+      position: relative;
+      z-index: 5;
+      display: grid;
+      grid-template-rows: 44px repeat(3, 34px);
+      justify-items: center;
+      gap: 10px;
+      padding: 15px 9px;
+      background: rgba(250,253,252,.9);
+      box-shadow: 8px 0 24px rgba(24,65,66,.12);
+    }
+
+    .brand { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px 10px 10px 3px; background: #2f7d78; color: white; font-weight: 800; }
+    .nav-dot { width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(29,86,81,.12); background: rgba(47,125,120,.08); }
+    .nav-dot.active { background: rgba(47,125,120,.24); }
+
+    .viewport {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(17,72,75,.06), rgba(10,56,59,.26)),
+        url('/files/frontend/public/images/guide-home-background.jpg') 56% center / cover,
+        linear-gradient(145deg, #92c2cc, #477f7d);
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      padding: 24px 20px;
+      display: grid;
+      align-content: end;
+    }
+
+    .glass {
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 17px;
+      padding: 16px;
+      background: rgba(250,253,252,.82);
+      box-shadow: 0 16px 35px rgba(15,52,58,.17);
+    }
+
+    .kicker { color: #b17b28; font-size: 8px; font-weight: 900; letter-spacing: .18em; }
+    .glass h2 { margin: 6px 0 4px; font: 600 20px/1.2 Georgia, "Songti SC", serif; }
+    .glass p { margin: 0; color: rgba(22,63,68,.64); font-size: 10px; line-height: 1.6; }
+    .pill-row { display: flex; gap: 6px; margin-top: 12px; }
+    .pill { height: 7px; flex: 1; border-radius: 99px; background: rgba(47,125,120,.17); }
+
+    .motion-dissolve .page { animation: dissolve 3.4s cubic-bezier(.22,.75,.28,1) infinite; }
+    .motion-slide .page { animation: slide 3.4s cubic-bezier(.22,.75,.28,1) infinite; }
+    .motion-ripple .page { animation: ripple 3.4s cubic-bezier(.2,.72,.25,1) infinite; }
+    .motion-ripple .viewport::after {
+      content: "";
+      position: absolute;
+      z-index: 3;
+      width: 52px;
+      aspect-ratio: 1;
+      left: 52%;
+      top: 52%;
+      border: 1px solid rgba(255,255,255,.78);
+      border-radius: 50%;
+      opacity: 0;
+      animation: ring 3.4s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes dissolve {
+      0%, 14% { opacity: 0; filter: blur(9px); transform: translateY(16px) scale(.992); }
+      30%, 78% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+      92%, 100% { opacity: 0; filter: blur(5px); transform: translateY(-8px) scale(1.005); }
+    }
+
+    @keyframes slide {
+      0%, 14% { opacity: 0; transform: translateX(28px) scale(.992); }
+      30%, 78% { opacity: 1; transform: translateX(0) scale(1); }
+      92%, 100% { opacity: 0; transform: translateX(-22px) scale(.997); }
+    }
+
+    @keyframes ripple {
+      0%, 14% { opacity: 0; clip-path: circle(0% at 52% 58%); transform: scale(1.015); }
+      38%, 78% { opacity: 1; clip-path: circle(88% at 52% 58%); transform: scale(1); }
+      92%, 100% { opacity: 0; clip-path: circle(88% at 52% 58%); }
+    }
+
+    @keyframes ring {
+      12% { opacity: 0; transform: translate(-50%,-50%) scale(.4); }
+      24% { opacity: .72; }
+      52%, 100% { opacity: 0; transform: translate(-50%,-50%) scale(7); }
+    }
+
+    .body { padding: 18px 10px 12px; }
+    .choice { display: inline-flex; align-items: center; gap: 8px; color: #b37f2d; font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+    .letter { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: rgba(212,166,76,.17); }
+    .body h3 { margin: 10px 0 7px; font-size: 19px; }
+    .body p { min-height: 62px; margin: 0; color: rgba(22,63,68,.66); font-size: 13px; line-height: 1.65; }
+    .badge { display: inline-flex; margin-top: 14px; border-radius: 999px; padding: 6px 10px; background: rgba(47,125,120,.1); color: #286c68; font-size: 11px; font-weight: 700; }
+    .recommended .badge { background: rgba(212,166,76,.18); color: #97691e; }
+
+    .hint { width: min(1180px,100%); margin: 20px auto 0; color: rgba(22,63,68,.58); font-size: 12px; text-align: center; }
+
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: 1fr; max-width: 520px; }
+      .preview { height: 270px; }
+      .body p { min-height: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page, .viewport::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
+      .card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="heading">
+    <p class="eyebrow">LINGJING · ROUTE MOTION</p>
+    <h1>哪一种切换，更像灵山？</h1>
+    <p class="subtitle">三种方案都固定左侧导航、保留页面状态；画面中的内容区会循环演示进入与离开。点击卡片即可选择。</p>
+  </header>
+
+  <main class="cards">
+    <article class="card recommended" data-choice="lake-dissolve" onclick="toggleSelect(this)">
+      <div class="preview motion-dissolve">
+        <aside class="nav"><span class="brand">灵</span><i class="nav-dot active"></i><i class="nav-dot"></i><i class="nav-dot"></i></aside>
+        <section class="viewport"><div class="page"><div class="glass"><span class="kicker">LINGSHAN DISCOVERY</span><h2>遇见山水与人文</h2><p>淡入、微升与轻柔失焦，共同形成平静而高级的呼吸感。</p><div class="pill-row"><i class="pill"></i><i class="pill"></i><i class="pill"></i></div></div></div></section>
+      </div>
+      <div class="body"><span class="choice"><i class="letter">1</i> RECOMMENDED</span><h3>湖光溶解</h3><p>300ms 左右的淡入、轻微上浮与模糊收束。最克制，也最适合频繁切换。</p><span class="badge">高级 · 稳定 · 不打扰</span></div>
+    </article>
+
+    <article class="card" data-choice="mountain-slide" onclick="toggleSelect(this)">
+      <div class="preview motion-slide">
+        <aside class="nav"><span class="brand">灵</span><i class="nav-dot"></i><i class="nav-dot active"></i><i class="nav-dot"></i></aside>
+        <section class="viewport"><div class="page"><div class="glass"><span class="kicker">SCENIC JOURNEY</span><h2>沿路径继续探索</h2><p>内容沿导航顺序推入推离，空间方向明确，操作反馈更鲜明。</p><div class="pill-row"><i class="pill"></i><i class="pill"></i><i class="pill"></i></div></div></div></section>
+      </div>
+      <div class="body"><span class="choice"><i class="letter">2</i> DIRECTIONAL</span><h3>山水推镜</h3><p>根据导游、探索、地图的顺序横向移动，方向感更强，但连续点击时更活跃。</p><span class="badge">清晰 · 现代 · 动感</span></div>
+    </article>
+
+    <article class="card" data-choice="water-ripple" onclick="toggleSelect(this)">
+      <div class="preview motion-ripple">
+        <aside class="nav"><span class="brand">灵</span><i class="nav-dot"></i><i class="nav-dot"></i><i class="nav-dot active"></i></aside>
+        <section class="viewport"><div class="page"><div class="glass"><span class="kicker">WATER REFLECTION</span><h2>一圈涟漪，展开新景</h2><p>由湖心水波扩散揭开下一页，仪式感最强，也最具展示效果。</p><div class="pill-row"><i class="pill"></i><i class="pill"></i><i class="pill"></i></div></div></div></section>
+      </div>
+      <div class="body"><span class="choice"><i class="letter">3</i> SIGNATURE</span><h3>水波揭幕</h3><p>圆形裁切与涟漪光圈形成标志性动效，视觉冲击强，频繁切换时略显隆重。</p><span class="badge">艺术 · 标志性 · 强表现</span></div>
+    </article>
+  </main>
+
+  <p class="hint">建议先观察两个循环，再选择最符合游客端气质的一项。</p>
+</body>
+</html>

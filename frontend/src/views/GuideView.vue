@@ -1,17 +1,14 @@
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { onActivated, onBeforeUnmount, onDeactivated, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ChatMain from "../components/ChatMain.vue";
 import SessionSidebar from "../components/SessionSidebar.vue";
-import SourcePanel from "../components/SourcePanel.vue";
-import UploadPanel from "../components/UploadPanel.vue";
-import RoutePanel from "../components/RoutePanel.vue";
 import { useRealtimeChat } from "../composables/useRealtimeChat";
 import { useSessions } from "../composables/useSessions";
 
 const route = useRoute();
 const router = useRouter();
-const activeToolPanel = ref("sources");
+const historyOpen = ref(false);
 const sessionsApi = useSessions();
 const chatApi = useRealtimeChat({
   currentSessionId: sessionsApi.currentSessionId,
@@ -19,25 +16,16 @@ const chatApi = useRealtimeChat({
   onSessionChanged: sessionsApi.loadSessions,
 });
 
-const toolTabs = computed(() => [
-  { id: "sources", label: `引用 ${chatApi.sources.value.length}` },
-  { id: "upload", label: "资料上传" },
-  { id: "route", label: chatApi.hasRouteSource.value ? "路线地图" : "路线" },
-]);
-
-watch(chatApi.hasRouteSource, (hasRoute) => {
-  // Open the route only after successful structured data arrives, so failures never reveal an empty map.
-  if (hasRoute) activeToolPanel.value = "route";
-});
-
 async function loadSession(sessionId) {
   const messages = await sessionsApi.loadSessionMessages(sessionId);
   chatApi.restoreMessages(messages);
+  historyOpen.value = false;
 }
 
 function startNewSession() {
   sessionsApi.startNewSession();
   chatApi.resetConversation("已开启新会话，请输入新的问题。");
+  historyOpen.value = false;
 }
 
 async function deleteCurrentSession() {
@@ -45,29 +33,52 @@ async function deleteCurrentSession() {
   if (deleted) chatApi.resetConversation("当前会话已删除，可以开始新的提问。");
 }
 
-onMounted(async () => {
+function closeHistory() {
+  historyOpen.value = false;
+}
+
+function handleHistoryKeydown(event) {
+  // Escape provides a predictable keyboard exit because the drawer visually covers the guide workspace.
+  if (event.key === "Escape" && historyOpen.value) closeHistory();
+}
+
+async function consumeRouteQuestion() {
   const question = String(route.query.q || "").trim();
   if (!question) return;
-  // 从景点详情跳转时自动提问，让“询问 AI”成为完整闭环而不是只切换页面。
+  // 先移除查询参数以形成一次性消费标记，避免缓存页面再次激活时重复发送付费请求。
   await router.replace({ path: "/visitor/guide" });
   await chatApi.ask(question);
+}
+
+onActivated(async () => {
+  window.addEventListener("keydown", handleHistoryKeydown);
+  await consumeRouteQuestion();
 });
+
+onDeactivated(() => {
+  window.removeEventListener("keydown", handleHistoryKeydown);
+  historyOpen.value = false;
+  chatApi.suspendForRoute();
+});
+onBeforeUnmount(() => window.removeEventListener("keydown", handleHistoryKeydown));
 </script>
 
 <template>
   <main class="visitor-layout guide-view">
+    <div class="guide-background" aria-hidden="true"></div>
     <section class="chat-area">
       <ChatMain
         v-model:mode="chatApi.mode.value"
         :messages="chatApi.messages.value"
         :is-loading="chatApi.isLoading.value"
-        :service-state="chatApi.serviceState.value"
         :avatar-state="chatApi.avatarState.value"
+        :avatar-id="chatApi.avatarId.value"
+        :avatar-ready="chatApi.avatarReady.value"
         :audio-level="chatApi.audioLevel.value"
         :input-level="chatApi.inputLevel.value"
         :input-quality="chatApi.inputQuality.value"
         :auto-gain-state="chatApi.autoGainState.value"
-        :transcript="chatApi.avatarCaption.value"
+        :answer-text="chatApi.assistantTranscript.value"
         :emotion-text="chatApi.assistantTranscript.value"
         :microphone-state="chatApi.microphoneState.value"
         :transcript-confirmation="chatApi.transcriptConfirmation.value"
@@ -78,28 +89,24 @@ onMounted(async () => {
         @stop-recording="chatApi.stopRecording"
         @cancel="chatApi.cancelResponse"
         @confirm-transcript="chatApi.confirmTranscript"
-        @show-sources="(value) => { activeToolPanel = 'sources'; chatApi.sources.value = value; }"
+        @avatar-change="chatApi.setAvatar"
+        @toggle-history="historyOpen = true"
       />
-      <section class="tool-dock" aria-label="辅助信息">
-        <div class="tool-tabs">
-          <button v-for="tab in toolTabs" :key="tab.id" type="button" :class="{ active: activeToolPanel === tab.id }" @click="activeToolPanel = tab.id">
-            {{ tab.label }}
-          </button>
-        </div>
-        <SourcePanel v-show="activeToolPanel === 'sources'" :sources="chatApi.sources.value" />
-        <UploadPanel v-show="activeToolPanel === 'upload'" @uploaded="chatApi.markKnowledgeUpdated" />
-        <RoutePanel v-show="activeToolPanel === 'route'" :sources="chatApi.sources.value" />
-      </section>
     </section>
-    <aside class="history-side" aria-label="历史会话">
-      <SessionSidebar
-        :sessions="sessionsApi.sessions.value"
-        :current-session-id="sessionsApi.currentSessionId.value"
-        :status="sessionsApi.status.value"
-        @new-session="startNewSession"
-        @load-session="loadSession"
-        @delete-current-session="deleteCurrentSession"
-      />
-    </aside>
+    <Transition name="history-drawer">
+      <div v-if="historyOpen" class="history-drawer-backdrop" @click.self="closeHistory">
+        <aside class="history-drawer" aria-label="历史会话" aria-modal="true" role="dialog">
+          <button class="history-drawer-close" type="button" aria-label="关闭历史会话" @click="closeHistory">×</button>
+          <SessionSidebar
+            :sessions="sessionsApi.sessions.value"
+            :current-session-id="sessionsApi.currentSessionId.value"
+            :status="sessionsApi.status.value"
+            @new-session="startNewSession"
+            @load-session="loadSession"
+            @delete-current-session="deleteCurrentSession"
+          />
+        </aside>
+      </div>
+    </Transition>
   </main>
 </template>

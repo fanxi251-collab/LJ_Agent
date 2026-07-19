@@ -13,6 +13,10 @@ export function buildModeSetEvent(mode) {
   return { type: "mode.set", mode: mode === "avatar" ? "avatar" : "text" };
 }
 
+export function buildAvatarSetEvent(avatarId) {
+  return { type: "avatar.set", avatar_id: normalizeAvatarId(avatarId) };
+}
+
 export function buildTranscriptConfirmEvent(turnId, text) {
   return {
     type: "transcript.confirm",
@@ -43,3 +47,4 @@ export function createTurnId() {
   const random = globalThis.crypto?.randomUUID?.().replaceAll("-", "");
   return `turn_${random || `${Date.now()}_${Math.random().toString(16).slice(2)}`}`;
 }
+import { normalizeAvatarId } from "../features/digital-human/lib/live2dCharacters.js";
