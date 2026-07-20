@@ -33,10 +33,11 @@ function parseAnswer(text) {
       flushList();
       continue;
     }
-    if (line.startsWith("### ")) {
+    const headingMatch = line.match(/^#{1,6}\s+/);
+    if (headingMatch) {
       flushParagraph();
       flushList();
-      items.push({ type: "h3", text: line.replace(/^###\s+/, "") });
+      items.push({ type: "h3", text: line.slice(headingMatch[0].length) });
       continue;
     }
     if (line.startsWith("- ")) {

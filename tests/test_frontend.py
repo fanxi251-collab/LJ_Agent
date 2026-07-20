@@ -244,6 +244,9 @@ def test_digital_human_stage_uses_left_visual_and_latest_answer_panel():
     answer_panel_path = feature_root / "components/DigitalHumanAnswerPanel.vue"
     assert answer_panel_path.is_file()
     answer_panel_source = answer_panel_path.read_text(encoding="utf-8")
+    assistant_answer_source = Path("frontend/src/components/AssistantAnswer.vue").read_text(
+        encoding="utf-8"
+    )
     chat_source = Path("frontend/src/components/ChatMain.vue").read_text(encoding="utf-8")
     guide_source = Path("frontend/src/views/GuideView.vue").read_text(encoding="utf-8")
 
@@ -268,7 +271,10 @@ def test_digital_human_stage_uses_left_visual_and_latest_answer_panel():
     assert "scrollHeight - scrollTop - clientHeight" in answer_panel_source
     assert "watch(() => props.answerText" in answer_panel_source
     assert "overflow-y: auto" in answer_panel_source
-    assert "white-space: pre-wrap" in answer_panel_source
+    assert "AssistantAnswer" in answer_panel_source
+    assert '<AssistantAnswer v-if="normalizedAnswer"' in answer_panel_source
+    assert "<p>{{ displayText }}</p>" not in answer_panel_source
+    assert "line.match(/^#{1,6}\\s+/)" in assistant_answer_source
 
     assert "answerText:" in chat_source
     assert ':answer-text="answerText"' in chat_source

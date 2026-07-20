@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from "vue";
+import AssistantAnswer from "../../../components/AssistantAnswer.vue";
 
 const props = defineProps({
   answerText: { type: String, default: "" },
@@ -27,7 +28,6 @@ const emptyCopy = computed(() => ({
 }[props.state] || "向数字人提问后，回答将在这里显示。"));
 
 const normalizedAnswer = computed(() => String(props.answerText || "").trim());
-const displayText = computed(() => normalizedAnswer.value || emptyCopy.value);
 
 function updateFollowState() {
   if (!answerBody.value) return;
@@ -59,7 +59,8 @@ watch(() => props.answerText, async (answerText) => {
       :class="['digital-human-answer-body', { 'is-empty': !normalizedAnswer }]"
       @scroll="updateFollowState"
     >
-      <p>{{ displayText }}</p>
+      <AssistantAnswer v-if="normalizedAnswer" :answer="normalizedAnswer" />
+      <p v-else>{{ emptyCopy }}</p>
     </div>
   </aside>
 </template>
@@ -113,7 +114,7 @@ watch(() => props.answerText, async (answerText) => {
   scrollbar-color: rgba(47, 125, 120, 0.36) transparent;
 }
 
-.digital-human-answer-body p {
+.digital-human-answer-body > p {
   margin: 0;
   color: #274d53;
   font-size: 15px;
@@ -122,13 +123,36 @@ watch(() => props.answerText, async (answerText) => {
   overflow-wrap: anywhere;
 }
 
+.digital-human-answer-body :deep(.answer-text) {
+  margin: 0;
+  color: #274d53;
+  font-size: 15px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.digital-human-answer-body :deep(.answer-text h3) {
+  margin: 14px 0 6px;
+  color: var(--guide-accent, #2f7d78);
+  font-size: 15px;
+}
+
+.digital-human-answer-body :deep(.answer-text h3:first-child) {
+  margin-top: 0;
+}
+
+.digital-human-answer-body :deep(.answer-text p:last-child),
+.digital-human-answer-body :deep(.answer-text ul:last-child) {
+  margin-bottom: 0;
+}
+
 .digital-human-answer-body.is-empty {
   display: grid;
   place-items: center;
   text-align: center;
 }
 
-.digital-human-answer-body.is-empty p {
+.digital-human-answer-body.is-empty > p {
   color: rgba(20, 63, 70, 0.58);
 }
 
@@ -140,7 +164,8 @@ watch(() => props.answerText, async (answerText) => {
 
   .digital-human-answer-header { padding: 10px 14px 8px; }
   .digital-human-answer-body { padding: 10px 14px 13px; }
-  .digital-human-answer-body p { font-size: 14px; line-height: 1.65; }
+  .digital-human-answer-body > p,
+  .digital-human-answer-body :deep(.answer-text) { font-size: 14px; line-height: 1.65; }
 }
 
 @media (max-width: 640px) {
