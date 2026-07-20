@@ -2,9 +2,9 @@ const adminUploadForm = document.querySelector("#adminUploadForm");
 const adminDocumentInput = document.querySelector("#adminDocumentInput");
 const adminUploadButton = document.querySelector("#adminUploadButton");
 const adminUploadStatus = document.querySelector("#adminUploadStatus");
-const adminState = document.querySelector("#adminState");
 const documentCount = document.querySelector("#documentCount");
 const documentList = document.querySelector("#documentList");
+const documentPreviewPanel = document.querySelector("#documentPreviewPanel");
 const documentPreview = document.querySelector("#documentPreview");
 
 adminUploadForm.addEventListener("submit", async (event) => {
@@ -38,14 +38,12 @@ adminUploadForm.addEventListener("submit", async (event) => {
 });
 
 async function loadDocuments() {
-  adminState.textContent = "加载中";
   const response = await fetch("/api/admin/documents");
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.detail || `HTTP ${response.status}`);
   }
   renderDocuments(data.documents || []);
-  adminState.textContent = "管理端在线";
 }
 
 function renderDocuments(documents) {
@@ -74,7 +72,7 @@ function createDocumentRow(item) {
   meta.className = "source-preview";
   meta.textContent = `ID：${item.document_id}；切片：${item.indexed_chunks}；更新时间：${item.updated_at}`;
   const actions = document.createElement("div");
-  actions.className = "upload-actions";
+  actions.className = "document-actions";
   actions.append(
     button("预览", () => previewDocument(item.document_id)),
     button("重新解析", () => reindexDocument(item.document_id)),
@@ -97,13 +95,16 @@ async function previewDocument(documentId) {
   const response = await fetch(`/api/admin/documents/${documentId}/content`);
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.detail || `HTTP ${response.status}`);
+    documentPreview.textContent = "";
+    documentPreviewPanel.hidden = true;
+    adminUploadStatus.textContent = data.detail || `原文预览失败：HTTP ${response.status}`;
+    return;
   }
   documentPreview.textContent = data.content;
+  documentPreviewPanel.hidden = false;
 }
 
 async function reindexDocument(documentId) {
-  adminState.textContent = "重新解析中";
   const response = await fetch(`/api/admin/documents/${documentId}/reindex`, {
     method: "POST",
   });
@@ -125,11 +126,11 @@ async function deleteDocument(documentId) {
     const data = await response.json();
     throw new Error(data.detail || `HTTP ${response.status}`);
   }
-  documentPreview.textContent = "选择资料后可预览原文。";
+  documentPreview.textContent = "";
+  documentPreviewPanel.hidden = true;
   await loadDocuments();
 }
 
 loadDocuments().catch((error) => {
-  adminState.textContent = "加载失败";
   documentList.textContent = error.message;
 });

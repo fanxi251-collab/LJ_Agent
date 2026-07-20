@@ -307,25 +307,29 @@ def create_app(
             return FileResponse(dist_index)
         return HTMLResponse(_visitor_build_hint_html())
 
+    def admin_page_response(filename: str) -> FileResponse:
+        # 管理页禁用 HTML 缓存，避免浏览器继续展示合并冲突前的旧导航结构。
+        return FileResponse(frontend_dir / filename, headers={"Cache-Control": "no-store"})
+
     @app.get("/admin/documents", response_class=FileResponse)
     def admin_documents_page() -> FileResponse:
-        return FileResponse(frontend_dir / "admin_documents.html")
+        return admin_page_response("admin_documents.html")
 
     @app.get("/admin/attractions", response_class=FileResponse)
     def admin_attractions_page() -> FileResponse:
-        return FileResponse(frontend_dir / "admin_attractions.html")
+        return admin_page_response("admin_attractions.html")
 
     @app.get("/admin/foods", response_class=FileResponse)
     def admin_foods_page() -> FileResponse:
-        return FileResponse(frontend_dir / "admin_foods.html")
+        return admin_page_response("admin_foods.html")
 
     @app.get("/admin/feedback", response_class=FileResponse)
     def admin_feedback_page() -> FileResponse:
-        return FileResponse(frontend_dir / "admin_feedback.html")
+        return admin_page_response("admin_feedback.html")
 
     @app.get("/admin/analytics", response_class=FileResponse)
     def admin_analytics_page() -> FileResponse:
-        return FileResponse(frontend_dir / "admin_analytics.html")
+        return admin_page_response("admin_analytics.html")
 
     @app.post("/api/rag/chat", response_model=ChatResponse)
     def chat(request: ChatRequest) -> ChatResponse:

@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>原始资料管理</title>
+    <title>知识库资料管理</title>
     <link rel="stylesheet" href="/static/app.css" />
-    <link rel="stylesheet" href="/static/admin.css" />
+    <link rel="stylesheet" href="/static/admin.css?v=20260718-4" />
   </head>
   <body>
     <div class="admin-app-shell">
       <aside class="admin-sidebar">
         <div class="admin-brand">
           <div class="admin-brand-mark">LJ</div>
-          <div><strong>LingJing AI</strong><span>管理中心</span></div>
+          <div><strong>LingJing AI</strong><span>管理后台</span></div>
         </div>
         <nav class="admin-sidebar-nav" aria-label="管理端导航">
           <a class="admin-nav-item" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客分析</span></a>
@@ -21,25 +21,20 @@
           <a class="admin-nav-item" href="/admin/foods"><svg viewBox="0 0 24 24"><path d="M4 10h16c0 5-3 9-8 9s-8-4-8-9Z" /><path d="M7 10c0-3 2-5 5-5m0 5c0-3 2-5 5-5" /></svg><span>美食推荐</span></a>
           <a class="admin-nav-item" href="/admin/feedback"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4V4Z" /><path d="M8 9h8m-8 4h5" /></svg><span>游客反馈</span></a>
         </nav>
-        <p class="admin-sidebar-note">比赛演示环境<br />结构化内容与游客洞察中心</p>
       </aside>
-      <main class="admin-main">
+      <main class="admin-main documents-admin-main">
         <div class="admin-main-scroll">
-          <section class="chat-shell" aria-label="原始资料管理">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">LingJing AI Admin</p>
-            <h1>原始资料管理</h1>
-          </div>
-          <span class="status-pill" id="adminState">管理端在线</span>
+          <section class="chat-shell documents-admin-shell" aria-label="知识库资料管理">
+        <header class="documents-page-header">
+          <h1>知识库资料管理</h1>
+          <p>上传、解析和维护景区知识资料，并查看入库后的原文内容。</p>
         </header>
         <form id="adminUploadForm" class="upload-panel">
           <div>
-            <p class="section-kicker">知识库资料</p>
             <h2>上传并解析资料</h2>
-            <p id="adminUploadStatus" class="upload-status">支持 UTF-8 编码的 .txt / .md 单文件。</p>
+            <p id="adminUploadStatus" class="upload-status">支持.txt或者.md文件</p>
           </div>
-          <div class="upload-actions">
+          <div class="upload-actions documents-upload-actions">
             <label class="file-picker" for="adminDocumentInput">选择资料</label>
             <input id="adminDocumentInput" name="file" type="file" accept=".txt,.md" />
             <button id="adminUploadButton" type="submit">上传入库</button>
@@ -54,17 +49,17 @@
           <div id="documentList" class="sources-list"></div>
         </section>
 
-        <section class="answer-panel">
+        <section class="answer-panel" id="documentPreviewPanel" hidden>
           <div class="assistant-avatar">MD</div>
           <div class="answer-content">
             <p class="answer-label">原文预览</p>
-            <pre id="documentPreview" class="answer-text">选择资料后可预览原文。</pre>
+            <pre id="documentPreview" class="answer-text"></pre>
           </div>
         </section>
           </section>
         </div>
       </main>
     </div>
-    <script src="/static/admin_documents.js"></script>
+    <script src="/static/admin_documents.js?v=20260718-4"></script>
   </body>
 </html>

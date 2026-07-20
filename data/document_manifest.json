@@ -1,22 +1,22 @@
 [
   {
-    "document_id": "灵山胜境游览指南_d60697bc",
-    "document_name": "灵山胜境游览指南.md",
-    "saved_path": "C:\\Users\\86181\\Desktop\\Python\\LingJing_AI\\data\\uploaded\\灵山胜境游览指南_d60697bc.md",
-    "file_md5": "2addb45dad5402e006216ef45909b0a6",
-    "file_size": 18728,
-    "indexed_chunks": 28,
+    "document_id": "灵山胜境_游览指南_c2b9c0d2",
+    "document_name": "灵山胜境_游览指南.txt",
+    "saved_path": "data/uploaded/灵山胜境_游览指南_c2b9c0d2.txt",
+    "file_md5": "c2b9c0d2dc51abdee533d371112d9aa3",
+    "file_size": 16774,
+    "indexed_chunks": 15,
     "created_at": "2026-07-05T10:03:57.408516+00:00",
-    "updated_at": "2026-07-08T02:56:24.614527+00:00"
+    "updated_at": "2026-07-18T13:27:16+00:00"
   },
   {
-    "document_id": "灵山胜境景点结构化数据集_20e3b6f9",
-    "document_name": "灵山胜境景点结构化数据集.md",
-    "saved_path": "C:\\Users\\86181\\Desktop\\Python\\LingJing_AI\\data\\uploaded\\灵山胜境景点结构化数据集_20e3b6f9.md",
-    "file_md5": "20e3b6f9237671d4c9ea00c3d0579e54",
-    "file_size": 51960,
-    "indexed_chunks": 45,
+    "document_id": "灵山胜境_景点结构化数据集_31f034d6",
+    "document_name": "灵山胜境_景点结构化数据集.txt",
+    "saved_path": "data/uploaded/灵山胜境_景点结构化数据集_31f034d6.txt",
+    "file_md5": "31f034d61c8ccc98dc5a2066d8ae7eb4",
+    "file_size": 48288,
+    "indexed_chunks": 40,
     "created_at": "2026-07-08T02:37:22.407680+00:00",
-    "updated_at": "2026-07-08T02:37:40.754843+00:00"
+    "updated_at": "2026-07-18T13:27:16+00:00"
   }
 ]

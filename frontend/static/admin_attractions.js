@@ -1,6 +1,6 @@
 const elements = Object.fromEntries(
   [
-    "adminState", "newAttractionButton", "attractionSearch", "statusFilter", "attractionList",
+    "newAttractionButton", "attractionSearch", "statusFilter", "attractionList",
     "attractionForm", "formTitle", "formStatus", "attractionId", "name", "category", "summary",
     "description", "tags", "address", "openingHours", "duration", "longitude", "latitude",
     "sortOrder", "status", "featured", "placeSearchButton", "archiveButton", "imageInput",
@@ -20,7 +20,6 @@ elements.archiveButton.addEventListener("click", archiveAttraction);
 elements.uploadImageButton.addEventListener("click", uploadImage);
 
 async function loadAttractions() {
-  setState("加载中");
   const params = new URLSearchParams();
   if (elements.statusFilter.value) params.set("status", elements.statusFilter.value);
   const response = await fetch("/api/admin/attractions" + (params.size ? `?${params}` : ""));
@@ -28,7 +27,6 @@ async function loadAttractions() {
   if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
   attractions = data.attractions || [];
   renderFilteredAttractions();
-  setState("管理端在线");
 }
 
 function renderFilteredAttractions() {
@@ -51,6 +49,7 @@ function renderFilteredAttractions() {
 
 function selectAttraction(item) {
   selected = item;
+  elements.newAttractionButton.hidden = false;
   elements.formTitle.textContent = `编辑：${item.name}`;
   elements.formStatus.textContent = `更新于 ${formatDate(item.updated_at)}`;
   elements.attractionId.value = item.attraction_id;
@@ -73,13 +72,14 @@ function selectAttraction(item) {
 
 function resetForm() {
   selected = null;
+  elements.newAttractionButton.hidden = true;
   elements.attractionForm.reset();
   elements.attractionId.value = "";
   elements.duration.value = "45";
   elements.sortOrder.value = "0";
   elements.formTitle.textContent = "新建景点";
   elements.formStatus.textContent = "尚未保存";
-  elements.imageList.innerHTML = "<p>保存景点后可上传图片。</p>";
+  elements.imageList.innerHTML = '<p class="image-empty-note">保存景点后可上传图片。</p>';
   renderFilteredAttractions();
 }
 
@@ -124,7 +124,7 @@ async function archiveAttraction() {
   if (!response.ok) return setFormStatus(data.detail || "归档失败。", true);
   resetForm();
   await loadAttractions();
-  setState("景点已归档");
+  setFormStatus("景点已归档", false);
 }
 
 async function uploadImage() {
@@ -148,7 +148,10 @@ async function uploadImage() {
 
 function renderImages(images) {
   elements.imageList.innerHTML = "";
-  if (!images.length) return void (elements.imageList.textContent = "暂无图片。发布前请设置封面。 ");
+  if (!images.length) {
+    elements.imageList.innerHTML = '<p class="image-empty-note">暂无图片。发布前请设置封面。</p>';
+    return;
+  }
   images.forEach((image) => {
     const card = document.createElement("article");
     card.className = "admin-image-card";
@@ -208,7 +211,6 @@ function actionButton(label, handler) {
   return button;
 }
 
-function setState(message) { elements.adminState.textContent = message; }
 function setFormStatus(message, isError) {
   elements.formStatus.textContent = message;
   elements.formStatus.classList.toggle("error-text", Boolean(isError));
@@ -223,6 +225,5 @@ function escapeHtml(value) {
 
 resetForm();
 loadAttractions().catch((error) => {
-  setState("加载失败");
   elements.attractionList.textContent = error.message;
 });

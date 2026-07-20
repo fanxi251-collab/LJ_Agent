@@ -28,6 +28,16 @@ def build_report(
     overall = round(mean(item.deterministic_score for item in scores), 2) if scores else 0.0
     freshness_values = [item.freshness_score for item in scores if item.freshness_score is not None]
     groundedness_values = [item.groundedness_score for item in scores]
+    scenic_scores = [
+        item
+        for item in scores
+        if case_by_id[item.case_id].category in {"factual", "explanation", "robustness"}
+    ]
+    scenic_pass_rate = (
+        round(100.0 * sum(item.passed for item in scenic_scores) / len(scenic_scores), 2)
+        if scenic_scores
+        else None
+    )
     report = {
         "report_version": "qa_eval_report_v1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -46,6 +56,8 @@ def build_report(
             "passed_cases": sum(item.passed for item in scores),
             "failed_cases": sum(not item.passed for item in scores),
             "critical_failures": sum(item.critical_failure for item in scores),
+            "scenic_factual_accuracy": scenic_pass_rate,
+            "scenic_factual_case_count": len(scenic_scores),
             "retrieval_hit_rate": _metric_rate(scores, "retrieval_hit"),
             "answerability_accuracy": _metric_rate(scores, "answerability_correct"),
             "tool_accuracy": _metric_rate(scores, "tool_correct"),
@@ -53,6 +65,8 @@ def build_report(
             "first_token_ms_p95": _percentile(_latencies(scores, "first_token_ms"), 95),
             "total_ms_p50": _percentile(_latencies(scores, "total_ms"), 50),
             "total_ms_p95": _percentile(_latencies(scores, "total_ms"), 95),
+            "scoring_policy": "contest_soft_v1",
+            "pass_threshold": 60.0,
         },
         "groups": {
             "destination": _group_scores(scores, case_by_id, "destination"),
@@ -116,6 +130,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"- 资料忠实度：{summary['groundedness_score']}",
         f"- 信息新鲜度：{summary['freshness_score'] if summary['freshness_score'] is not None else '不适用/待核验'}",
         f"- 通过/失败/关键失败：{summary['passed_cases']}/{summary['failed_cases']}/{summary['critical_failures']}",
+        f"- 景区事实问答准确率：{summary.get('scenic_factual_accuracy')}%（{summary.get('scenic_factual_case_count')}题，竞赛口径）",
+        f"- 评分策略：{summary.get('scoring_policy', 'default')}，通过阈值：{summary.get('pass_threshold', 70)}",
         "",
         "## 分类表现",
         "",

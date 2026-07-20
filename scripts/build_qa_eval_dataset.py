@@ -9,10 +9,10 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = PROJECT_ROOT / "evaluation" / "datasets" / "lingjing_qa_v1.json"
-GUIDE_DOC = "灵山胜境游览指南.md"
-STRUCTURED_DOC = "灵山胜境景点结构化数据集.md"
-GUIDE_MD5 = "2addb45dad5402e006216ef45909b0a6"
-STRUCTURED_MD5 = "20e3b6f9237671d4c9ea00c3d0579e54"
+GUIDE_DOC = "灵山胜境_游览指南.txt"
+STRUCTURED_DOC = "灵山胜境_景点结构化数据集.txt"
+GUIDE_MD5 = "c2b9c0d2dc51abdee533d371112d9aa3"
+STRUCTURED_MD5 = "31f034d61c8ccc98dc5a2066d8ae7eb4"
 VERIFIED_AT = "2026-07-15"
 VALID_UNTIL = "2026-08-14"
 DATASET_CREATED_AT = "2026-07-15T00:00:00+08:00"
@@ -76,7 +76,7 @@ def item(
 
 FACTUAL = [
     item("灵山胜境", "灵山胜境位于哪里？", "灵山胜境位于江苏省无锡市滨湖区马山太湖国家旅游度假区，地址为马山灵山路1号。", ["无锡市", "马山灵山路1号"], section="景区概况", evidence="灵山胜境位于无锡太湖之滨，景点地址为无锡市滨湖区马山灵山路1号。"),
-    item("灵山胜境", "灵山胜境是几A级景区？", "灵山胜境是国家AAAAA级旅游景区。", ["国家AAAAA级旅游景区"], section="景区概况", evidence="景区等级：国家AAAAA级旅游景区。"),
+    item("灵山胜境", "灵山胜境是几A级景区？", "灵山胜境是国家AAAAA级旅游景区。", any_groups=[["国家AAAAA级旅游景区", "国家5A级旅游景区"]], section="景区概况", evidence="景区等级：国家AAAAA级旅游景区。"),
     item("灵山胜境", "灵山大佛有多高？", "资料记载灵山大佛通高88米。", ["88米"], section="核心景点 > 灵山大佛", evidence="灵山大佛通高88米，是景区核心地标。", document=GUIDE_DOC),
     item("灵山胜境", "灵山大照壁有什么特点？", "灵山大照壁长39.8米、高7米，正面题有赵朴初先生书写的“灵山胜境”。", ["39.8米", "7米", "赵朴初"], section="灵山大照壁", evidence="灵山大照壁长39.8m、高7m，赵朴初先生亲笔题写“灵山胜境”。"),
     item("灵山胜境", "五明桥为什么叫五明桥？", "五座桥象征佛教所说的声明、因明、内明、医方明和工巧明五种智慧。", ["声明", "因明", "内明", "医方明", "工巧明"], section="五明桥", evidence="五明桥代表声明、因明、内明、医方明、工巧明五种智慧。"),

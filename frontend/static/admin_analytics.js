@@ -1,7 +1,7 @@
 const elements = Object.fromEntries(
   [
     "loadingState", "errorState", "errorTitle", "errorMessage", "buildCommand", "retryButton",
-    "dashboardContent", "periodBadge", "qualityBadge", "generatedAt", "kpiGrid", "chartFallback",
+    "dashboardContent", "periodBadge", "kpiGrid", "chartFallback",
     "repeatRate", "rankingTabs", "rankingBody", "metricHeading", "insightGrid", "qualityGrid",
   ].map((id) => [id, document.querySelector(`#${id}`)])
 );
@@ -70,7 +70,7 @@ function showError(error) {
 }
 
 function renderDashboard(data) {
-  renderMetadata(data.metadata, data.quality);
+  renderMetadata(data.metadata);
   renderKpis(data.kpis);
   renderDemographics(data.demographics);
   renderRankingTabs(data.attraction_rankings);
@@ -79,11 +79,8 @@ function renderDashboard(data) {
   renderCharts(data);
 }
 
-function renderMetadata(metadata, quality) {
+function renderMetadata(metadata) {
   elements.periodBadge.textContent = `${metadata.period_start} — ${metadata.period_end}`;
-  elements.generatedAt.textContent = `生成于 ${formatDateTime(metadata.generated_at)}`;
-  const issueCount = Number(quality.invalid_rows || 0) + Number(quality.missing_cells || 0);
-  elements.qualityBadge.textContent = issueCount === 0 ? "基础校验通过" : `发现 ${formatInteger(issueCount)} 项问题`;
 }
 
 function renderKpis(kpis) {
@@ -221,7 +218,7 @@ function renderCharts(data) {
 
 function renderMonthlyChart(rows) {
   createChart("monthlyChart", {
-    color: ["#176b5b"],
+    color: ["#2563eb"],
     tooltip: { trigger: "axis", valueFormatter: (value) => `${formatInteger(value)} 人次` },
     grid: { left: 54, right: 24, top: 30, bottom: 45 },
     xAxis: { type: "category", data: rows.map((item) => item.month), axisTick: { show: false } },
@@ -231,12 +228,12 @@ function renderMonthlyChart(rows) {
 }
 
 function renderAgeChart(rows) {
-  createChart("ageChart", barOption(rows.map((item) => item.label), rows.map((item) => item.count), "#2f8f79"));
+  createChart("ageChart", barOption(rows.map((item) => item.label), rows.map((item) => item.count), "#7fbf9b"));
 }
 
 function renderGenderChart(rows) {
   createChart("genderChart", {
-    color: ["#176b5b", "#d09b48", "#6d83a8"],
+    color: ["#79a7e8", "#e89ab4", "#7fbf9b"],
     tooltip: { trigger: "item" },
     legend: { bottom: 0 },
     series: [{ type: "pie", radius: ["42%", "68%"], center: ["50%", "45%"], label: { formatter: "{b}\n{d}%" }, data: rows.map((item) => ({ name: item.label, value: item.count })) }],
@@ -244,17 +241,17 @@ function renderGenderChart(rows) {
 }
 
 function renderGroupChart(rows) {
-  createChart("groupChart", barOption(rows.map((item) => item.label), rows.map((item) => item.count), "#d09b48"));
+  createChart("groupChart", barOption(rows.map((item) => item.label), rows.map((item) => item.count), "#e9c46a"));
 }
 
 function renderTypeChart(rows) {
   const ordered = [...rows].sort((a, b) => a.visit_count - b.visit_count);
-  createChart("typeChart", horizontalBarOption(ordered.map((item) => item.name), ordered.map((item) => item.visit_count), "#176b5b"));
+  createChart("typeChart", horizontalBarOption(ordered.map((item) => item.name), ordered.map((item) => item.visit_count), "#79a7e8"));
 }
 
 function renderConsumptionChart(rows) {
   createChart("consumptionChart", {
-    color: ["#176b5b", "#2f8f79", "#d09b48", "#6d83a8", "#a66f55"],
+    color: ["#7fbf9b", "#e9c46a", "#e89ab4", "#b7a3e3", "#79a7e8"],
     tooltip: { trigger: "item", formatter: (params) => `${params.name}<br/>${formatCurrency(params.value)} · ${params.percent}%` },
     legend: { bottom: 0 },
     series: [{ type: "pie", radius: ["38%", "68%"], center: ["50%", "45%"], data: rows.map((item) => ({ name: item.label, value: item.total })) }],
@@ -263,35 +260,53 @@ function renderConsumptionChart(rows) {
 
 function renderTypeCostChart(rows) {
   const ordered = [...rows].sort((a, b) => a.average_total_cost - b.average_total_cost);
-  const option = horizontalBarOption(ordered.map((item) => item.name), ordered.map((item) => item.average_total_cost), "#d09b48");
+  const option = horizontalBarOption(ordered.map((item) => item.name), ordered.map((item) => item.average_total_cost), "#60a5fa");
   option.tooltip = { trigger: "axis", valueFormatter: formatCurrency };
   createChart("typeCostChart", option);
 }
 
 function renderSatisfactionChart(rows) {
-  createChart("satisfactionChart", barOption(rows.map((item) => `${item.score} 分`), rows.map((item) => item.count), "#2f8f79"));
+  createChart("satisfactionChart", barOption(rows.map((item) => `${item.score} 分`), rows.map((item) => item.count), "#3b82f6"));
 }
 
 function renderQuadrantChart(satisfaction) {
-  const points = (satisfaction.quadrants || []).map((item) => [
-    item.average_total_cost,
-    item.average_satisfaction,
-    item.visit_count,
-    item.name,
-  ]);
-  const maxVisits = Math.max(...points.map((item) => item[2]), 1);
+  const labelPositions = {
+    "主题乐园": "top",
+    "博物馆与展馆": "right",
+    "自然公园": "left",
+    "风景名胜与休闲度假": "right",
+    "历史文化": "right",
+    "古镇水乡": "bottom",
+    "动植物园与水族馆": "bottom",
+    "现代地标": "left",
+  };
+  const fallbackPositions = ["top", "right", "bottom", "left"];
+  const points = (satisfaction.quadrants || []).map((item, index) => ({
+    value: [
+      item.average_total_cost,
+      item.average_satisfaction,
+      item.visit_count,
+      item.name,
+    ],
+    label: {
+      position: labelPositions[item.name] || fallbackPositions[index % fallbackPositions.length],
+      distance: 10,
+    },
+  }));
+  const maxVisits = Math.max(...points.map((item) => item.value[2]), 1);
   createChart("quadrantChart", {
-    color: ["#176b5b"],
+    color: ["#2563eb"],
     tooltip: { formatter: (params) => `${params.value[3]}<br/>平均消费：${formatCurrency(params.value[0])}<br/>满意度：${formatDecimal(params.value[1])} 分<br/>访问量：${formatInteger(params.value[2])}` },
-    grid: { left: 66, right: 28, top: 30, bottom: 52 },
-    xAxis: { type: "value", name: "平均消费（元）", splitLine: { lineStyle: { color: "#e7edef" } } },
+    grid: { left: 72, right: 48, top: 46, bottom: 64 },
+    xAxis: { type: "value", name: "平均消费（元）", nameLocation: "middle", nameGap: 34, splitLine: { lineStyle: { color: "#e7edef" } } },
     yAxis: { type: "value", name: "满意度", min: 1, max: 5, splitLine: { lineStyle: { color: "#e7edef" } } },
     series: [{
       type: "scatter",
       data: points,
-      symbolSize: (value) => 16 + Math.sqrt(value[2] / maxVisits) * 34,
-      label: { show: true, formatter: (params) => params.value[3], position: "top", fontSize: 10 },
-      itemStyle: { opacity: 0.78 },
+      symbolSize: (value) => 10 + Math.sqrt(value[2] / maxVisits) * 20,
+      label: { show: true, formatter: (params) => params.value[3], fontSize: 9, color: "#475569" },
+      labelLayout: { hideOverlap: true, moveOverlap: "shiftY" },
+      itemStyle: { opacity: 0.72 },
       markLine: {
         silent: true,
         symbol: "none",

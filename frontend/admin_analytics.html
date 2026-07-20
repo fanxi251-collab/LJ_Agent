@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>游客数据分析</title>
     <link rel="stylesheet" href="/static/app.css" />
-    <link rel="stylesheet" href="/static/admin.css" />
+    <link rel="stylesheet" href="/static/admin.css?v=20260718-6" />
   </head>
   <body>
     <div class="admin-app-shell">
       <aside class="admin-sidebar">
         <div class="admin-brand">
           <div class="admin-brand-mark">LJ</div>
-          <div><strong>LingJing AI</strong><span>管理中心</span></div>
+          <div><strong>LingJing AI</strong><span>管理后台</span></div>
         </div>
         <nav class="admin-sidebar-nav" aria-label="管理端导航">
           <a class="admin-nav-item active" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客分析</span></a>
@@ -21,21 +21,17 @@
           <a class="admin-nav-item" href="/admin/foods"><svg viewBox="0 0 24 24"><path d="M4 10h16c0 5-3 9-8 9s-8-4-8-9Z" /><path d="M7 10c0-3 2-5 5-5m0 5c0-3 2-5 5-5" /></svg><span>美食推荐</span></a>
           <a class="admin-nav-item" href="/admin/feedback"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4V4Z" /><path d="M8 9h8m-8 4h5" /></svg><span>游客反馈</span></a>
         </nav>
-        <p class="admin-sidebar-note">比赛演示环境<br />结构化内容与游客洞察中心</p>
       </aside>
 
       <main class="admin-main">
         <div class="admin-main-scroll analytics-shell">
           <header class="analytics-header">
             <div class="analytics-title">
-              <p class="eyebrow">Tourism Intelligence</p>
               <h1>游客数据分析</h1>
               <p>以年度静态示例数据呈现游客画像、游览偏好、消费结构与满意度洞察。</p>
             </div>
             <div class="analytics-meta-badges">
-              <span class="analytics-badge">静态示例数据</span>
               <span class="analytics-badge" id="periodBadge">统计周期加载中</span>
-              <span class="analytics-badge" id="qualityBadge">数据质量检查中</span>
             </div>
           </header>
 
@@ -57,7 +53,6 @@
             <section class="analytics-section">
               <div class="analytics-section-heading">
                 <div><h2>年度客流趋势</h2><p>按月份观察游览记录变化与高峰月份。</p></div>
-                <span class="analytics-badge" id="generatedAt">快照时间加载中</span>
               </div>
               <div class="chart tall" id="monthlyChart" role="img" aria-label="月度游览趋势图"></div>
             </section>
@@ -89,7 +84,7 @@
 
             <section class="analytics-section">
               <div class="analytics-section-heading">
-                <div><h2>游客消费分析</h2><p>展示游客消费构成，不代表景区营收。</p></div>
+                <div><h2>游客消费分析</h2><p>分析游客在门票、餐饮、购物、交通和娱乐等方面的消费结构，并比较不同景点类型的平均消费水平，为产品组合与服务优化提供依据。</p></div>
               </div>
               <div class="chart-grid-2">
                 <article class="chart-panel"><h3>五类消费构成</h3><div class="chart tall" id="consumptionChart"></div></article>
@@ -99,7 +94,7 @@
 
             <section class="analytics-section">
               <div class="analytics-section-heading">
-                <div><h2>满意度与价值四象限</h2><p>气泡大小代表访问量，虚线为整体平均水平。</p></div>
+                <div><h2>满意度与价值四象限</h2><p>综合比较游客满意度与消费水平，识别高价值、高口碑及需要改善的景点类型；四象限图中的气泡大小表示访问量，虚线表示整体平均水平。</p></div>
               </div>
               <div class="chart-grid-2">
                 <article class="chart-panel"><h3>满意度分布</h3><div class="chart tall" id="satisfactionChart"></div></article>
@@ -108,12 +103,12 @@
             </section>
 
             <section class="analytics-section">
-              <div class="analytics-section-heading"><div><h2>运营洞察</h2><p>根据固定统计规则生成，不调用大模型。</p></div></div>
+              <div class="analytics-section-heading"><div><h2>运营洞察</h2><p>汇总年度客流、核心客群、消费与口碑特征，帮助运营人员快速识别重点机会并制定优化方向。</p></div></div>
               <div class="insight-grid" id="insightGrid"></div>
             </section>
 
             <section class="analytics-section">
-              <div class="analytics-section-heading"><div><h2>数据质量</h2><p>用于说明快照可信边界和异常数量。</p></div></div>
+              <div class="analytics-section-heading"><div><h2>数据质量</h2><p>检查缺失、重复、无效数据及消费合计差异，帮助判断分析结果的完整性与可靠程度。</p></div></div>
               <div class="quality-grid" id="qualityGrid"></div>
             </section>
           </div>
@@ -121,6 +116,6 @@
       </main>
     </div>
     <script src="/static/vendor/echarts.min.js"></script>
-    <script src="/static/admin_analytics.js"></script>
+    <script src="/static/admin_analytics.js?v=20260718-7"></script>
   </body>
 </html>

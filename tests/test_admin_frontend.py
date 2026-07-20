@@ -1,5 +1,6 @@
 ﻿import asyncio
 from pathlib import Path
+import re
 
 import httpx
 
@@ -37,13 +38,16 @@ def test_admin_documents_page_and_assets_are_served(tmp_path: Path):
     script = request_path(app, "/static/admin_documents.js")
 
     assert page.status_code == 200
-    assert "原始资料管理" in page.text
+    assert "知识库资料管理" in page.text
+    assert 'id="documentPreviewPanel" hidden' in page.text
     assert "/static/admin_documents.js" in page.text
     assert script.status_code == 200
     assert 'fetch("/api/admin/documents"' in script.text
     assert 'fetch(`/api/admin/documents/${documentId}/content`' in script.text
     assert 'fetch(`/api/admin/documents/${documentId}/reindex`' in script.text
     assert 'fetch(`/api/admin/documents/${documentId}`' in script.text
+    assert "documentPreviewPanel.hidden = false" in script.text
+    assert "documentPreviewPanel.hidden = true" in script.text
     assert "confirm(" in script.text
 
 
@@ -85,7 +89,38 @@ def test_all_admin_pages_share_sidebar_navigation(tmp_path: Path):
         assert 'href="/admin/foods"' in page.text
         assert 'href="/admin/feedback"' in page.text
         assert f'class="admin-nav-item active" href="{path}"' in page.text
+        assert page.text.count('class="admin-nav-item') == 5
+        assert page.text.count('class="admin-nav-item active"') == 1
+        assert "<<<<<<<" not in page.text
+        assert "=======" not in page.text
+        assert ">>>>>>>" not in page.text
         assert "/static/admin.css" in page.text
+
+
+def test_admin_pages_disable_html_caching(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+
+    for path in (
+        "/admin/analytics",
+        "/admin/attractions",
+        "/admin/documents",
+        "/admin/foods",
+        "/admin/feedback",
+    ):
+        page = request_path(app, path)
+
+        assert page.status_code == 200
+        assert page.headers["cache-control"] == "no-store"
+
+
+def test_admin_sidebar_prevents_navigation_items_from_crossing_its_boundary(tmp_path: Path):
+    app = create_app(build_pipeline(tmp_path))
+    styles = request_path(app, "/static/admin.css")
+
+    assert styles.status_code == 200
+    assert re.search(r"\.admin-sidebar\s*\{[^}]*min-width:\s*0;[^}]*overflow:\s*hidden;", styles.text, re.S)
+    assert re.search(r"\.admin-sidebar-nav\s*\{[^}]*width:\s*100%;[^}]*min-width:\s*0;", styles.text, re.S)
+    assert re.search(r"\.admin-nav-item\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%;", styles.text, re.S)
 
 
 def test_admin_foods_page_exposes_crud_location_and_image_workflow(tmp_path: Path):
@@ -129,6 +164,10 @@ def test_admin_analytics_page_and_local_chart_assets_are_served(tmp_path: Path):
 
     assert page.status_code == 200
     assert "游客数据分析" in page.text
+    assert "为产品组合与服务优化提供依据" in page.text
+    assert "四象限图中的气泡大小表示访问量" in page.text
+    assert "帮助运营人员快速识别重点机会" in page.text
+    assert "帮助判断分析结果的完整性与可靠程度" in page.text
     assert "/static/vendor/echarts.min.js" in page.text
     assert "/static/admin_analytics.js" in page.text
     assert script.status_code == 200

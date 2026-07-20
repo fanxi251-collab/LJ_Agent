@@ -4,15 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>景点资料管理</title>
-    <link rel="stylesheet" href="/static/app.css" />
-    <link rel="stylesheet" href="/static/admin.css" />
+    <link rel="stylesheet" href="/static/app.css?v=20260718-2" />
+    <link rel="stylesheet" href="/static/admin.css?v=20260718-3" />
   </head>
   <body>
     <div class="admin-app-shell">
       <aside class="admin-sidebar">
         <div class="admin-brand">
           <div class="admin-brand-mark">LJ</div>
-          <div><strong>LingJing AI</strong><span>管理中心</span></div>
+          <div><strong>LingJing AI</strong><span>管理后台</span></div>
         </div>
         <nav class="admin-sidebar-nav" aria-label="管理端导航">
           <a class="admin-nav-item" href="/admin/analytics"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /></svg><span>游客分析</span></a>
@@ -21,24 +21,20 @@
           <a class="admin-nav-item" href="/admin/foods"><svg viewBox="0 0 24 24"><path d="M4 10h16c0 5-3 9-8 9s-8-4-8-9Z" /><path d="M7 10c0-3 2-5 5-5m0 5c0-3 2-5 5-5" /></svg><span>美食推荐</span></a>
           <a class="admin-nav-item" href="/admin/feedback"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4V4Z" /><path d="M8 9h8m-8 4h5" /></svg><span>游客反馈</span></a>
         </nav>
-        <p class="admin-sidebar-note">比赛演示环境<br />结构化内容与游客洞察中心</p>
       </aside>
-      <main class="admin-main">
+      <main class="admin-main attractions-admin-main">
         <div class="admin-main-scroll">
           <section class="chat-shell attraction-admin-shell" aria-label="景点资料管理">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">LingJing AI Admin</p>
-            <h1>景点资料管理</h1>
-          </div>
-          <span class="status-pill" id="adminState">管理端在线</span>
+        <header class="attractions-page-header">
+          <h1>景点资料管理</h1>
+          <p>集中维护景点基础信息、发布状态、地理坐标与图片素材。</p>
         </header>
 
         <section class="admin-attraction-layout">
           <aside class="sources-panel attraction-list-panel">
             <div class="section-heading">
               <h2>景点列表</h2>
-              <button id="newAttractionButton" type="button">新建景点</button>
+              <button id="newAttractionButton" type="button" hidden>新建景点</button>
             </div>
             <div class="admin-filters">
               <input id="attractionSearch" type="search" placeholder="搜索景点名称" />
@@ -83,11 +79,13 @@
 
             <section class="image-manager">
               <div class="section-heading"><h2>景点图片</h2><span>单张最大 5 MB</span></div>
-              <div class="upload-actions">
-                <label class="file-picker" for="imageInput">选择图片</label>
-                <input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
-                <label class="checkbox-field"><input id="imageIsCover" type="checkbox" />设为封面</label>
-                <button id="uploadImageButton" type="button">上传图片</button>
+              <div class="image-upload-controls">
+                <div class="image-upload-buttons">
+                  <label class="file-picker" for="imageInput">选择图片</label>
+                  <input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                  <button id="uploadImageButton" type="button">上传图片</button>
+                </div>
+                <label class="checkbox-field image-cover-option"><input id="imageIsCover" type="checkbox" />设为封面</label>
               </div>
               <div id="imageList" class="admin-image-grid"></div>
             </section>
@@ -97,6 +95,6 @@
         </div>
       </main>
     </div>
-    <script src="/static/admin_attractions.js"></script>
+    <script src="/static/admin_attractions.js?v=20260718-3"></script>
   </body>
 </html>
