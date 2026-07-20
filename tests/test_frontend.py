@@ -431,8 +431,10 @@ def test_food_and_feedback_views_have_complete_visitor_flows():
     assert "询问 AI 导游" in food_drawer
     assert 'fetch("/api/visitor/feedback"' in feedback_source
     assert "getOrCreateVisitorId" in feedback_source
+    assert "fetchWithNetworkRetry" in feedback_source
     assert "request_id" in feedback_source
     assert "待处理" in feedback_source
+    assert "服务暂时无法连接，请稍后点击“刷新进度”重试。" in feedback_source
     assert '"/media/foods": "http://127.0.0.1:8000"' in vite_config
 
 

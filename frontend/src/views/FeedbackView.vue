@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
+import { fetchWithNetworkRetry } from "../lib/fetchWithNetworkRetry";
 import { getOrCreateVisitorId } from "../lib/visitorIdentity";
 
 const visitorId = getOrCreateVisitorId();
@@ -21,13 +22,18 @@ function createRequestId() {
 
 async function loadHistory() {
   try {
-    const response = await fetch(`/api/visitor/feedback?visitor_id=${encodeURIComponent(visitorId)}`);
+    const response = await fetchWithNetworkRetry(
+      `/api/visitor/feedback?visitor_id=${encodeURIComponent(visitorId)}`,
+      { retries: 1 },
+    );
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
     history.value = data.feedback || [];
     historyState.value = history.value.length ? "" : "你还没有提交过反馈。";
   } catch (error) {
-    historyState.value = `处理进度加载失败：${error.message}`;
+    historyState.value = error instanceof TypeError
+      ? "服务暂时无法连接，请稍后点击“刷新进度”重试。"
+      : `处理进度加载失败：${error.message}`;
   }
 }
 

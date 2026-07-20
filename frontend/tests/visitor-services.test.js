@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { filterFoods } from "../src/features/food/lib/foodFilters.js";
+import { fetchWithNetworkRetry } from "../src/lib/fetchWithNetworkRetry.js";
 import { normalizeAttractionPlace, normalizeFoodPlace } from "../src/lib/mapPlaces.js";
 import { getOrCreateVisitorId } from "../src/lib/visitorIdentity.js";
 
@@ -79,4 +80,24 @@ test("map places preserve source identity and use distinct attraction and food k
   assert.equal(attraction.kind, "attraction");
   assert.equal(food.place_id, "food:food_1");
   assert.equal(food.kind, "food");
+});
+
+
+test("feedback history retries one transient network failure", async () => {
+  let attempts = 0;
+  const response = { ok: true, json: async () => ({ feedback: [] }) };
+  const fetchImpl = async () => {
+    attempts += 1;
+    if (attempts === 1) throw new TypeError("Failed to fetch");
+    return response;
+  };
+
+  const result = await fetchWithNetworkRetry("/api/visitor/feedback", {
+    fetchImpl,
+    retries: 1,
+    wait: async () => {},
+  });
+
+  assert.equal(result, response);
+  assert.equal(attempts, 2);
 });
